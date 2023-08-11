@@ -1,0 +1,17 @@
+[package]
+name = "facti"
+version = "0.1.0"
+authors = ["Adam Hellberg <sharparam@sharparm.com>"]
+edition = "2021"
+description = "Factorio mod tool"
+homepage = "https://github.com/Sharparam/facti"
+repository = "https://github.com/Sharparam/facti"
+license = "MPL-2.0"
+keywords = ["factorio"]
+categories = ["command-line-utilities"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+regex = "1.9.3"
+semver = "1.0.18"
