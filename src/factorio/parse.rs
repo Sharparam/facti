@@ -13,7 +13,7 @@ impl FromStr for Version {
     type Err = VersionParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let parts = s.split('.').collect::<Vec<_>>();
+        let parts = s.trim().split('.').map(|p| p.trim()).collect::<Vec<_>>();
 
         if parts.len() != 3 {
             return Err(VersionParseError::InvalidSize(3, parts.len()));
@@ -31,7 +31,7 @@ impl FromStr for FactorioVersion {
     type Err = VersionParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let parts = s.split('.').collect::<Vec<_>>();
+        let parts = s.trim().split('.').map(|p| p.trim()).collect::<Vec<_>>();
 
         if parts.len() != 2 {
             return Err(VersionParseError::InvalidSize(2, parts.len()));
