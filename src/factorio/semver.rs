@@ -10,9 +10,9 @@ impl From<semver::Version> for Version {
     }
 }
 
-impl Into<semver::Version> for Version {
-    fn into(self) -> semver::Version {
-        semver::Version::new(self.major, self.minor, self.patch)
+impl From<Version> for semver::Version {
+    fn from(value: Version) -> Self {
+        Self::new(value.major, value.minor, value.patch)
     }
 }
 
@@ -31,9 +31,9 @@ impl TryFrom<semver::Op> for Op {
     }
 }
 
-impl Into<semver::Op> for Op {
-    fn into(self) -> semver::Op {
-        match self {
+impl From<Op> for semver::Op {
+    fn from(value: Op) -> Self {
+        match value {
             Op::Exact => semver::Op::Exact,
             Op::Greater => semver::Op::Greater,
             Op::GreaterEq => semver::Op::GreaterEq,
@@ -60,9 +60,9 @@ impl TryFrom<semver::VersionReq> for VersionReq {
     }
 }
 
-impl Into<semver::VersionReq> for VersionReq {
-    fn into(self) -> semver::VersionReq {
-        match self {
+impl From<VersionReq> for semver::VersionReq {
+    fn from(value: VersionReq) -> Self {
+        match value {
             VersionReq::Latest => semver::VersionReq::STAR,
             VersionReq::Spec(spec) => spec.into(),
         }
@@ -91,14 +91,14 @@ impl TryFrom<semver::VersionReq> for VersionSpec {
     }
 }
 
-impl Into<semver::VersionReq> for VersionSpec {
-    fn into(self) -> semver::VersionReq {
+impl From<VersionSpec> for semver::VersionReq {
+    fn from(value: VersionSpec) -> Self {
         semver::VersionReq {
             comparators: vec![semver::Comparator {
-                op: self.op.into(),
-                major: self.version.major,
-                minor: Some(self.version.minor),
-                patch: Some(self.version.patch),
+                op: value.op.into(),
+                major: value.version.major,
+                minor: Some(value.version.minor),
+                patch: Some(value.version.patch),
                 pre: semver::Prerelease::EMPTY,
             }],
         }
