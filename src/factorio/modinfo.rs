@@ -1,69 +1,27 @@
-use semver::{Version, VersionReq};
+use serde::{Deserialize, Serialize};
 
-use super::FactorioVersion;
+use super::{dependency::Dependency, version::Version, FactorioVersion};
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum DependencyMode {
-    Required,
-    Optional { hidden: bool },
-    Independent,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Compatibility {
-    Compatible(VersionReq, DependencyMode),
-    Incompatible,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Dependency {
-    pub name: String,
-    pub compatibility: Compatibility,
-}
-
-impl Dependency {
-    pub fn new(name: String, compatibility: Compatibility) -> Self {
-        Self {
-            name,
-            compatibility,
-        }
-    }
-
-    pub fn required(name: String, version_req: VersionReq) -> Self {
-        Self::new(
-            name,
-            Compatibility::Compatible(version_req, DependencyMode::Required),
-        )
-    }
-
-    pub fn optional(name: String, version_req: VersionReq, hidden: bool) -> Self {
-        Self::new(
-            name,
-            Compatibility::Compatible(version_req, DependencyMode::Optional { hidden }),
-        )
-    }
-
-    pub fn independent(name: String, version_req: VersionReq) -> Self {
-        Self::new(
-            name,
-            Compatibility::Compatible(version_req, DependencyMode::Independent),
-        )
-    }
-
-    pub fn incompatible(name: String) -> Self {
-        Self::new(name, Compatibility::Incompatible)
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ModInfo {
     pub name: String,
+
     pub version: Version,
+
     pub title: String,
+
     pub author: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub contact: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub homepage: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+
     pub factorio_version: FactorioVersion,
+
     pub dependencies: Vec<Dependency>,
 }

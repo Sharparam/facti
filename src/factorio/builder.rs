@@ -1,19 +1,22 @@
-use semver::Version;
-
-use super::{modinfo::Dependency, FactorioVersion, ModInfo};
+use super::{dependency::Dependency, version::Version, FactorioVersion, ModInfo};
 
 pub struct ModInfoBuilder {
     info: ModInfo,
 }
 
 impl ModInfoBuilder {
-    pub fn new(name: String, version: Version, title: String, author: String) -> Self {
+    pub fn new<T: Into<String>, V: Into<Version>>(
+        name: T,
+        version: V,
+        title: T,
+        author: T,
+    ) -> Self {
         Self {
             info: ModInfo {
-                name,
-                version,
-                title,
-                author,
+                name: name.into(),
+                version: version.into(),
+                title: title.into(),
+                author: author.into(),
                 contact: None,
                 homepage: None,
                 description: None,
@@ -23,18 +26,18 @@ impl ModInfoBuilder {
         }
     }
 
-    pub fn contact(&mut self, contact: String) -> &mut Self {
-        self.info.contact = Some(contact);
+    pub fn contact<T: Into<String>>(&mut self, contact: T) -> &mut Self {
+        self.info.contact = Some(contact.into());
         self
     }
 
-    pub fn homepage(&mut self, homepage: String) -> &mut Self {
-        self.info.homepage = Some(homepage);
+    pub fn homepage<T: Into<String>>(&mut self, homepage: T) -> &mut Self {
+        self.info.homepage = Some(homepage.into());
         self
     }
 
-    pub fn description(&mut self, description: String) -> &mut Self {
-        self.info.description = Some(description);
+    pub fn description<T: Into<String>>(&mut self, description: T) -> &mut Self {
+        self.info.description = Some(description.into());
         self
     }
 
@@ -60,7 +63,7 @@ impl ModInfoBuilder {
 
 #[cfg(test)]
 mod tests {
-    use semver::VersionReq;
+    use crate::factorio::version::VersionReq;
 
     use super::*;
 
@@ -75,7 +78,10 @@ mod tests {
             homepage: None,
             description: None,
             factorio_version: FactorioVersion::new(0, 12),
-            dependencies: vec![Dependency::required("angel".to_string(), VersionReq::STAR)],
+            dependencies: vec![Dependency::required(
+                "angel".to_string(),
+                VersionReq::Latest,
+            )],
         };
 
         let mut builder = ModInfoBuilder::new(
@@ -84,7 +90,10 @@ mod tests {
             "Bob's Library".to_string(),
             "Bob".to_string(),
         );
-        builder.dependency(Dependency::required("angel".to_string(), VersionReq::STAR));
+        builder.dependency(Dependency::required(
+            "angel".to_string(),
+            VersionReq::Latest,
+        ));
         let built = builder.build();
 
         assert_eq!(built, expected);

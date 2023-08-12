@@ -1,9 +1,82 @@
 use std::{str::FromStr, sync::OnceLock};
 
 use regex::Regex;
-use semver::VersionReq;
 
-use super::modinfo::{Compatibility, Dependency, DependencyMode};
+use super::{
+    dependency::{Compatibility, Dependency, DependencyMode},
+    version::{Version, VersionReq, VersionSpec},
+    FactorioVersion,
+};
+
+#[derive(Debug, Eq, PartialEq)]
+pub struct VersionParseError;
+
+impl FromStr for Version {
+    type Err = VersionParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let parts = s.split('.').collect::<Vec<_>>();
+
+        if parts.len() != 3 {
+            return Err(VersionParseError);
+        }
+
+        let major = parts[0].parse().map_err(|_| VersionParseError)?;
+        let minor = parts[1].parse().map_err(|_| VersionParseError)?;
+        let patch = parts[2].parse().map_err(|_| VersionParseError)?;
+
+        Ok(Version::new(major, minor, patch))
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct FactorioVersionParseError;
+
+impl FromStr for FactorioVersion {
+    type Err = FactorioVersionParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let parts = s.split('.').collect::<Vec<_>>();
+
+        if parts.len() != 2 {
+            return Err(FactorioVersionParseError);
+        }
+
+        let major = parts[0].parse().map_err(|_| FactorioVersionParseError)?;
+        let minor = parts[1].parse().map_err(|_| FactorioVersionParseError)?;
+
+        Ok(FactorioVersion::new(major, minor))
+    }
+}
+
+#[derive(Debug, Eq, PartialEq)]
+pub struct VersionReqParseError;
+
+impl FromStr for VersionReq {
+    type Err = VersionReqParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let trimmed = s.trim();
+        if trimmed.is_empty() {
+            return Ok(VersionReq::Latest);
+        }
+
+        let spec: VersionSpec = trimmed.parse().map_err(|_| VersionReqParseError)?;
+
+        Ok(VersionReq::Spec(spec))
+    }
+}
+
+pub struct VersionSpecParseError;
+
+impl FromStr for VersionSpec {
+    type Err = VersionSpecParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let semver_req = semver::VersionReq::parse(s).map_err(|_| VersionSpecParseError)?;
+        semver_req.try_into().map_err(|_| VersionSpecParseError)
+    }
+}
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct ParseDependencyError;
@@ -32,21 +105,23 @@ impl FromStr for Dependency {
         let name = captures.name("name").unwrap().as_str().to_string();
         let version_req = captures
             .name("version_spec")
-            .map_or(VersionReq::STAR, |m| VersionReq::parse(m.as_str()).unwrap());
+            .map_or(VersionReq::Latest, |m| {
+                VersionReq::parse(m.as_str()).unwrap()
+            });
 
         let compat = captures.name("mode").map_or(
-            Compatibility::Compatible(version_req.clone(), DependencyMode::Required),
+            Compatibility::Compatible(DependencyMode::Required, version_req.clone()),
             |m| match m.as_str() {
                 "!" => Compatibility::Incompatible,
                 "?" => Compatibility::Compatible(
-                    version_req,
                     DependencyMode::Optional { hidden: false },
+                    version_req,
                 ),
                 "(?)" => Compatibility::Compatible(
-                    version_req,
                     DependencyMode::Optional { hidden: true },
+                    version_req,
                 ),
-                "~" => Compatibility::Compatible(version_req, DependencyMode::Independent),
+                "~" => Compatibility::Compatible(DependencyMode::Independent, version_req),
                 _ => unreachable!(),
             },
         );
@@ -57,6 +132,8 @@ impl FromStr for Dependency {
 
 #[cfg(test)]
 mod tests {
+    use crate::factorio::dependency::{Compatibility, DependencyMode};
+
     use super::*;
 
     #[test]
@@ -68,8 +145,8 @@ mod tests {
             Dependency::new(
                 "boblibrary".to_string(),
                 Compatibility::Compatible(
-                    VersionReq::parse(">=0.17.0").unwrap(),
-                    DependencyMode::Required
+                    DependencyMode::Required,
+                    VersionReq::parse(">= 0.17.0").unwrap()
                 )
             )
         );
@@ -83,7 +160,7 @@ mod tests {
             d,
             Dependency::new(
                 "boblibrary".to_string(),
-                Compatibility::Compatible(VersionReq::STAR, DependencyMode::Required)
+                Compatibility::Compatible(DependencyMode::Required, VersionReq::Latest)
             )
         );
     }
@@ -97,8 +174,8 @@ mod tests {
             Dependency::new(
                 "boblibrary".to_string(),
                 Compatibility::Compatible(
-                    VersionReq::parse(">= 0.17.0").unwrap(),
-                    DependencyMode::Optional { hidden: false }
+                    DependencyMode::Optional { hidden: false },
+                    VersionReq::parse(">= 0.17.0").unwrap()
                 )
             )
         );
@@ -113,8 +190,8 @@ mod tests {
             Dependency::new(
                 "boblibrary".to_string(),
                 Compatibility::Compatible(
-                    VersionReq::STAR,
-                    DependencyMode::Optional { hidden: false }
+                    DependencyMode::Optional { hidden: false },
+                    VersionReq::Latest
                 )
             )
         );
@@ -129,8 +206,8 @@ mod tests {
             Dependency::new(
                 "boblibrary".to_string(),
                 Compatibility::Compatible(
-                    VersionReq::parse(">= 0.17.0").unwrap(),
-                    DependencyMode::Optional { hidden: true }
+                    DependencyMode::Optional { hidden: true },
+                    VersionReq::parse(">= 0.17.0").unwrap()
                 )
             )
         );
@@ -145,8 +222,8 @@ mod tests {
             Dependency::new(
                 "boblibrary".to_string(),
                 Compatibility::Compatible(
-                    VersionReq::STAR,
-                    DependencyMode::Optional { hidden: true }
+                    DependencyMode::Optional { hidden: true },
+                    VersionReq::Latest
                 )
             )
         );
@@ -171,8 +248,8 @@ mod tests {
             Dependency::new(
                 "boblibrary".to_string(),
                 Compatibility::Compatible(
-                    VersionReq::parse(">= 0.17.0").unwrap(),
-                    DependencyMode::Independent
+                    DependencyMode::Independent,
+                    VersionReq::parse(">= 0.17.0").unwrap()
                 )
             )
         );
@@ -186,7 +263,7 @@ mod tests {
             d,
             Dependency::new(
                 "boblibrary".to_string(),
-                Compatibility::Compatible(VersionReq::STAR, DependencyMode::Independent)
+                Compatibility::Compatible(DependencyMode::Independent, VersionReq::Latest)
             )
         );
     }
