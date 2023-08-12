@@ -27,4 +27,19 @@ pub struct ModInfo {
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub dependencies: Vec<Dependency>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub package: Option<ModPackageInfo>,
+}
+
+#[derive(Default, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ModPackageInfo {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub readme: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub faq: Option<String>,
+
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub gallery: Vec<String>,
 }

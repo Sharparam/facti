@@ -24,6 +24,7 @@ impl ModInfoBuilder {
                 description: None,
                 factorio_version: Default::default(),
                 dependencies: Vec::new(),
+                package: None,
             },
         }
     }
@@ -58,14 +59,36 @@ impl ModInfoBuilder {
         self
     }
 
-    pub fn build(&self) -> ModInfo {
+    pub fn readme<T: Into<String>>(&mut self, readme: T) -> &mut Self {
+        self.info
+            .package
+            .get_or_insert_with(Default::default)
+            .readme = Some(readme.into());
+        self
+    }
+
+    pub fn faq<T: Into<String>>(&mut self, faq: T) -> &mut Self {
+        self.info.package.get_or_insert_with(Default::default).faq = Some(faq.into());
+        self
+    }
+
+    pub fn gallery<T: Into<String>>(&mut self, gallery: T) -> &mut Self {
+        self.info
+            .package
+            .get_or_insert_with(Default::default)
+            .gallery
+            .push(gallery.into());
+        self
+    }
+
+    pub fn build(&mut self) -> ModInfo {
         self.info.clone()
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::factorio::version::VersionReq;
+    use crate::factorio::{modinfo::ModPackageInfo, version::VersionReq};
 
     use super::*;
 
@@ -84,6 +107,10 @@ mod tests {
                 "angel".to_string(),
                 VersionReq::Latest,
             )],
+            package: Some(ModPackageInfo {
+                readme: Some("README.md".to_string()),
+                ..Default::default()
+            }),
         };
 
         let mut builder = ModInfoBuilder::new(
@@ -96,6 +123,7 @@ mod tests {
             "angel".to_string(),
             VersionReq::Latest,
         ));
+        builder.readme("README.md");
         let built = builder.build();
 
         assert_eq!(built, expected);
