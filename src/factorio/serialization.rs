@@ -32,7 +32,7 @@ impl<'de> Deserialize<'de> for Version {
             where
                 E: serde::de::Error,
             {
-                Version::from_str(v).map_err(|_| serde::de::Error::custom("invalid version string"))
+                Version::parse(v).map_err(|_| serde::de::Error::custom("invalid version string"))
             }
         }
 
@@ -79,15 +79,7 @@ impl<'de> Visitor<'de> for FactorioVersionVisitor {
     where
         E: serde::de::Error,
     {
-        FactorioVersion::from_str(v)
-            .map_err(|_| serde::de::Error::custom("invalid Factorio version string"))
-    }
-
-    fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
-    where
-        E: serde::de::Error,
-    {
-        FactorioVersion::from_str(&v)
+        FactorioVersion::parse(v)
             .map_err(|_| serde::de::Error::custom("invalid Factorio version string"))
     }
 }
@@ -97,8 +89,7 @@ impl Serialize for Dependency {
     where
         S: serde::Serializer,
     {
-        let str = &self.to_string();
-        serializer.serialize_str(str)
+        serializer.collect_str(self)
     }
 }
 
@@ -120,7 +111,7 @@ impl<'de> Deserialize<'de> for Dependency {
             where
                 E: serde::de::Error,
             {
-                Dependency::from_str(v)
+                Dependency::parse(v)
                     .map_err(|_| serde::de::Error::custom("invalid dependency string"))
             }
         }
