@@ -3,6 +3,7 @@ use facti::factorio::{
     version::{Version, VersionReq},
     FactorioVersion, ModInfo, ModInfoBuilder,
 };
+use url::Url;
 
 fn main() {
     // Explicitly leave contact null to test serialize of None
@@ -12,7 +13,7 @@ fn main() {
         "Cybersyn Combinator",
         "Sharparam <sharparam@sharparam.com>",
     )
-    .homepage("https://sharparam.com")
+    .homepage(Url::parse("https://sharparam.com").unwrap())
     .description("My fancy mod!")
     .factorio_version(FactorioVersion::new(1, 71))
     .dependency(Dependency::required("project-cybersyn", VersionReq::Latest))

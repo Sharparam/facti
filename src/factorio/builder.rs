@@ -1,3 +1,5 @@
+use url::Url;
+
 use super::{dependency::Dependency, version::Version, FactorioVersion, ModInfo};
 
 pub struct ModInfoBuilder {
@@ -31,8 +33,8 @@ impl ModInfoBuilder {
         self
     }
 
-    pub fn homepage<T: Into<String>>(&mut self, homepage: T) -> &mut Self {
-        self.info.homepage = Some(homepage.into());
+    pub fn homepage(&mut self, homepage: Url) -> &mut Self {
+        self.info.homepage = Some(homepage);
         self
     }
 

@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use url::Url;
 
 use super::{dependency::Dependency, version::Version, FactorioVersion};
 
@@ -16,7 +17,7 @@ pub struct ModInfo {
     pub contact: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub homepage: Option<String>,
+    pub homepage: Option<Url>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
