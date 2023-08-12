@@ -7,13 +7,13 @@ use super::{
 };
 
 impl Display for Version {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
     }
 }
 
 impl Display for FactorioVersion {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}.{}", self.major, self.minor)
     }
 }
@@ -45,7 +45,7 @@ impl Display for VersionSpec {
     }
 }
 
-impl fmt::Display for DependencyMode {
+impl Display for DependencyMode {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         use DependencyMode::*;
         match self {
@@ -56,7 +56,7 @@ impl fmt::Display for DependencyMode {
     }
 }
 
-impl fmt::Display for Dependency {
+impl Display for Dependency {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         use Compatibility::*;
         match &self.compatibility {
