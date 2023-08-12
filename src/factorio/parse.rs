@@ -4,12 +4,10 @@ use regex::Regex;
 
 use super::{
     dependency::{Compatibility, Dependency, DependencyMode},
+    error::{DependencyParseError, VersionParseError},
     version::{Version, VersionReq, VersionSpec},
     FactorioVersion,
 };
-
-#[derive(Debug, Eq, PartialEq)]
-pub struct VersionParseError;
 
 impl FromStr for Version {
     type Err = VersionParseError;
@@ -18,42 +16,36 @@ impl FromStr for Version {
         let parts = s.split('.').collect::<Vec<_>>();
 
         if parts.len() != 3 {
-            return Err(VersionParseError);
+            return Err(VersionParseError::InvalidSize(3, parts.len()));
         }
 
-        let major = parts[0].parse().map_err(|_| VersionParseError)?;
-        let minor = parts[1].parse().map_err(|_| VersionParseError)?;
-        let patch = parts[2].parse().map_err(|_| VersionParseError)?;
+        let major = parts[0].parse().map_err(VersionParseError::InvalidMajor)?;
+        let minor = parts[1].parse().map_err(VersionParseError::InvalidMinor)?;
+        let patch = parts[2].parse().map_err(VersionParseError::InvalidPatch)?;
 
         Ok(Version::new(major, minor, patch))
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub struct FactorioVersionParseError;
-
 impl FromStr for FactorioVersion {
-    type Err = FactorioVersionParseError;
+    type Err = VersionParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let parts = s.split('.').collect::<Vec<_>>();
 
         if parts.len() != 2 {
-            return Err(FactorioVersionParseError);
+            return Err(VersionParseError::InvalidSize(2, parts.len()));
         }
 
-        let major = parts[0].parse().map_err(|_| FactorioVersionParseError)?;
-        let minor = parts[1].parse().map_err(|_| FactorioVersionParseError)?;
+        let major = parts[0].parse().map_err(VersionParseError::InvalidMajor)?;
+        let minor = parts[1].parse().map_err(VersionParseError::InvalidMinor)?;
 
         Ok(FactorioVersion::new(major, minor))
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
-pub struct VersionReqParseError;
-
 impl FromStr for VersionReq {
-    type Err = VersionReqParseError;
+    type Err = VersionParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let trimmed = s.trim();
@@ -61,28 +53,23 @@ impl FromStr for VersionReq {
             return Ok(VersionReq::Latest);
         }
 
-        let spec: VersionSpec = trimmed.parse().map_err(|_| VersionReqParseError)?;
+        let spec: VersionSpec = trimmed.parse()?;
 
         Ok(VersionReq::Spec(spec))
     }
 }
 
-pub struct VersionSpecParseError;
-
 impl FromStr for VersionSpec {
-    type Err = VersionSpecParseError;
+    type Err = VersionParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let semver_req = semver::VersionReq::parse(s).map_err(|_| VersionSpecParseError)?;
-        semver_req.try_into().map_err(|_| VersionSpecParseError)
+        let semver_req = semver::VersionReq::parse(s).map_err(VersionParseError::InvalidSemver)?;
+        semver_req.try_into()
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub struct ParseDependencyError;
-
 impl FromStr for Dependency {
-    type Err = ParseDependencyError;
+    type Err = DependencyParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         static RE: OnceLock<Regex> = OnceLock::new();
@@ -100,12 +87,15 @@ impl FromStr for Dependency {
             .unwrap()
         });
 
-        let captures = re.captures(s).ok_or(ParseDependencyError)?;
+        let captures = re
+            .captures(s)
+            .ok_or(DependencyParseError::RegexMismatch(s.to_string()))?;
 
         let name = captures.name("name").unwrap().as_str().to_string();
         let version_req = captures
             .name("version_spec")
             .map_or(VersionReq::Latest, |m| {
+                // Given that the regex succeeded, we know it's safe to `unwrap` here
                 VersionReq::parse(m.as_str()).unwrap()
             });
 

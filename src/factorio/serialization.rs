@@ -30,7 +30,7 @@ impl<'de> Deserialize<'de> for Version {
             where
                 E: serde::de::Error,
             {
-                Version::parse(v).map_err(|_| serde::de::Error::custom("invalid version string"))
+                Version::parse(v).map_err(|_| serde::de::Error::custom("invalid version"))
             }
         }
 
@@ -53,32 +53,32 @@ impl<'de> Deserialize<'de> for FactorioVersion {
     where
         D: serde::Deserializer<'de>,
     {
+        struct FactorioVersionVisitor;
+
+        impl<'de> Visitor<'de> for FactorioVersionVisitor {
+            type Value = FactorioVersion;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("a valid Factorio version string ('major.minor')")
+            }
+
+            fn visit_none<E>(self) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                Ok(FactorioVersion::default())
+            }
+
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                FactorioVersion::parse(v)
+                    .map_err(|_| serde::de::Error::custom("invalid Factorio version"))
+            }
+        }
+
         deserializer.deserialize_str(FactorioVersionVisitor)
-    }
-}
-
-struct FactorioVersionVisitor;
-
-impl<'de> Visitor<'de> for FactorioVersionVisitor {
-    type Value = FactorioVersion;
-
-    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-        formatter.write_str("a valid Factorio version string ('major.minor')")
-    }
-
-    fn visit_none<E>(self) -> Result<Self::Value, E>
-    where
-        E: serde::de::Error,
-    {
-        Ok(FactorioVersion::default())
-    }
-
-    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-    where
-        E: serde::de::Error,
-    {
-        FactorioVersion::parse(v)
-            .map_err(|_| serde::de::Error::custom("invalid Factorio version string"))
     }
 }
 
@@ -109,8 +109,7 @@ impl<'de> Deserialize<'de> for Dependency {
             where
                 E: serde::de::Error,
             {
-                Dependency::parse(v)
-                    .map_err(|_| serde::de::Error::custom("invalid dependency string"))
+                Dependency::parse(v).map_err(|_| serde::de::Error::custom("invalid dependency"))
             }
         }
 

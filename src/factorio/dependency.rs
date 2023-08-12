@@ -1,4 +1,4 @@
-use super::{parse::ParseDependencyError, version::VersionReq};
+use super::{error::DependencyParseError, version::VersionReq};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum DependencyMode {
@@ -52,7 +52,7 @@ impl Dependency {
         Self::new(name, Compatibility::Incompatible)
     }
 
-    pub fn parse(s: &str) -> Result<Self, ParseDependencyError> {
+    pub fn parse(s: &str) -> Result<Self, DependencyParseError> {
         s.parse()
     }
 }

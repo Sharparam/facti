@@ -1,4 +1,7 @@
-use super::version::{Op, Version, VersionReq, VersionSpec};
+use super::{
+    error::VersionParseError,
+    version::{Op, Version, VersionReq, VersionSpec},
+};
 
 impl From<semver::Version> for Version {
     fn from(value: semver::Version) -> Self {
@@ -17,7 +20,7 @@ impl From<Version> for semver::Version {
 }
 
 impl TryFrom<semver::Op> for Op {
-    type Error = ();
+    type Error = VersionParseError;
 
     fn try_from(value: semver::Op) -> Result<Self, Self::Error> {
         match value {
@@ -26,7 +29,7 @@ impl TryFrom<semver::Op> for Op {
             semver::Op::GreaterEq => Ok(Op::GreaterEq),
             semver::Op::Less => Ok(Op::Less),
             semver::Op::LessEq => Ok(Op::LessEq),
-            _ => Err(()),
+            _ => Err(VersionParseError::InvalidOp),
         }
     }
 }
@@ -44,7 +47,7 @@ impl From<Op> for semver::Op {
 }
 
 impl TryFrom<semver::VersionReq> for VersionReq {
-    type Error = ();
+    type Error = VersionParseError;
 
     fn try_from(value: semver::VersionReq) -> Result<Self, Self::Error> {
         if value == semver::VersionReq::STAR {
@@ -54,7 +57,7 @@ impl TryFrom<semver::VersionReq> for VersionReq {
             return Ok(VersionReq::Latest);
         }
 
-        let spec = value.try_into().map_err(|_| ())?;
+        let spec = value.try_into()?;
 
         Ok(VersionReq::Spec(spec))
     }
@@ -70,22 +73,22 @@ impl From<VersionReq> for semver::VersionReq {
 }
 
 impl TryFrom<semver::VersionReq> for VersionSpec {
-    type Error = ();
+    type Error = VersionParseError;
 
     fn try_from(value: semver::VersionReq) -> Result<Self, Self::Error> {
         if value.comparators.is_empty() {
-            return Err(());
+            return Err(VersionParseError::IncompatibleSemverReq);
         }
 
         if value.comparators.len() > 1 {
-            return Err(());
+            return Err(VersionParseError::IncompatibleSemverReq);
         }
 
         let comp = &value.comparators[0];
         let op = comp.op.try_into()?;
         let major = comp.major;
-        let minor = comp.minor.ok_or(())?;
-        let patch = comp.patch.ok_or(())?;
+        let minor = comp.minor.ok_or(VersionParseError::IncompatibleSemverReq)?;
+        let patch = comp.patch.ok_or(VersionParseError::IncompatibleSemverReq)?;
         let version = Version::new(major, minor, patch);
         Ok(VersionSpec { op, version })
     }

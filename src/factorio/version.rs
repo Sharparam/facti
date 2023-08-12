@@ -1,6 +1,4 @@
-use super::parse::{
-    FactorioVersionParseError, VersionParseError, VersionReqParseError, VersionSpecParseError,
-};
+use super::error::VersionParseError;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Version {
@@ -34,7 +32,7 @@ impl FactorioVersion {
         Self { major, minor }
     }
 
-    pub fn parse(s: &str) -> Result<Self, FactorioVersionParseError> {
+    pub fn parse(s: &str) -> Result<Self, VersionParseError> {
         s.parse()
     }
 }
@@ -64,7 +62,7 @@ pub enum VersionReq {
 }
 
 impl VersionReq {
-    pub fn parse(s: &str) -> Result<Self, VersionReqParseError> {
+    pub fn parse(s: &str) -> Result<Self, VersionParseError> {
         s.parse()
     }
 }
@@ -76,7 +74,7 @@ pub struct VersionSpec {
 }
 
 impl VersionSpec {
-    pub fn parse(s: &str) -> Result<Self, VersionSpecParseError> {
+    pub fn parse(s: &str) -> Result<Self, VersionParseError> {
         s.parse()
     }
 }
@@ -87,7 +85,10 @@ mod tests {
 
     #[test]
     fn test_parse() {
-        assert_eq!("1.80".parse(), Ok(FactorioVersion::new(1, 80)));
+        assert_eq!(
+            FactorioVersion::parse("1.80").unwrap(),
+            FactorioVersion::new(1, 80)
+        );
     }
 
     #[test]

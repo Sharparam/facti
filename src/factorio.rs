@@ -1,6 +1,7 @@
 mod builder;
 pub mod dependency;
 mod display;
+pub mod error;
 pub mod modinfo;
 mod parse;
 mod semver;
