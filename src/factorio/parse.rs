@@ -110,7 +110,7 @@ impl FromStr for Dependency {
             });
 
         let compat = captures.name("mode").map_or(
-            Compatibility::Compatible(DependencyMode::Required, version_req.clone()),
+            Compatibility::Compatible(DependencyMode::Required, version_req),
             |m| match m.as_str() {
                 "!" => Compatibility::Incompatible,
                 "?" => Compatibility::Compatible(
