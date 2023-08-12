@@ -20,7 +20,7 @@ impl ModInfoBuilder {
                 contact: None,
                 homepage: None,
                 description: None,
-                factorio_version: FactorioVersion::new(0, 12),
+                factorio_version: Default::default(),
                 dependencies: Vec::new(),
             },
         }
@@ -77,7 +77,7 @@ mod tests {
             contact: None,
             homepage: None,
             description: None,
-            factorio_version: FactorioVersion::new(0, 12),
+            factorio_version: Default::default(),
             dependencies: vec![Dependency::required(
                 "angel".to_string(),
                 VersionReq::Latest,
