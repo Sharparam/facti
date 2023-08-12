@@ -3,7 +3,7 @@ use std::fmt::{self, Display, Formatter};
 use super::{
     dependency::{Compatibility, Dependency, DependencyMode},
     version::{Op, Version, VersionReq, VersionSpec},
-    FactorioVersion,
+    FactorioVersion, ModInfo,
 };
 
 impl Display for Version {
@@ -72,5 +72,11 @@ impl fmt::Display for Dependency {
             }
             Incompatible => write!(f, "! {}", self.name),
         }
+    }
+}
+
+impl Display for ModInfo {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{} v{} by {}", self.name, self.version, self.author)
     }
 }

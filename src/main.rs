@@ -30,5 +30,5 @@ fn main() {
     let json = std::fs::read_to_string(path).expect("failed to read info.json");
     let info: ModInfo = serde_json::from_str(&json).expect("failed to deserialize info");
 
-    println!("{:#?}", info);
+    println!("Successfully parsed {}: {:#?}", info, info);
 }
