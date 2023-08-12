@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use serde::{de::Visitor, Deserialize, Serialize};
 
 use super::{dependency::Dependency, version::Version, FactorioVersion};
