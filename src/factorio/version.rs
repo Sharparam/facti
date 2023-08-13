@@ -19,6 +19,10 @@ impl Version {
     pub fn parse(s: &str) -> Result<Self, VersionParseError> {
         s.parse()
     }
+
+    pub fn matches(&self, spec: VersionSpec) -> bool {
+        spec.matches(*self)
+    }
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -77,6 +81,16 @@ impl VersionSpec {
     pub fn parse(s: &str) -> Result<Self, VersionParseError> {
         s.parse()
     }
+
+    pub fn matches(&self, version: Version) -> bool {
+        match self.op {
+            Op::Exact => self.version == version,
+            Op::Greater => self.version < version,
+            Op::GreaterEq => self.version <= version,
+            Op::Less => self.version > version,
+            Op::LessEq => self.version >= version,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -110,5 +124,31 @@ mod tests {
             minor_differs,
             vec![FactorioVersion::new(1, 2), FactorioVersion::new(1, 5)]
         );
+    }
+
+    macro_rules! test_specs {
+        ($($name:ident($spec:literal, $version:literal, $expected:expr);)*) => {
+            $(
+                #[test]
+                fn $name() {
+                    let spec = VersionSpec::parse($spec).unwrap();
+                    let version = Version::parse($version).unwrap();
+                    assert_eq!(spec.matches(version), $expected, "expected {} when matching {version} against {spec}", $expected);
+                }
+            )*
+        };
+    }
+
+    test_specs! {
+        same_version_matches_exact("= 1.2.3", "1.2.3", true);
+        diff_major_does_not_match_exact("= 1.2.3", "2.2.3", false);
+        diff_minor_does_not_match_exact("= 1.2.3", "1.3.3", false);
+        diff_patch_does_not_match_exact("= 1.2.3", "1.2.4", false);
+        larger_major_matches_greater("> 1.2.3", "5.2.3", true);
+        larger_minor_matches_greater("> 1.2.3", "1.5.3", true);
+        larger_patch_matches_greater("> 1.2.3", "1.2.5", true);
+        smaller_major_does_not_match_greater("> 1.2.3", "0.2.3", false);
+        smaller_minor_greater_major_matches_greater("> 1.2.3", "3.1.3", true);
+        smaller_patch_greater_major_matches_greater("> 1.2.3", "4.1.0", true);
     }
 }
