@@ -1,12 +1,12 @@
+#![doc = include_str!("../README.md")]
+
 use reqwest::{blocking::RequestBuilder, header};
 use serde::de::DeserializeOwned;
 use url::Url;
 
-use crate::factorio::api::error::ApiErrorKind;
-
 use self::{
     detail::{ModDetailsRequest, ModDetailsResponse},
-    error::ApiError,
+    error::{ApiError, ApiErrorKind},
     image::{
         ImageAddRequest, ImageAddResponse, ImageEditRequest, ImageEditResponse, ImageUploadRequest,
         ImageUploadResponse,

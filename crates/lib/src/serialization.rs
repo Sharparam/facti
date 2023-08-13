@@ -119,7 +119,7 @@ impl<'de> Deserialize<'de> for Dependency {
 
 #[cfg(test)]
 mod tests {
-    use crate::factorio::version::VersionReq;
+    use crate::version::VersionReq;
 
     use super::*;
 

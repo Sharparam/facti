@@ -1,0 +1,20 @@
+[package]
+name = "facti-lib"
+version = "0.1.0"
+authors = ["Adam Hellberg <sharparam@sharparam.com>"]
+edition = "2021"
+description = "Facti common library"
+homepage = "https://github.com/Sharparam/facti/tree/main/crates/lib"
+repository = "https://github.com/Sharparam/facti"
+license = "MPL-2.0"
+keywords = ["factorio"]
+
+[dependencies]
+regex = "1.9.3"
+semver = "1.0.18"
+serde = { version = "1.0.183", features = ["derive"] }
+thiserror = "1.0.44"
+url = { version = "2.4.0", features = ["serde"] }
+
+[dev-dependencies]
+serde_json = "1.0.104"

@@ -1,6 +1,8 @@
+#![doc = include_str!("../README.md")]
+
 use anyhow::Context;
-use facti::factorio::{
-    api::{portal::SearchQuery, ApiClient},
+use facti_api::{portal::SearchQuery, ApiClient};
+use facti_lib::{
     dependency::Dependency,
     version::{Version, VersionReq},
     FactorioVersion, ModInfo, ModInfoBuilder,

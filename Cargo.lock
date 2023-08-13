@@ -180,13 +180,34 @@ name = "facti"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "facti-api",
+ "facti-lib",
+ "serde_json",
+ "url",
+]
+
+[[package]]
+name = "facti-api"
+version = "0.1.0"
+dependencies = [
  "chrono",
- "regex",
+ "facti-lib",
  "reqwest",
- "semver",
  "serde",
  "serde_json",
  "strum",
+ "thiserror",
+ "url",
+]
+
+[[package]]
+name = "facti-lib"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "semver",
+ "serde",
+ "serde_json",
  "thiserror",
  "url",
 ]

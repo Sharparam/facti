@@ -88,7 +88,7 @@ impl ModInfoBuilder {
 
 #[cfg(test)]
 mod tests {
-    use crate::factorio::{modinfo::ModPackageInfo, version::VersionReq};
+    use crate::{modinfo::ModPackageInfo, version::VersionReq};
 
     use super::*;
 

@@ -122,7 +122,7 @@ impl FromStr for Dependency {
 
 #[cfg(test)]
 mod tests {
-    use crate::factorio::dependency::{Compatibility, DependencyMode};
+    use crate::dependency::{Compatibility, DependencyMode};
 
     use super::*;
 

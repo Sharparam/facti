@@ -1,4 +1,5 @@
-pub mod api;
+#![doc = include_str!("../README.md")]
+
 mod builder;
 pub mod dependency;
 mod display;
