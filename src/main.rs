@@ -1,5 +1,6 @@
 use anyhow::Context;
 use facti::factorio::{
+    api::{portal::SearchQuery, ApiClient},
     dependency::Dependency,
     version::{Version, VersionReq},
     FactorioVersion, ModInfo, ModInfoBuilder,
@@ -7,6 +8,34 @@ use facti::factorio::{
 use url::Url;
 
 fn main() -> anyhow::Result<()> {
+    test_modinfo()?;
+    test_api()?;
+
+    Ok(())
+}
+
+fn test_api() -> anyhow::Result<()> {
+    let client = ApiClient::builder().build();
+
+    let search_query = SearchQuery {
+        namelist: Some(vec!["cybersyn".to_string()]),
+        ..Default::default()
+    };
+
+    let search_result = client.search(search_query)?;
+
+    println!("search result: {:#?}", search_result);
+
+    let short = client.info_short("cybersyn-combinator")?;
+    println!("short: {:#?}", short);
+
+    let full = client.info_full("cybersyn-combinator")?;
+    println!("full: {:#?}", full);
+
+    Ok(())
+}
+
+fn test_modinfo() -> anyhow::Result<()> {
     // Explicitly leave out contact to test serialize of None
     let info = ModInfoBuilder::new(
         "cybersyn-combinator",
