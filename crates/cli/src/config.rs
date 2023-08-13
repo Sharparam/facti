@@ -1,14 +1,14 @@
 use std::{
     env,
     fs::{self, File},
-    io::{BufRead, BufReader, Read, Write},
-    path::{Path, PathBuf},
+    io::{BufReader, Read, Write},
+    path::PathBuf,
 };
 
 use anyhow::{Context, Result};
 use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
-use tracing::{debug, info};
+use tracing::debug;
 
 const APP_QUALIFIER: &str = "com";
 const APP_ORG: &str = "Sharparam";
