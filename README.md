@@ -6,6 +6,10 @@ A tool to interact with [Factorio][factorio] [mods][factorio-mods] both locally 
 
 *TODO*
 
+## CLI
+
+[See CLI docs for more information.](crates/cli/README.md)
+
 ## License
 
 Copyright © 2023 by [Adam Hellberg][sharparam].

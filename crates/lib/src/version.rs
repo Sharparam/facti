@@ -1,5 +1,16 @@
 use super::error::VersionParseError;
 
+/// Represents a mod's version, in (limited) semver format.
+///
+/// # Examples
+///
+/// ```
+/// use facti_lib::version::Version;
+///
+/// let my_version = Version { major: 1, minor: 2, patch: 3 };
+///
+/// println!("My version is: {}", my_version);
+/// ```
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Version {
     pub major: u64,
