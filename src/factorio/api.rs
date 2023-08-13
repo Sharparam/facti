@@ -203,7 +203,7 @@ impl ApiClientBuilder {
     }
 
     pub fn build(self) -> ApiClient {
-        let client = self.client.unwrap_or(reqwest::blocking::Client::new());
+        let client = self.client.unwrap_or_default();
         let base_url = self
             .base_url
             .unwrap_or(Url::parse(DEFAULT_BASE_URL).unwrap());

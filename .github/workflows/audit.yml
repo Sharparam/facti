@@ -9,6 +9,10 @@ on:
       - '**/Cargo.lock'
   pull_request:
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   audit:
     runs-on: ubuntu-latest
