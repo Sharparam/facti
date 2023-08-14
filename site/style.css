@@ -1,0 +1,17 @@
+.icon {
+  vertical-align: sub;
+  padding-right: .25rem;
+  display: inline-block;
+  width: 1em;
+  height: 1.3em;
+  margin-right: 0.2rem;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+}
+
+img.creative-commons {
+  height: 22px !important;
+  margin-left: 3px;
+  vertical-align: text-bottom;
+}
