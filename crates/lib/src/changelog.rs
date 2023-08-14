@@ -5,6 +5,7 @@ use std::{
 
 use pest::Parser;
 use pest_derive::Parser;
+use thiserror::Error;
 
 use crate::version::Version;
 
@@ -49,16 +50,17 @@ pub enum CategoryType {
 #[grammar = "changelog/grammar.pest"]
 struct ChangelogParser;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum ChangelogParseError {
-    Pest(pest::error::Error<Rule>),
+    #[error("Pest error when parsing")]
+    Pest(#[source] Box<pest::error::Error<Rule>>),
 }
 
 pub fn parse(content: &str) -> Result<Changelog, ChangelogParseError> {
     let mut result = Changelog { sections: vec![] };
 
     let changelog = ChangelogParser::parse(Rule::changelog, content)
-        .map_err(ChangelogParseError::Pest)?
+        .map_err(|e| ChangelogParseError::Pest(Box::new(e)))?
         .next()
         .unwrap();
 
