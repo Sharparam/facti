@@ -8,9 +8,7 @@ homepage = "https://github.com/Sharparam/facti"
 repository = "https://github.com/Sharparam/facti"
 license = "MPL-2.0"
 keywords = ["factorio"]
-categories = ["command-line-utilities"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]
 anyhow = "1.0.72"

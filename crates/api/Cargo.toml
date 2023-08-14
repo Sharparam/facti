@@ -4,10 +4,11 @@ version = "0.1.0"
 authors = ["Adam Hellberg <sharparam@sharparam.com>"]
 edition = "2021"
 description = "Provides tools for interacting with Factorio REST APIs"
-homepage = "https://github.com/Sharparam/facti/tree/main/crates/api"
-repository = "https://github.com/Sharparam/facti"
+homepage = "https://facti.rs"
+repository = "https://github.com/Sharparam/facti/tree/main/api"
 license = "MPL-2.0"
 keywords = ["factorio"]
+categories = ["api-bindings"]
 
 [dependencies]
 chrono = { version = "0.4.26", features = ["serde"] }
