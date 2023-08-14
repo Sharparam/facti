@@ -28,6 +28,7 @@ pub struct Verbosity<L: LogLevel = ErrorLevel> {
 }
 
 impl<L: LogLevel> Verbosity<L> {
+    #[allow(dead_code)]
     pub fn new(verbose: u8, quiet: u8) -> Self {
         Verbosity {
             verbose,
@@ -36,6 +37,7 @@ impl<L: LogLevel> Verbosity<L> {
         }
     }
 
+    #[allow(dead_code)]
     pub fn log_level(&self) -> Option<tracing::Level> {
         level_enum(self.verbosity())
     }
@@ -50,6 +52,7 @@ impl<L: LogLevel> Verbosity<L> {
         self.verbose > 0 || self.quiet > 0
     }
 
+    #[allow(dead_code)]
     pub fn is_silent(&self) -> bool {
         self.log_level().is_none()
     }

@@ -89,6 +89,7 @@ impl Config {
         Ok(config)
     }
 
+    #[allow(dead_code)]
     pub fn save(&self, path: ConfigPath) -> Result<()> {
         let config_path = match path {
             ConfigPath::Default => Self::default_path()?,
