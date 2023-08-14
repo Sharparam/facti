@@ -2,6 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use strum::Display;
 use url::Url;
 
 use facti_lib::{dependency::Dependency, version::Version, FactorioVersion};
@@ -45,13 +46,13 @@ where
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SearchResponse {
     pub pagination: Pagination,
     pub results: Vec<SearchResult>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SearchResult {
     #[serde(rename = "downloads_count")]
     pub download_count: u32,
@@ -80,7 +81,33 @@ pub struct SearchResult {
     pub license: Option<License>,
 }
 
-#[derive(Debug, Deserialize)]
+impl Display for SearchResult {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.name)?;
+
+        let version: Option<Version> = match &self.latest_release {
+            Some(release) => Some(release.version),
+            None => match &self.releases {
+                Some(releases) if !releases.is_empty() => {
+                    let mut clone = releases.to_vec();
+                    clone.sort_by(|a, b| b.version.cmp(&a.version));
+                    Some(clone[0].version)
+                }
+                _ => None,
+            },
+        };
+
+        if let Some(version) = version {
+            write!(f, " v{}", version)?;
+        }
+
+        write!(f, " by {}", self.owner)?;
+
+        Ok(())
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Pagination {
     pub count: u32,
     pub links: PaginationLinks,
@@ -89,7 +116,7 @@ pub struct Pagination {
     pub page_size: u32,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PaginationLinks {
     pub first: Option<Url>,
     #[serde(rename = "prev")]
@@ -99,7 +126,7 @@ pub struct PaginationLinks {
     pub last: Option<Url>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Release {
     #[serde(rename = "download_url")]
     pub download_path: String,
@@ -115,13 +142,13 @@ pub struct Release {
     pub sha1: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ReleaseInfo {
     pub factorio_version: FactorioVersion,
     pub dependencies: Option<Vec<Dependency>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct License {
     pub id: detail::License,
     pub name: String,
@@ -144,7 +171,7 @@ impl Default for SearchQuery {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Copy, Clone, Debug, Serialize)]
 pub enum PageSize {
     #[serde(rename = "max")]
     Max,
@@ -187,7 +214,7 @@ where
     serializer.serialize_u32(*size)
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Copy, Clone, Display, Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SortMode {
     Name,
@@ -222,12 +249,13 @@ impl FromStr for SortMode {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Default, Copy, Clone, Display, Debug, Serialize)]
 pub enum SortOrder {
     #[serde(rename = "asc")]
     Ascending,
 
     #[serde(rename = "desc")]
+    #[default]
     Descending,
 }
 
