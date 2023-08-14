@@ -52,6 +52,15 @@ pub enum ApiErrorKind {
     #[strum(to_string = "Failed to read the image file")]
     ImageIo,
 
+    #[strum(to_string = "Invalid page size, must be a number or 'max'")]
+    InvalidPageSize,
+
+    #[strum(to_string = "Invalid sort mode, must be name, created_at, or updated_at")]
+    InvalidSortMode,
+
+    #[strum(to_string = "Invalid sort order, must be 'asc(ending)' or 'desc(ending)'")]
+    InvalidSortOrder,
+
     #[strum(to_string = "Unknown error, please try again later")]
     Unknown,
 }

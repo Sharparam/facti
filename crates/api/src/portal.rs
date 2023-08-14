@@ -1,10 +1,12 @@
-use std::fmt::Display;
+use std::{fmt::Display, str::FromStr};
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
 use facti_lib::{dependency::Dependency, version::Version, FactorioVersion};
+
+use crate::error::{ApiError, ApiErrorKind};
 
 use super::detail::{self, Category, Tag};
 
@@ -151,6 +153,24 @@ pub enum PageSize {
     Custom(u32),
 }
 
+impl FromStr for PageSize {
+    type Err = ApiError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s == "max" {
+            Ok(PageSize::Max)
+        } else {
+            s.parse::<u32>().map(PageSize::Custom).map_err(|_| {
+                ApiError::new(
+                    ApiErrorKind::InvalidPageSize,
+                    format!("{} is not a valid page size", s),
+                    None,
+                )
+            })
+        }
+    }
+}
+
 impl Display for PageSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -175,6 +195,33 @@ pub enum SortMode {
     UpdatedAt,
 }
 
+impl FromStr for SortMode {
+    type Err = ApiError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            s if s.eq_ignore_ascii_case("name") => Ok(SortMode::Name),
+            s if s.eq_ignore_ascii_case("created_at")
+                || s.eq_ignore_ascii_case("createdat")
+                || s.eq_ignore_ascii_case("created") =>
+            {
+                Ok(SortMode::CreatedAt)
+            }
+            s if s.eq_ignore_ascii_case("updated_at")
+                || s.eq_ignore_ascii_case("updatedat")
+                || s.eq_ignore_ascii_case("updated") =>
+            {
+                Ok(SortMode::UpdatedAt)
+            }
+            _ => Err(ApiError::new(
+                ApiErrorKind::InvalidSortMode,
+                format!("{} is not a valid sort mode", s),
+                None,
+            )),
+        }
+    }
+}
+
 #[derive(Debug, Serialize)]
 pub enum SortOrder {
     #[serde(rename = "asc")]
@@ -182,4 +229,24 @@ pub enum SortOrder {
 
     #[serde(rename = "desc")]
     Descending,
+}
+
+impl FromStr for SortOrder {
+    type Err = ApiError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            s if s.eq_ignore_ascii_case("asc") || s.eq_ignore_ascii_case("ascending") => {
+                Ok(SortOrder::Ascending)
+            }
+            s if s.eq_ignore_ascii_case("desc") || s.eq_ignore_ascii_case("descending") => {
+                Ok(SortOrder::Descending)
+            }
+            _ => Err(ApiError::new(
+                ApiErrorKind::InvalidSortOrder,
+                format!("{} is not a valid sort order", s),
+                None,
+            )),
+        }
+    }
 }
