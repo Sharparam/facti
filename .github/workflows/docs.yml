@@ -31,17 +31,19 @@ jobs:
         with:
           command: doc
           args: --release --workspace
+      - name: Prepare staging location
+        run: mkdir -p _site/doc
+      - name: Copy generated docs to staging
+        run: cp -r target/doc/* _site/doc
       - name: Copy custom redirect page
-        run: cp docs/facti_redirect.html target/doc/index.html
+        run: cp docs/facti_redirect.html _site/doc/index.html
       - name: Fix permissions
         run: |
-          chmod -c -R +rX "./target/doc/" | while read line; do
+          chmod -c -R +rX "_site" | while read line; do
             echo "::warning title=Invalid file permissions automatically fixed::$line"
           done
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
-        with:
-          path: './target/doc'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
