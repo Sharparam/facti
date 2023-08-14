@@ -185,11 +185,12 @@ pub struct ModDetailsResponse {
     pub path: String,
 }
 
-#[derive(Copy, Clone, Display, Debug, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone, Display, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 #[strum(serialize_all = "kebab-case")]
 pub enum Category {
-    #[serde(rename = "no-category")]
+    #[default]
+    #[serde(rename = "no-category", alias = "")]
     #[strum(serialize = "no-category")]
     None,
     Content,
