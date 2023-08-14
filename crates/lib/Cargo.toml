@@ -10,6 +10,8 @@ license = "MPL-2.0"
 keywords = ["factorio"]
 
 [dependencies]
+pest = "2.7.2"
+pest_derive = "2.7.2"
 regex = "1.9.3"
 semver = "1.0.18"
 serde = { version = "1.0.183", features = ["derive"] }

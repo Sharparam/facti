@@ -1,0 +1,58 @@
+---------------------------------------------------------------------------------------------------
+Version: 1.2.3
+Date: 2023-08-14
+  Major Features:
+    - Added a new major feature.
+      It made a lot of people happy.
+  Features:
+    - Added a new feature.
+      It made some people happy.
+  Minor Features:
+    - Added a new minor feature.
+      It made a few people happy.
+  Graphics:
+    - Added a new graphics feature.
+      It was quite colorful!
+  Sounds:
+    - Added a new sound.
+      It was quite loud!
+  Optimizations:
+    - Optimized a thing.
+      It made the mod faster.
+  Balancing:
+    - Updated nuclear reactors to be more realistic.
+      Nuclear reactors will now generate *way* more electricity.
+    - Updated solar panels to be more realistic.
+      Solar panels will now generate considerably less electricity.
+  Combat Balancing:
+    - Gave biters rocket launchers.
+      It evened out the odds.
+  Circuit Network:
+    - Changed cable colors to be more colorblind friendly.
+      Red and green cables are now blue and yellow.
+  Changes:
+    - Changed a bit of foo.
+    - A bit of bar.
+    - And also a bit of baz.
+  Bugfixes:
+    - Removed biters.
+      :^)
+  Modding:
+    - Added tons of mods!
+  Scripting:
+    - Rewrote Factorio in Rust.
+  Gui:
+    - Rewrote the GUI in Visual Basic.
+  Control:
+    - Added support for Guitar Hero controllers.
+  Translation:
+    - Lade till svenska som valbart språk.
+  Debug:
+    - New inspector for belts.
+  Ease of use:
+    - Added ability to transfer Factorio saves to your mind.
+  Info:
+    - Spread the word about Factorio.
+      The factory must grow!
+  Locale:
+    - Added support for Klingon.

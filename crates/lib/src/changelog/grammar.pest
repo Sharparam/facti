@@ -1,0 +1,34 @@
+WHITESPACE = _{ " " }
+
+not_newline = _{ !NEWLINE ~ ANY }
+
+section_start = _{ "-"{99} }
+
+major = { ASCII_DIGIT+ }
+minor = { ASCII_DIGIT+ }
+patch = { ASCII_DIGIT+ }
+version = ${ major ~ "." ~ minor ~ "." ~ patch }
+version_line = _{ "Version: " ~ version }
+
+date = { not_newline+ }
+date_line = _{ "Date: " ~ date }
+
+heading = { (!":" ~ ANY | ":" ~ !NEWLINE)+ }
+heading_line = _{ "  " ~ heading ~ ":" }
+
+entry_prefix = _{ " "{4} ~ "- " }
+entry_sub_prefix = _{ " "{6} }
+entry_line = @{ not_newline+ }
+entry_additional = _{ entry_sub_prefix ~ entry_line }
+entry = ${ entry_prefix ~ entry_line ~ (NEWLINE+ ~ entry_additional)* }
+
+category = ${ heading_line ~ (NEWLINE+ ~ entry)+ }
+categories = ${ category ~ (NEWLINE+ ~ category)* }
+
+section = ${
+	section_start ~ NEWLINE ~ version_line ~
+    (NEWLINE+ ~ date_line)? ~
+    (NEWLINE+ ~ categories)?
+}
+
+changelog = { SOI ~ section? ~ (NEWLINE+ ~ section)* ~ (WHITESPACE | NEWLINE)* ~ EOI }
