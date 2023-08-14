@@ -23,7 +23,7 @@ pub mod portal;
 pub mod publish;
 pub mod upload;
 
-const DEFAULT_BASE_URL: &str = "https://mods.factorio.com/api/";
+pub const DEFAULT_BASE_URL: &str = "https://mods.factorio.com/api/";
 
 pub struct ApiClient {
     client: reqwest::blocking::Client,
