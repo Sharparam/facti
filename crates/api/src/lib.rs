@@ -28,22 +28,22 @@ pub const DEFAULT_BASE_URL: &str = "https://mods.factorio.com/api/";
 pub struct ApiClient {
     client: reqwest::blocking::Client,
     base_url: Url,
-    api_token: Option<String>,
+    api_key: Option<String>,
 }
 
 type Result<T> = core::result::Result<T, ApiError>;
 
 impl ApiClient {
-    pub fn new<T: Into<String>>(api_token: T) -> Self {
-        Self::builder().api_token(api_token).build()
+    pub fn new<T: Into<String>>(api_key: Option<T>) -> Self {
+        Self::builder().api_key(api_key).build()
     }
 
     pub fn builder() -> ApiClientBuilder {
         ApiClientBuilder::new()
     }
 
-    pub fn search(&self, query: SearchQuery) -> Result<SearchResponse> {
-        self.get("mods", false, |r| r.query(&query))
+    pub fn search(&self, query: &SearchQuery) -> Result<SearchResponse> {
+        self.get("mods", false, |r| r.query(query))
     }
 
     pub fn info_short(&self, name: &str) -> Result<SearchResult> {
@@ -126,8 +126,8 @@ impl ApiClient {
     {
         let mut request = request.header(header::USER_AGENT, "facti");
         if auth {
-            if let Some(api_token) = &self.api_token {
-                request = request.bearer_auth(api_token)
+            if let Some(api_key) = &self.api_key {
+                request = request.bearer_auth(api_key)
             } else {
                 return Err(ApiError::new(
                     ApiErrorKind::MissingApiKey,
@@ -171,7 +171,7 @@ impl ApiClient {
 
 impl Default for ApiClient {
     fn default() -> Self {
-        Self::new("")
+        Self::new::<String>(None)
     }
 }
 
@@ -179,7 +179,7 @@ impl Default for ApiClient {
 pub struct ApiClientBuilder {
     client: Option<reqwest::blocking::Client>,
     base_url: Option<Url>,
-    api_token: Option<String>,
+    api_key: Option<String>,
 }
 
 impl ApiClientBuilder {
@@ -187,18 +187,18 @@ impl ApiClientBuilder {
         Default::default()
     }
 
-    pub fn client(mut self, client: reqwest::blocking::Client) -> Self {
-        self.client = Some(client);
+    pub fn client(mut self, client: Option<reqwest::blocking::Client>) -> Self {
+        self.client = client;
         self
     }
 
-    pub fn base_url(mut self, base_url: Url) -> Self {
-        self.base_url = Some(base_url);
+    pub fn base_url(mut self, base_url: Option<Url>) -> Self {
+        self.base_url = base_url;
         self
     }
 
-    pub fn api_token<T: Into<String>>(mut self, api_token: T) -> Self {
-        self.api_token = Some(api_token.into());
+    pub fn api_key<T: Into<String>>(mut self, api_key: Option<T>) -> Self {
+        self.api_key = api_key.map(Into::into);
         self
     }
 
@@ -211,7 +211,7 @@ impl ApiClientBuilder {
         ApiClient {
             client,
             base_url,
-            api_token: self.api_token,
+            api_key: self.api_key,
         }
     }
 }

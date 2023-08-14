@@ -3,7 +3,7 @@ use std::io;
 use serde::Deserialize;
 use url::Url;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct InitUploadRequest {
     name: String,
 }

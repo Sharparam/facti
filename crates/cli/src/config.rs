@@ -9,6 +9,9 @@ use anyhow::{Context, Result};
 use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 use tracing::debug;
+use url::Url;
+
+use crate::logging::LogLevelFilter;
 
 const APP_QUALIFIER: &str = "com";
 const APP_ORG: &str = "Sharparam";
@@ -18,14 +21,19 @@ const CONFIG_FILENAME: &str = "config.toml";
 const ENV_CONFIG_PATH: &str = "FACTI_CONFIG";
 const ENV_FACTORIO_API_KEY: &str = "FACTI_FACTORIO_API_KEY";
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
+    pub log_level_filter: Option<LogLevelFilter>,
+
     #[serde(rename = "factorio-api")]
     pub factorio_api: FactorioApiConfig,
 }
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Serialize, Deserialize)]
 pub struct FactorioApiConfig {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub base_url: Option<Url>,
+
     #[serde(rename = "api-key", skip_serializing_if = "Option::is_none")]
     pub api_key: Option<String>,
 }
