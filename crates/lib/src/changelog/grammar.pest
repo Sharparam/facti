@@ -23,7 +23,7 @@ entry_additional = _{ entry_sub_prefix ~ entry_line }
 entry = ${ entry_prefix ~ entry_line ~ (NEWLINE+ ~ entry_additional)* }
 
 category = ${ heading_line ~ (NEWLINE+ ~ entry)+ }
-categories = ${ category ~ (NEWLINE+ ~ category)* }
+categories = _{ category ~ (NEWLINE+ ~ category)* }
 
 section = ${
 	section_start ~ NEWLINE ~ version_line ~
