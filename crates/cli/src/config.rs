@@ -25,7 +25,7 @@ const ENV_FACTORIO_API_KEY: &str = "FACTI_FACTORIO_API_KEY";
 pub struct Config {
     pub log_level_filter: Option<LogLevelFilter>,
 
-    #[serde(rename = "factorio-api")]
+    #[serde(default, rename = "factorio-api")]
     pub factorio_api: FactorioApiConfig,
 }
 
