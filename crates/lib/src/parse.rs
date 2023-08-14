@@ -1,6 +1,7 @@
 use std::{str::FromStr, sync::OnceLock};
 
 use regex::Regex;
+use tracing::warn;
 
 use super::{
     dependency::{Compatibility, Dependency, DependencyMode},
@@ -33,14 +34,24 @@ impl FromStr for FactorioVersion {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let parts = s.trim().split('.').map(|p| p.trim()).collect::<Vec<_>>();
 
-        if parts.len() != 2 {
+        if parts.len() > 3 {
             return Err(VersionParseError::InvalidSize(2, parts.len()));
         }
 
         let major = parts[0].parse().map_err(VersionParseError::InvalidMajor)?;
         let minor = parts[1].parse().map_err(VersionParseError::InvalidMinor)?;
 
-        Ok(FactorioVersion::new(major, minor))
+        let patch: Option<u64> = if parts.len() == 3 {
+            warn!(
+                "Parsing Factorio version with patch number ({}.{}.{})",
+                major, minor, parts[2]
+            );
+            Some(parts[2].parse().map_err(VersionParseError::InvalidPatch)?)
+        } else {
+            None
+        };
+
+        Ok(FactorioVersion::create(major, minor, patch))
     }
 }
 

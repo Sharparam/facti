@@ -1,3 +1,5 @@
+use tracing::warn;
+
 use super::error::VersionParseError;
 
 /// Represents a mod's version, in (limited) semver format.
@@ -40,15 +42,40 @@ impl Version {
 pub struct FactorioVersion {
     pub major: u64,
     pub minor: u64,
+    pub(crate) patch: Option<u64>,
 }
 
 impl FactorioVersion {
     pub fn new(major: u64, minor: u64) -> Self {
-        Self { major, minor }
+        Self {
+            major,
+            minor,
+            patch: None,
+        }
     }
 
     pub fn parse(s: &str) -> Result<Self, VersionParseError> {
         s.parse()
+    }
+
+    /// Constructs a potentially invalid Factorio version, which may include
+    /// a patch version.
+    ///
+    /// Normally this should not be possible, but some mods on the portal have
+    /// a patch version specified and will fail to parse if we don't allow it.
+    pub(crate) fn create(major: u64, minor: u64, patch: Option<u64>) -> Self {
+        if patch.is_some() {
+            warn!(
+                "Constructing invalid Factorio version: {}.{}.{:?}",
+                major, minor, patch
+            );
+        }
+
+        Self {
+            major,
+            minor,
+            patch,
+        }
     }
 }
 
@@ -57,6 +84,7 @@ impl Default for FactorioVersion {
         Self {
             major: 0,
             minor: 12,
+            patch: None,
         }
     }
 }

@@ -43,7 +43,12 @@ impl Serialize for FactorioVersion {
     where
         S: serde::Serializer,
     {
-        let str = format!("{}.{}", self.major, self.minor);
+        let str = if let Some(patch) = self.patch {
+            format!("{}.{}.{}", self.major, self.minor, patch)
+        } else {
+            format!("{}.{}", self.major, self.minor)
+        };
+
         serializer.serialize_str(str.as_str())
     }
 }
