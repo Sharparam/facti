@@ -1,1 +1,4 @@
 /target
+
+# Ignore dir used for site staging files
+_site/
