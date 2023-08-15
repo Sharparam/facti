@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
  - Proper changelog.
+ - New helper function on `facti_lib::ModInfo` to construct a builder:
+   `facti_lib::ModInfo::builder(...)`.
+
+### Fixed
+
+ - Adjusted generic type args on `facti_lib::ModInfoBuilder` to avoid possible
+   issue of conflicting types.
+
+### Removed
+
+ - `facti_lib::ModInfoBuilder::new(...)` is no longer publicly accessible,
+   instead use the new `facti_lib::ModInfo::builder(...)` helper.
 
 ## [0.1.0] - 2023-08-15
 
