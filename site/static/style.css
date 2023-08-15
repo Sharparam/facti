@@ -1,4 +1,4 @@
-.icon {
+/* .icon {
   vertical-align: sub;
   padding-right: .25rem;
   display: inline-block;
@@ -8,6 +8,14 @@
   stroke-width: 0;
   stroke: currentColor;
   fill: currentColor;
+} */
+
+footer > p + p {
+  margin-top: 0;
+}
+
+footer > p:not(:last-child) {
+  margin-bottom: 0.25rem;
 }
 
 img.creative-commons {

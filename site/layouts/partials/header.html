@@ -1,0 +1,28 @@
+<header>
+  {{ partial "menu" (dict "menuId" "main" "page" .) }}
+  <h1>{{ .Title }}</h1>
+  {{ with .Params.tagline}}<p>{{ . }}</p>{{ end }}
+  {{ if .IsHome }}
+  <nav class="externals">
+    <a href="https://crates.io/crates/facti">
+      {{ partial "icons/icon" (dict "vendor" "simple-icons" "name" "rust") }}
+      crates.io
+    </a>
+    <a href="https://lib.rs/crates/facti">
+      lib.rs
+    </a>
+    <a href="https://docs.rs/facti/latest/facti">
+      {{ partial "icons/icon" (dict "vendor" "simple-icons" "name" "docsdotrs") }}
+      docs.rs
+    </a>
+    <a href="https://matrix.to/#/#facti:sharparam.com">
+      {{ partial "icons/icon" (dict "vendor" "simple-icons" "name" "matrix") }}
+      Matrix
+    </a>
+    <a href="https://github.com/Sharparam/facti">
+      {{ partial "icons/icon" (dict "vendor" "simple-icons" "name" "github") }}
+      GitHub
+    </a>
+  </nav>
+  {{ end }}
+</header>
