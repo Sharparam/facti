@@ -7,12 +7,13 @@ pub struct ModInfoBuilder {
 }
 
 impl ModInfoBuilder {
-    pub fn new<T: Into<String>, V: Into<Version>>(
-        name: T,
-        version: V,
-        title: T,
-        author: T,
-    ) -> Self {
+    pub(crate) fn new<T, V, U, X>(name: T, version: V, title: U, author: X) -> Self
+    where
+        T: Into<String>,
+        V: Into<Version>,
+        U: Into<String>,
+        X: Into<String>,
+    {
         Self {
             info: ModInfo {
                 name: name.into(),
