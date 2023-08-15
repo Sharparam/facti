@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use url::Url;
 
+use crate::ModInfoBuilder;
+
 use super::{dependency::Dependency, version::Version, FactorioVersion};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -42,4 +44,15 @@ pub struct ModPackageInfo {
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub gallery: Vec<String>,
+}
+
+impl ModInfo {
+    pub fn builder<T, U, V>(name: T, version: Version, title: U, author: V) -> ModInfoBuilder
+    where
+        T: Into<String>,
+        U: Into<String>,
+        V: Into<String>,
+    {
+        ModInfoBuilder::new(name, version, title, author)
+    }
 }
