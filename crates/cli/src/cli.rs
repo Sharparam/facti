@@ -5,9 +5,10 @@ use url::Url;
 
 use crate::logging::LogLevelFilter;
 
-use self::{completion::CompletionArgs, portal::PortalArgs, verbose::Verbosity};
+use self::{completion::CompletionArgs, new::NewArgs, portal::PortalArgs, verbose::Verbosity};
 
 pub mod completion;
+pub mod new;
 pub mod portal;
 mod verbose;
 
@@ -69,6 +70,10 @@ pub struct Cli {
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     Portal(PortalArgs),
+
+    #[command(visible_alias = "init")]
+    New(Box<NewArgs>),
+
     Completion(CompletionArgs),
 
     /// Do nothing.

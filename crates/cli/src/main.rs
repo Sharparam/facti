@@ -18,6 +18,7 @@ use self::config::Config;
 mod cli;
 mod config;
 mod logging;
+mod vcs;
 
 fn main() -> ExitCode {
     if let Err(err) = try_main() {
@@ -78,6 +79,7 @@ fn try_main() -> Result<()> {
 
     match cli.command {
         cli::Commands::Portal(portal) => portal.run(&api_client),
+        cli::Commands::New(new) => new.run(&config),
         cli::Commands::Completion(completion) => completion.run(),
 
         #[cfg(debug_assertions)]
