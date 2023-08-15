@@ -70,6 +70,13 @@ pub struct Cli {
 pub enum Commands {
     Portal(PortalArgs),
     Completion(CompletionArgs),
+
+    /// Do nothing.
+    ///
+    /// Used for debugging.
+    #[cfg(debug_assertions)]
+    #[command(name = "noop", visible_alias = "nop")]
+    NoOp,
 }
 
 impl Cli {

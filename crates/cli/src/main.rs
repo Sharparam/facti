@@ -79,6 +79,9 @@ fn try_main() -> Result<()> {
     match cli.command {
         cli::Commands::Portal(portal) => portal.run(&api_client),
         cli::Commands::Completion(completion) => completion.run(),
+
+        #[cfg(debug_assertions)]
+        cli::Commands::NoOp => Ok(()),
     }
 }
 
