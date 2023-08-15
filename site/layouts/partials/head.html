@@ -1,0 +1,9 @@
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>{{ if not .IsHome }}{{ with .Title }} {{ . }} | {{ end }}{{ end }}{{ .Site.Title }}</title>
+  <meta name="description" content="{{ .Site.Params.Description }}" />
+  <meta name="keywords" content="{{ with .Params.tags }}{{ delimit . " , "}}{{ end }}" />
+  <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css" media="all">
+  <link rel="stylesheet" href="/style.css" media="all">
+</head>

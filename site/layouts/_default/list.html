@@ -1,0 +1,16 @@
+{{ define "main" }}
+{{ range .Paginator.Pages }}
+<section>
+  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  <p>{{ .Summary }}</p>
+</section>
+{{ end }}
+<nav>
+  {{ with .Paginator.Prev }}
+  <a href="{{ .URL }}"> ← </a>
+  {{ end }}
+  {{ with .Paginator.Next }}
+  <a href="{{ .URL }}"> → </a>
+  {{ end }}
+</nav>
+{{ end }}

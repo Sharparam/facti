@@ -26,50 +26,36 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup Pages
         uses: actions/configure-pages@v3
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: latest
+          extended: true
       - name: Generate docs
         uses: actions-rs/cargo@v1
         with:
           command: doc
           args: --release --workspace
+      - name: Copy generated docs to static/doc
+        run: cp -r target/doc/* site/static/doc
       - name: Prepare staging location
-        run: mkdir -p _site/doc _site/changelogs
-      - name: Copy site files
-        run: cp -r site/* _site
-      - name: Copy generated docs to staging
-        run: cp -r target/doc/* _site/doc
-      - name: Generate CLI changelog HTML
-        uses: docker://pandoc/core:3.1
+        run: rm -rf _site
+      - name: Cache Hugo modules
+        uses: actions/cache@v2
         with:
-          args: >-
-            --standalone
-            --from markdown
-            --to html5
-            --template pandoc/changelog_template.html
-            --output _site/changelogs/cli.html
-            --metadata="title:CLI changelog"
-            crates/cli/CHANGELOG.md
-      - name: Generate API changelog HTML
-        uses: docker://pandoc/core:3.1
-        with:
-          args: >-
-            --standalone
-            --from markdown
-            --to html5
-            --template pandoc/changelog_template.html
-            --output _site/changelogs/api.html
-            --metadata="title:API changelog"
-            crates/api/CHANGELOG.md
-      - name: Generate lib changelog HTML
-        uses: docker://pandoc/core:3.1
-        with:
-          args: >-
-            --standalone
-            --from markdown
-            --to html5
-            --template pandoc/changelog_template.html
-            --output _site/changelogs/lib.html
-            --metadata="title:Lib changelog"
-            crates/lib/CHANGELOG.md
+          path: /tmp/hugo_cache
+          key: ${{ runner.os }}-hugomod-${{ hashFiles('site/**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-hugomod-
+      - name: Build site
+        run: >-
+          hugo
+            --logLevel info
+            --destination _site
+            --minify
+            --source site
+      - name: Move generated site to root
+        run: mv site/_site _site
       - name: Fix permissions
         run: |
           chmod -c -R +rX "_site" | while read line; do
