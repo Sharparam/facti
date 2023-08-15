@@ -32,11 +32,44 @@ jobs:
           command: doc
           args: --release --workspace
       - name: Prepare staging location
-        run: mkdir -p _site/doc
+        run: mkdir -p _site/doc _site/changelogs
       - name: Copy site files
         run: cp -r site/* _site
       - name: Copy generated docs to staging
         run: cp -r target/doc/* _site/doc
+      - name: Generate CLI changelog HTML
+        uses: docker://pandoc/core:3.1
+        with:
+          args: >-
+            --standalone
+            --from markdown
+            --to html5
+            --template pandoc/changelog_template.html
+            --output _site/changelogs/cli.html
+            --metadata="title:CLI changelog"
+            crates/cli/CHANGELOG.md
+      - name: Generate API changelog HTML
+        uses: docker://pandoc/core:3.1
+        with:
+          args: >-
+            --standalone
+            --from markdown
+            --to html5
+            --template pandoc/changelog_template.html
+            --output _site/changelogs/api.html
+            --metadata="title:API changelog"
+            crates/api/CHANGELOG.md
+      - name: Generate lib changelog HTML
+        uses: docker://pandoc/core:3.1
+        with:
+          args: >-
+            --standalone
+            --from markdown
+            --to html5
+            --template pandoc/changelog_template.html
+            --output _site/changelogs/lib.html
+            --metadata="title:Lib changelog"
+            crates/lib/CHANGELOG.md
       - name: Fix permissions
         run: |
           chmod -c -R +rX "_site" | while read line; do
