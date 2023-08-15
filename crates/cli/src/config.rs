@@ -23,6 +23,11 @@ const ENV_FACTORIO_API_KEY: &str = "FACTI_FACTORIO_API_KEY";
 
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
+    #[serde(
+        rename = "log-level-filter",
+        alias = "log_level_filter",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub log_level_filter: Option<LogLevelFilter>,
 
     #[serde(default, rename = "factorio-api", alias = "factorio_api")]
@@ -31,7 +36,11 @@ pub struct Config {
 
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
 pub struct FactorioApiConfig {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "base-url",
+        alias = "base_url",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub base_url: Option<Url>,
 
     #[serde(
