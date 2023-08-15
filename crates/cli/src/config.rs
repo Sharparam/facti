@@ -36,6 +36,9 @@ pub struct FactorioApiConfig {
 
     #[serde(rename = "api-key", skip_serializing_if = "Option::is_none")]
     pub api_key: Option<String>,
+
+    #[serde(rename = "api-key-file", skip_serializing_if = "Option::is_none")]
+    pub api_key_file: Option<PathBuf>,
 }
 
 #[derive(Default, Debug)]
@@ -103,6 +106,45 @@ impl Config {
         let mut file = File::create(config_path).context("Failed to create config file")?;
         file.write_all(contents.as_bytes())
             .context("Failed to write config to file")
+    }
+}
+
+impl FactorioApiConfig {
+    /// Resolves the API key to use.
+    ///
+    /// If [`FactorioApiConfig::api_key`] is set, then that value will be
+    /// returned.
+    ///
+    /// If [`FactorioApiConfig::api_key_file`] is set, then the API key will be
+    /// read from that file and returned.
+    ///
+    /// If neither are set, then this function will return [`None`].
+    ///
+    /// # Errors
+    ///
+    /// This function can error if there is an issue reading the file specified
+    /// in [`FactorioApiConfig::api_key_file`].
+    ///
+    /// If the file is not set and it's instead reading the API key from
+    /// [`FactorioApiConfig::api_key`], then no error can occur.
+    pub fn api_key(&self) -> Result<Option<String>> {
+        if let Some(api_key) = &self.api_key {
+            return Ok(Some(api_key.to_string()));
+        }
+
+        if self.api_key_file.is_none() {
+            return Ok(None);
+        }
+
+        let path = self.api_key_file.as_ref().unwrap();
+        let file = File::open(path).context("Failed to open API key file")?;
+        let mut reader = BufReader::new(file);
+        let mut contents = String::new();
+        reader
+            .read_to_string(&mut contents)
+            .context("Failed to read API key file")?;
+        let api_key = contents.trim();
+        Ok(Some(api_key.to_owned()))
     }
 }
 

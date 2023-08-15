@@ -40,6 +40,22 @@ pub struct Cli {
     #[arg(short = 'k', long, global = true, value_hint = ValueHint::Other)]
     pub api_key: Option<String>,
 
+    /// Read API key from stdin.
+    ///
+    /// This can be useful as a way to avoid having your API key end up
+    /// in your shell history.
+    #[arg(long, conflicts_with_all = &["api_key", "api_key_file"])]
+    pub api_key_stdin: bool,
+
+    /// Read API key from file.
+    ///
+    /// The specified file should contain nothing but the API key.
+    ///
+    /// This can be useful as a way to avoid having your API key end up
+    /// in your shell history.
+    #[arg(long, value_hint = ValueHint::FilePath, conflicts_with_all = &["api_key", "api_key_stdin"])]
+    pub api_key_file: Option<PathBuf>,
+
     /// Override the base URL to the Factorio REST API.
     ///
     /// The default base URL is !!!TODO!!!
