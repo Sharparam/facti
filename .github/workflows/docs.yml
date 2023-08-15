@@ -48,12 +48,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-hugomod-
       - name: Build site
-        run: >-
-          hugo
-            --logLevel info
-            --destination _site
-            --minify
-            --source site
+        run: hugo --logLevel info --destination _site --minify --source site
       - name: Move generated site to root
         run: mv site/_site _site
       - name: Fix permissions
