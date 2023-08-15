@@ -58,7 +58,7 @@ pub struct Cli {
 
     /// Override the base URL to the Factorio REST API.
     ///
-    /// The default base URL is !!!TODO!!!
+    /// The default base URL is https://mods.factorio.com/api/
     #[arg(long, value_hint = ValueHint::Url)]
     pub base_url: Option<Url>,
 
