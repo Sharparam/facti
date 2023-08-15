@@ -7,6 +7,7 @@ use std::{
 
 use anyhow::{Context, Result};
 use directories::ProjectDirs;
+use facti_lib::FactorioVersion;
 use serde::{Deserialize, Serialize};
 use tracing::debug;
 use url::Url;
@@ -32,6 +33,9 @@ pub struct Config {
 
     #[serde(default, rename = "factorio-api", alias = "factorio_api")]
     pub factorio_api: FactorioApiConfig,
+
+    #[serde(default, rename = "mod-defaults", alias = "mod_defaults")]
+    pub mod_defaults: ModDefaultsConfig,
 }
 
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
@@ -56,6 +60,22 @@ pub struct FactorioApiConfig {
         skip_serializing_if = "Option::is_none"
     )]
     pub api_key_file: Option<PathBuf>,
+}
+
+#[derive(Default, Clone, Debug, Serialize, Deserialize)]
+pub struct ModDefaultsConfig {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub author: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub contact: Option<String>,
+
+    #[serde(
+        rename = "factorio-version",
+        alias = "factorio_version",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub factorio_version: Option<FactorioVersion>,
 }
 
 #[derive(Default, Debug)]
