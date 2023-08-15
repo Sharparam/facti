@@ -37,7 +37,7 @@ pub struct Cli {
     pub config: Option<PathBuf>,
 
     /// Set API key to use.
-    #[arg(short = 'k', long, global = true, value_hint = ValueHint::Other)]
+    #[arg(short = 'k', long, value_hint = ValueHint::Other)]
     pub api_key: Option<String>,
 
     /// Read API key from stdin.
