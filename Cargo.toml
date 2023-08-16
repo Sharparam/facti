@@ -1,9 +1,5 @@
 [workspace]
-members = [
-  "crates/lib",
-  "crates/api",
-  "crates/cli"
-]
+members = ["crates/lib", "crates/api", "crates/cli", "xtask"]
 
 [workspace.package]
 authors = ["Adam Hellberg <sharparam@sharparam.com>"]

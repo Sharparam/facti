@@ -31,13 +31,30 @@ jobs:
         with:
           hugo-version: latest
           extended: true
+      - name: Setup pandoc
+        uses: nikeee/setup-pandoc@v1
       - name: Generate docs
         uses: actions-rs/cargo@v1
         with:
           command: doc
           args: --release --workspace
+      - name: Generate manpages
+        uses: actions-rs/cargo@v1
+        with:
+          command: xtask
+          args: manpages
       - name: Copy generated docs to static/doc
         run: cp -r target/doc/* site/static/doc
+      - name: Prepare man directory
+        run: mkdir site/static/man
+      - name: Generate HTML versions of manpages
+        run: |
+          for f in target/assets/man/*; do
+            name=${f##*/}
+            out="site/static/man/${name}.html"
+            echo "Generating HTML (${out}) for manpage ${f}"
+            pandoc --verbose --from man --to html5 --output "${out}" "${f}"
+          done
       - name: Prepare staging location
         run: rm -rf _site
       - name: Cache Hugo modules

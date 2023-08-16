@@ -1,0 +1,15 @@
+[package]
+name = "xtask"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+description = "Build tasks for Facti"
+repository = "https://github.com/Sharparam/facti/tree/main/xtask"
+license.workspace = true
+publish = false
+
+[dependencies]
+anyhow = "1.0.74"
+clap = { version = "4.3.21", features = ["derive", "string"] }
+clap_mangen = "0.2.12"
+facti = { version = "0.1.0", path = "../crates/cli" }
