@@ -3,5 +3,8 @@
 # Ignore dir used for site staging files
 _site/
 
-# Hugo files
+# Site files
 .hugo_build.lock
+site/static/doc/*
+!site/static/doc/index.html
+site/static/man/
