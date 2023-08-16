@@ -6,7 +6,6 @@
 
 #[cfg(feature = "blocking")]
 pub mod blocking;
-pub mod client;
 pub mod detail;
 pub mod error;
 pub mod image;
