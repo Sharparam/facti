@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ver() {
+  local prefix="${1}/"
+  v=$(git describe --tags --long --match "${prefix}*")
+  echo "${v##"$prefix"}"
+}
+
+case ${1-} in
+  cli)
+    ver "cli"
+  ;;
+  api)
+    ver "api"
+  ;;
+  lib)
+    ver "lib"
+  ;;
+  *)
+    echo "Usage: $0 <cli|api|lib>" >&2
+    exit 1
+  ;;
+esac
