@@ -2,6 +2,9 @@ use serde::Deserialize;
 
 use crate::error::{ApiError, ApiErrorKind};
 
+/// Convenience impl to convert [`reqwest::blocking::Response`] to a nice
+/// and properly set up [`ApiError`].
+#[doc(hidden)]
 impl From<reqwest::blocking::Response> for ApiError {
     fn from(response: reqwest::blocking::Response) -> Self {
         #[derive(Debug, Deserialize)]

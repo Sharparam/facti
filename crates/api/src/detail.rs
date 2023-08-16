@@ -232,7 +232,8 @@ pub struct ModDetailsResponse {
     /// This is not very useful when using this crate, as you can simply
     /// use the API client to get the updated mod details instead.
     ///
-    /// Use [`ApiClient::info_full`][crate::ApiClient::info_full] to get the updated mod details.
+    /// Use [`ApiClient::info_full`][crate::blocking::ApiClient::info_full]
+    /// to get the updated mod details.
     #[serde(rename = "url")]
     pub path: String,
 }

@@ -2,6 +2,9 @@ use std::borrow::Cow;
 
 use crate::reqwest::FormLike;
 
+/// Sets up wrapper methods to interact with [`reqwest::blocking::multipart::Form`]
+/// when contained in a [`crate::reqwest::FormContainer`].
+#[doc(hidden)]
 impl FormLike for reqwest::blocking::multipart::Form {
     fn new() -> Self {
         Self::new()

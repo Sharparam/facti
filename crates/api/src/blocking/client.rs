@@ -15,6 +15,59 @@ use crate::{
     DEFAULT_BASE_URL,
 };
 
+/// A blocking [`ApiClient`] to make requests to the Factorio APIs with.
+///
+/// The minimal client you can construct is one that does not use an API key:
+///
+/// ```
+/// # use facti_api::blocking::ApiClient;
+/// let client = ApiClient::new();
+/// ```
+///
+/// This will let you use any APIs that do not require authentication:
+///
+/// - [`search`][ApiClient::search]
+/// - [`info_short`][ApiClient::info_short]
+/// - [`info_full`][ApiClient::info_full]
+///
+/// Technically, you can also use [`upload`][ApiClient::upload],
+/// [`upload_image`][ApiClient::upload_image], and [`publish`][ApiClient::publish]
+/// without an API key, as they instead rely on unique URLs,
+/// but the only way to obtain these URLs is by calling [`init_upload`][ApiClient::init_upload],
+/// [`add_image`][ApiClient::add_image], or [`init_publish`][ApiClient::init_publish], respectively,
+/// which *do* require an API key.
+///
+/// Conversely, the methods that require an API key to use are:
+///
+/// - [`init_upload`][ApiClient::init_upload]
+/// - [`edit_details`][ApiClient::edit_details]
+/// - [`add_image`][ApiClient::add_image]
+/// - [`edit_images`][ApiClient::edit_images]
+/// - [`init_publish`][ApiClient::init_publish]
+///
+/// To construct a minimal client with an API key, simply pass it as a string
+/// to the constructor:
+///
+/// ```
+/// # use facti_api::blocking::ApiClient;
+/// let client = ApiClient::with_api_key("<YOUR_API_KEY>");
+/// ```
+///
+/// You can obtain API keys by visiting [your Factorio profile][factorio-profile].
+///
+/// [factorio-profile]: https://factorio.com/profile
+///
+/// Note that for full functionality of the API client, you will need to select
+/// all permissions for your API key. If you know you will only use a limited
+/// subset of the methods, you can of course limit the scope of your key.
+///
+/// If you want to customize the base URL or the underlying [`reqwest::blocking::Client`]
+/// used, please construct an [`ApiClientBuilder`] by calling [`ApiClient::builder`],
+/// where you can set (or not set) any of the client properties. Those that are
+/// not set will get their default values.
+///
+/// The default base URL for the Factorio API can be obtained from the constant
+/// [`DEFAULT_BASE_URL`].
 pub struct ApiClient {
     client: reqwest::blocking::Client,
     base_url: Url,
@@ -24,22 +77,70 @@ pub struct ApiClient {
 type Result<T> = core::result::Result<T, ApiError>;
 
 impl ApiClient {
-    pub fn new<T: Into<String>>(api_key: Option<T>) -> Self {
-        Self::builder().api_key(api_key).build()
+    /// Constructs a new [`ApiClient`] with no API key configured.
+    ///
+    /// A non-mut client constructed in this manner will only be able to use
+    /// APIs that do not require authentication.
+    pub fn new() -> Self {
+        Self {
+            client: Default::default(),
+            base_url: Url::parse(DEFAULT_BASE_URL).unwrap(),
+            api_key: None,
+        }
     }
 
+    /// Constructs a new [`ApiClient`] with the given API key.
+    pub fn with_api_key<T: Into<String>>(api_key: T) -> Self {
+        Self {
+            api_key: Some(api_key.into()),
+            ..Default::default()
+        }
+    }
+
+    /// Constructs a new [`ApiClientBuilder`], letting you customize details
+    /// of all the client properties.
     pub fn builder() -> ApiClientBuilder {
         ApiClientBuilder::new()
     }
 
+    /// Search for mods on the Factorio mod portal.
+    ///
+    /// The following fields in [`SearchResult`] may be set in each result
+    /// in the returned [`SearchResponse::results`]:
+    ///
+    /// - [`download_count`][SearchResult::download_count]
+    /// - [`latest_release`][SearchResult::latest_release]
+    /// - [`name`][SearchResult::name]
+    /// - [`owner`][SearchResult::owner]
+    /// - [`releases`][SearchResult::releases]
+    /// - [`summary`][SearchResult::summary]
+    /// - [`title`][SearchResult::title]
+    /// - [`category`][SearchResult::category]
+    ///
+    /// Any other fields on [`SearchResult`] will *never* have a value set when
+    /// constructed as a result of calling this method.
     pub fn search(&self, query: &SearchQuery) -> Result<SearchResponse> {
         self.get("mods", false, |r| r.query(query))
     }
 
+    /// Get brief information about a mod by its internal name.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use std::error::Error;
+    /// # use facti_api::blocking::ApiClient;
+    /// #
+    /// let client = ApiClient::new();
+    /// let result = client.info_short("cybersyn-combinator")?;
+    /// dbg!(result);
+    /// # Ok::<(), Box<dyn Error>>(())
+    /// ```
     pub fn info_short(&self, name: &str) -> Result<SearchResult> {
         self.get(&format!("mods/{}", name), false, |r| r)
     }
 
+    /// Get detailed information about a mod by its internal name.
     pub fn info_full(&self, name: &str) -> Result<SearchResult> {
         self.get(&format!("mods/{}/full", name), false, |r| r)
     }
@@ -175,7 +276,7 @@ impl ApiClient {
 
 impl Default for ApiClient {
     fn default() -> Self {
-        Self::new::<String>(None)
+        Self::new()
     }
 }
 
@@ -191,18 +292,18 @@ impl ApiClientBuilder {
         Default::default()
     }
 
-    pub fn client(mut self, client: Option<reqwest::blocking::Client>) -> Self {
-        self.client = client;
+    pub fn client(&mut self, client: reqwest::blocking::Client) -> &mut Self {
+        self.client = Some(client);
         self
     }
 
-    pub fn base_url(mut self, base_url: Option<Url>) -> Self {
-        self.base_url = base_url;
+    pub fn base_url<T: Into<Url>>(&mut self, base_url: T) -> &mut Self {
+        self.base_url = Some(base_url.into());
         self
     }
 
-    pub fn api_key<T: Into<String>>(mut self, api_key: Option<T>) -> Self {
-        self.api_key = api_key.map(Into::into);
+    pub fn api_key<T: Into<String>>(&mut self, api_key: T) -> &mut Self {
+        self.api_key = Some(api_key.into());
         self
     }
 

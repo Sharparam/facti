@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - Proper changelog.
 
+### Changed
+
+ - Made methods on `ApiClient` and `ApiClientBuilder` a bit more idiotmatic
+   (hopefully).
+
 ### Security
 
  - Removed transient dependency on [time (v0.1.45)][time_0.1.45]
