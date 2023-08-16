@@ -1,12 +1,12 @@
 [package]
 name = "facti-lib"
 version = "0.1.0"
-authors = ["Adam Hellberg <sharparam@sharparam.com>"]
-edition = "2021"
+authors.workspace = true
+edition.workspace = true
 description = "Facti common library"
-homepage = "https://facti.rs"
+homepage.workspace = true
 repository = "https://github.com/Sharparam/facti/tree/main/lib"
-license = "MPL-2.0"
+license.workspace = true
 keywords = ["factorio"]
 
 [dependencies]

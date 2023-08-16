@@ -1,13 +1,13 @@
 [package]
 name = "facti"
 version = "0.1.0"
-authors = ["Adam Hellberg <sharparam@sharparm.com>"]
-edition = "2021"
+authors.workspace = true
+edition.workspace = true
 description = "Factorio mod tool"
-homepage = "https://facti.rs"
-repository = "https://github.com/Sharparam/facti"
-license = "MPL-2.0"
-keywords = ["factorio"]
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
 categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]

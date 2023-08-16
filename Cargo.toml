@@ -4,3 +4,11 @@ members = [
   "crates/api",
   "crates/cli"
 ]
+
+[workspace.package]
+authors = ["Adam Hellberg <sharparam@sharparam.com>"]
+edition = "2021"
+homepage = "https://facti.rs"
+repository = "https://github.com/Sharparam/facti"
+license = "MPL-2.0"
+keywords = ["factorio"]

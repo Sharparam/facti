@@ -1,12 +1,12 @@
 [package]
 name = "facti-api"
 version = "0.1.0"
-authors = ["Adam Hellberg <sharparam@sharparam.com>"]
-edition = "2021"
+authors.workspace = true
+edition.workspace = true
 description = "Provides tools for interacting with Factorio REST APIs"
-homepage = "https://facti.rs"
+homepage.workspace = true
 repository = "https://github.com/Sharparam/facti/tree/main/api"
-license = "MPL-2.0"
+license.workspace = true
 keywords = ["factorio"]
 categories = ["api-bindings"]
 
