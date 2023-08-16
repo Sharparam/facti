@@ -1,4 +1,5 @@
 use clap::{Args, Subcommand, ValueHint};
+use facti_api::blocking::ApiClient;
 use facti_lib::FactorioVersion;
 
 /// Interact with the Factorio mod portal.
@@ -82,7 +83,7 @@ pub struct PortalShowArgs {
 }
 
 impl PortalArgs {
-    pub fn run(&self, client: &facti_api::ApiClient) -> anyhow::Result<()> {
+    pub fn run(&self, client: &ApiClient) -> anyhow::Result<()> {
         match &self.command {
             PortalCommands::Search(args) => args.run(client, self.json),
             PortalCommands::Show(args) => args.run(client, self.json),
@@ -91,7 +92,7 @@ impl PortalArgs {
 }
 
 impl PortalSearchArgs {
-    pub fn run(&self, client: &facti_api::ApiClient, json: bool) -> anyhow::Result<()> {
+    pub fn run(&self, client: &ApiClient, json: bool) -> anyhow::Result<()> {
         let query = facti_api::portal::SearchQuery {
             hide_deprecated: !self.deprecated,
             page: self.page,
@@ -120,7 +121,7 @@ impl PortalSearchArgs {
 }
 
 impl PortalShowArgs {
-    pub fn run(&self, client: &facti_api::ApiClient, json: bool) -> anyhow::Result<()> {
+    pub fn run(&self, client: &ApiClient, json: bool) -> anyhow::Result<()> {
         let response = if self.full {
             client.info_full(&self.name)?
         } else {

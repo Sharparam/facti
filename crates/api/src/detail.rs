@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize, Serializer};
 use strum::Display;
 use url::Url;
 
+use crate::reqwest::{FormContainer, FormLike};
+
 /// Describes a request to modify details for a mod.
 ///
 /// The `name` field is required to identify the mod to change,
@@ -85,53 +87,53 @@ impl ModDetailsRequest {
     }
 }
 
-impl From<ModDetailsRequest> for reqwest::blocking::multipart::Form {
-    fn from(data: ModDetailsRequest) -> Self {
-        let mut form = Self::new().text("mod", data.name);
+impl<T: FormLike> From<ModDetailsRequest> for FormContainer<T> {
+    fn from(value: ModDetailsRequest) -> Self {
+        let mut form = T::new().text("mod", value.name);
 
-        if let Some(title) = data.title {
+        if let Some(title) = value.title {
             form = form.text("title", title);
         }
 
-        if let Some(summary) = data.summary {
+        if let Some(summary) = value.summary {
             form = form.text("summary", summary);
         }
 
-        if let Some(description) = data.description {
+        if let Some(description) = value.description {
             form = form.text("description", description);
         }
 
-        if let Some(category) = data.category {
+        if let Some(category) = value.category {
             form = form.text("category", category.to_string());
         }
 
-        if let Some(tags) = data.tags {
+        if let Some(tags) = value.tags {
             for tag in tags {
                 form = form.text("tags", tag.to_string());
             }
         }
 
-        if let Some(license) = data.license {
+        if let Some(license) = value.license {
             form = form.text("license", license.to_string());
         }
 
-        if let Some(homepage) = data.homepage {
+        if let Some(homepage) = value.homepage {
             form = form.text("homepage", homepage.to_string());
         }
 
-        if let Some(deprecated) = data.deprecated {
+        if let Some(deprecated) = value.deprecated {
             form = form.text("deprecated", deprecated.to_string());
         }
 
-        if let Some(source_url) = data.source_url {
+        if let Some(source_url) = value.source_url {
             form = form.text("source_url", source_url.to_string());
         }
 
-        if let Some(faq) = data.faq {
+        if let Some(faq) = value.faq {
             form = form.text("faq", faq);
         }
 
-        form
+        FormContainer(form)
     }
 }
 

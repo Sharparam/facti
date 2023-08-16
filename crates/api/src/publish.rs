@@ -1,26 +1,9 @@
-use std::io;
-
 use serde::Deserialize;
 use url::Url;
 
+use crate::reqwest::{FormContainer, FormLike};
+
 use super::detail::{Category, License};
-
-#[derive(Debug)]
-pub struct InitPublishRequest {
-    pub name: String,
-}
-
-impl InitPublishRequest {
-    pub fn new<T: Into<String>>(name: T) -> Self {
-        Self { name: name.into() }
-    }
-}
-
-impl From<InitPublishRequest> for reqwest::blocking::multipart::Form {
-    fn from(req: InitPublishRequest) -> Self {
-        reqwest::blocking::multipart::Form::new().text("mod", req.name)
-    }
-}
 
 #[derive(Debug, Deserialize)]
 pub struct InitPublishResponse {
@@ -68,11 +51,9 @@ impl PublishRequest {
     }
 }
 
-impl TryFrom<PublishRequest> for reqwest::blocking::multipart::Form {
-    type Error = io::Error;
-
-    fn try_from(req: PublishRequest) -> Result<Self, Self::Error> {
-        let mut form = reqwest::blocking::multipart::Form::new().file("file", req.path)?;
+impl<T: FormLike> From<PublishRequest> for FormContainer<T> {
+    fn from(req: PublishRequest) -> Self {
+        let mut form = T::new();
 
         if let Some(description) = req.description {
             form = form.text("description", description);
@@ -90,7 +71,7 @@ impl TryFrom<PublishRequest> for reqwest::blocking::multipart::Form {
             form = form.text("source_url", source_url.to_string());
         }
 
-        Ok(form)
+        FormContainer(form)
     }
 }
 

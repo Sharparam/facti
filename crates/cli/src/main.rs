@@ -72,7 +72,7 @@ fn try_main() -> Result<()> {
 
     let api_key = resolve_api_key(&cli, &config).context("Failed to resolve API key")?;
 
-    let api_client = facti_api::ApiClient::builder()
+    let api_client = facti_api::blocking::ApiClient::builder()
         .base_url(base_url)
         .api_key(api_key)
         .build();

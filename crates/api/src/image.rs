@@ -1,24 +1,7 @@
-use std::io;
-
 use serde::Deserialize;
 use url::Url;
 
-#[derive(Debug)]
-pub struct ImageAddRequest {
-    pub name: String,
-}
-
-impl ImageAddRequest {
-    pub fn new<T: Into<String>>(name: T) -> Self {
-        Self { name: name.into() }
-    }
-}
-
-impl From<ImageAddRequest> for reqwest::blocking::multipart::Form {
-    fn from(request: ImageAddRequest) -> Self {
-        reqwest::blocking::multipart::Form::new().text("mod", request.name)
-    }
-}
+use crate::reqwest::{FormContainer, FormLike};
 
 #[derive(Debug, Deserialize)]
 pub struct ImageAddResponse {
@@ -28,19 +11,6 @@ pub struct ImageAddResponse {
 impl ImageAddResponse {
     pub fn upload_url(&self) -> &Url {
         &self.upload_url
-    }
-}
-
-#[derive(Debug)]
-pub struct ImageUploadRequest {
-    pub path: String,
-}
-
-impl TryFrom<ImageUploadRequest> for reqwest::blocking::multipart::Form {
-    type Error = io::Error;
-
-    fn try_from(request: ImageUploadRequest) -> Result<Self, Self::Error> {
-        reqwest::blocking::multipart::Form::new().file("image", request.path)
     }
 }
 
@@ -59,12 +29,10 @@ pub struct ImageEditRequest {
     pub images: Vec<String>,
 }
 
-impl From<ImageEditRequest> for reqwest::blocking::multipart::Form {
+impl<T: FormLike> From<ImageEditRequest> for FormContainer<T> {
     fn from(request: ImageEditRequest) -> Self {
         let images = request.images.join(",");
-        reqwest::blocking::multipart::Form::new()
-            .text("mod", request.name)
-            .text("images", images)
+        FormContainer(T::new().text("mod", request.name).text("images", images))
     }
 }
 

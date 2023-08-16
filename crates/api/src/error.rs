@@ -1,6 +1,5 @@
 use std::str::FromStr;
 
-use serde::Deserialize;
 use strum::Display;
 use thiserror::Error;
 
@@ -95,34 +94,32 @@ impl ApiErrorKind {
     }
 }
 
-impl From<reqwest::blocking::Response> for ApiError {
-    fn from(response: reqwest::blocking::Response) -> Self {
-        #[derive(Debug, Deserialize)]
-        struct ApiErrorResponse {
-            error: String,
-            message: String,
-        }
+// async fn from_response(response: reqwest::Response) -> ApiError {
+//     #[derive(Debug, Deserialize)]
+//     struct ApiErrorResponse {
+//         error: String,
+//         message: String,
+//     }
 
-        let source = match response.error_for_status_ref() {
-            Ok(_) => None,
-            Err(e) => Some(e),
-        };
+//     let source = match response.error_for_status_ref() {
+//         Ok(_) => None,
+//         Err(e) => Some(e),
+//     };
 
-        if let Ok(error_response) = response.json::<ApiErrorResponse>() {
-            Self::new(
-                ApiErrorKind::parse(error_response.error),
-                error_response.message,
-                source,
-            )
-        } else {
-            Self::new(
-                ApiErrorKind::Unknown,
-                "Failed to parse error response",
-                source,
-            )
-        }
-    }
-}
+//     if let Ok(error_response) = response.json::<ApiErrorResponse>().await {
+//         ApiError::new(
+//             ApiErrorKind::parse(error_response.error),
+//             error_response.message,
+//             source,
+//         )
+//     } else {
+//         ApiError::new(
+//             ApiErrorKind::Unknown,
+//             "Failed to parse error response",
+//             source,
+//         )
+//     }
+// }
 
 impl From<reqwest::Error> for ApiError {
     fn from(error: reqwest::Error) -> Self {
