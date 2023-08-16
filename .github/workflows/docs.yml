@@ -42,7 +42,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: xtask
-          args: manpages
+          args: man
       - name: Copy generated docs to static/doc
         run: cp -r target/doc/* site/static/doc
       - name: Prepare man directory
