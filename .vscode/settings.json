@@ -1,4 +1,11 @@
 {
+  "rust-analyzer.assist.emitMustUse": true,
+  "rust-analyzer.cargo.features": [
+    "async",
+    "blocking"
+  ],
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.checkOnSave": true,
   "rust-analyzer.showUnlinkedFileNotification": false,
   "[rust]": {
     "editor.formatOnPaste": true,
