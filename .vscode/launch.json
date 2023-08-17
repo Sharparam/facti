@@ -1,64 +1,86 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in library 'facti'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--lib",
-                    "--package=facti"
-                ],
-                "filter": {
-                    "name": "facti",
-                    "kind": "lib"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug executable 'facti'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=facti",
-                    "--package=facti"
-                ],
-                "filter": {
-                    "name": "facti",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'facti'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=facti",
-                    "--package=facti"
-                ],
-                "filter": {
-                    "name": "facti",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'facti'",
+      "cargo": {
+        "args": ["build", "--bin=facti", "--package=facti"],
+        "filter": {
+          "name": "facti",
+          "kind": "bin"
         }
-    ]
+      },
+      "args": ["${input:factArgs}"],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'facti'",
+      "cargo": {
+        "args": ["test", "--no-run", "--bin=facti", "--package=facti"],
+        "filter": {
+          "name": "facti",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'facti'",
+      "cargo": {
+        "args": ["test", "--no-run", "--lib", "--package=facti"],
+        "filter": {
+          "name": "facti",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'facti-api'",
+      "cargo": {
+        "args": ["test", "--no-run", "--lib", "--package=facti-api"],
+        "filter": {
+          "name": "facti-api",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'facti-lib'",
+      "cargo": {
+        "args": ["test", "--no-run", "--lib", "--package=facti-lib"],
+        "filter": {
+          "name": "facti-lib",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+  ],
+  "inputs": [
+    {
+      "id": "factArgs",
+      "type": "promptString",
+      "default": "noop",
+      "description": "Arguments to pass to facti"
+    }
+  ]
 }
