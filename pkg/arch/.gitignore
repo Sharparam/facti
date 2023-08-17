@@ -1,3 +1,6 @@
 facti/
 src/
 pkg/
+
+*.tar.zst
+*.tar.zst.sig
