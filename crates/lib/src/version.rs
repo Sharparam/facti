@@ -1,6 +1,15 @@
-use tracing::warn;
+use std::{
+    fmt::{self, Display, Formatter},
+    str::FromStr,
+};
 
-use super::error::VersionParseError;
+use crate::error::{ParseVersionReqError, ParseVersionSpecError};
+
+use super::error::ParseVersionError;
+
+mod factorio_version;
+
+pub use factorio_version::FactorioVersion;
 
 /// Represents a mod's version, in (limited) semver format.
 ///
@@ -29,7 +38,7 @@ impl Version {
         }
     }
 
-    pub fn parse(s: &str) -> Result<Self, VersionParseError> {
+    pub fn parse(s: &str) -> Result<Self, ParseVersionError> {
         s.parse()
     }
 
@@ -38,54 +47,33 @@ impl Version {
     }
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct FactorioVersion {
-    pub major: u64,
-    pub minor: u64,
-    pub(crate) patch: Option<u64>,
-}
+impl FromStr for Version {
+    type Err = ParseVersionError;
 
-impl FactorioVersion {
-    pub fn new(major: u64, minor: u64) -> Self {
-        Self {
-            major,
-            minor,
-            patch: None,
-        }
-    }
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let parts = s.trim().split('.').map(|p| p.trim()).collect::<Vec<_>>();
 
-    pub fn parse(s: &str) -> Result<Self, VersionParseError> {
-        s.parse()
-    }
-
-    /// Constructs a potentially invalid Factorio version, which may include
-    /// a patch version.
-    ///
-    /// Normally this should not be possible, but some mods on the portal have
-    /// a patch version specified and will fail to parse if we don't allow it.
-    pub(crate) fn create(major: u64, minor: u64, patch: Option<u64>) -> Self {
-        if patch.is_some() {
-            warn!(
-                "Constructing invalid Factorio version: {}.{}.{:?}",
-                major, minor, patch
-            );
+        if parts.len() != 3 {
+            return Err(ParseVersionError::Size(3, parts.len()));
         }
 
-        Self {
-            major,
-            minor,
-            patch,
-        }
+        let major = parts[0].parse().map_err(ParseVersionError::Major)?;
+        let minor = parts[1].parse().map_err(ParseVersionError::Minor)?;
+        let patch = parts[2].parse().map_err(ParseVersionError::Patch)?;
+
+        Ok(Version::new(major, minor, patch))
     }
 }
 
-impl Default for FactorioVersion {
-    fn default() -> Self {
-        Self {
-            major: 0,
-            minor: 12,
-            patch: None,
-        }
+impl Display for Version {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
+    }
+}
+
+impl From<FactorioVersion> for Version {
+    fn from(value: FactorioVersion) -> Self {
+        Self::new(value.major, value.minor, value.patch.unwrap_or(0))
     }
 }
 
@@ -98,6 +86,18 @@ pub enum Op {
     LessEq,
 }
 
+impl Display for Op {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Op::Exact => "=",
+            Op::Greater => ">",
+            Op::GreaterEq => ">=",
+            Op::Less => "<",
+            Op::LessEq => "<=",
+        })
+    }
+}
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum VersionReq {
     Latest,
@@ -105,8 +105,32 @@ pub enum VersionReq {
 }
 
 impl VersionReq {
-    pub fn parse(s: &str) -> Result<Self, VersionParseError> {
+    pub fn parse(s: &str) -> Result<Self, ParseVersionReqError> {
         s.parse()
+    }
+}
+
+impl FromStr for VersionReq {
+    type Err = ParseVersionReqError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let trimmed = s.trim();
+        if trimmed.is_empty() {
+            return Ok(VersionReq::Latest);
+        }
+
+        let spec: VersionSpec = trimmed.parse()?;
+
+        Ok(VersionReq::Spec(spec))
+    }
+}
+
+impl Display for VersionReq {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            VersionReq::Latest => f.write_str(""),
+            VersionReq::Spec(spec) => spec.fmt(f),
+        }
     }
 }
 
@@ -117,7 +141,11 @@ pub struct VersionSpec {
 }
 
 impl VersionSpec {
-    pub fn parse(s: &str) -> Result<Self, VersionParseError> {
+    pub fn new(op: Op, version: Version) -> Self {
+        Self { op, version }
+    }
+
+    pub fn parse(s: &str) -> Result<Self, ParseVersionSpecError> {
         s.parse()
     }
 
@@ -132,38 +160,30 @@ impl VersionSpec {
     }
 }
 
+impl FromStr for VersionSpec {
+    type Err = ParseVersionSpecError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let semver_req = semver::VersionReq::parse(s)?;
+        semver_req.try_into()
+    }
+}
+
+impl Display for VersionSpec {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_str(&format!("{} {}", self.op, self.version))
+    }
+}
+
+impl From<FactorioVersion> for VersionSpec {
+    fn from(value: FactorioVersion) -> Self {
+        Self::new(Op::GreaterEq, value.into())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_parse() {
-        assert_eq!(
-            FactorioVersion::parse("1.80").unwrap(),
-            FactorioVersion::new(1, 80)
-        );
-    }
-
-    #[test]
-    fn test_display() {
-        assert_eq!(format!("{}", FactorioVersion::new(1, 2)), "1.2");
-    }
-
-    #[test]
-    fn test_ordering() {
-        let mut major_differs = vec![FactorioVersion::new(5, 1), FactorioVersion::new(1, 2)];
-        major_differs.sort();
-        assert_eq!(
-            major_differs,
-            vec![FactorioVersion::new(1, 2), FactorioVersion::new(5, 1)]
-        );
-        let mut minor_differs = vec![FactorioVersion::new(1, 5), FactorioVersion::new(1, 2)];
-        minor_differs.sort();
-        assert_eq!(
-            minor_differs,
-            vec![FactorioVersion::new(1, 2), FactorioVersion::new(1, 5)]
-        );
-    }
 
     macro_rules! test_specs {
         ($($name:ident($spec:literal, $version:literal, $expected:expr);)*) => {

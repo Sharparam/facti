@@ -2,37 +2,59 @@ use std::num::ParseIntError;
 
 use thiserror::Error;
 
-#[allow(clippy::enum_variant_names)]
 #[derive(Error, Debug)]
-pub enum VersionParseError {
+pub enum ParseVersionError {
     #[error(
         "Wrong number of version parts, needs to have {0} parts but actual version had {1} parts"
     )]
-    InvalidSize(usize, usize),
+    Size(usize, usize),
 
     #[error("Invalid major version")]
-    InvalidMajor(#[source] ParseIntError),
+    Major(#[source] ParseIntError),
 
     #[error("Invalid minor version")]
-    InvalidMinor(#[source] ParseIntError),
+    Minor(#[source] ParseIntError),
 
     #[error("Invalid patch version")]
-    InvalidPatch(#[source] ParseIntError),
+    Patch(#[source] ParseIntError),
 
-    #[error("Invalid operator, must be one of <, <=, =, >=, >")]
-    InvalidOp,
-
-    #[error(
-        "Incompatible semver version req, must use one of the supported operators (<, <=, =, >=, >), only have one comparator (constraint), and specify all 3 version components (major.minor.patch)"
-    )]
-    IncompatibleSemverReq,
-
-    #[error("Failed to parse the string as a valid semver version or version req")]
-    InvalidSemver(#[source] semver::Error),
+    #[error(transparent)]
+    Semver(#[from] semver::Error),
 }
 
 #[derive(Error, Debug)]
-pub enum DependencyParseError {
+pub enum ParseVersionSpecError {
+    #[error(transparent)]
+    Op(#[from] ParseOpError),
+
+    #[error("Semver version req has no comparator, must have exactly one")]
+    SemverReqMissingComparator,
+
+    #[error("Semver version req has too many comparators, must have exactly one")]
+    SemverReqTooManyComparators,
+
+    #[error("Invalid or missing minor version")]
+    Minor,
+
+    #[error("Invalid or missing patch version")]
+    Patch,
+
+    #[error(transparent)]
+    Semver(#[from] semver::Error),
+}
+
+#[derive(Error, Debug)]
+#[error("Failed to parse the string as a valid version req")]
+pub struct ParseVersionReqError(#[from] ParseVersionSpecError);
+
+#[derive(Error, Debug)]
+pub enum ParseOpError {
+    #[error("{0:?} is not a supported operator, must be one of <, <=, =, >=, >")]
+    Op(semver::Op),
+}
+
+#[derive(Error, Debug)]
+pub enum ParseDependencyError {
     #[error("The dependency string \"{0}\" does not match the RegEx")]
     RegexMismatch(String),
 }

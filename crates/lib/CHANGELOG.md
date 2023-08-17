@@ -12,6 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Proper changelog.
  - New helper function on `facti_lib::ModInfo` to construct a builder:
    `facti_lib::ModInfo::builder(...)`.
+ - Can now serialize and deserialize the `Changelog` struct with serde.
+ - Can now convert the `Changelog` struct to string.
+   Borth "as-is" (implemented via `Display` trait) and a sorted variant
+   (`Changelog::to_string_sorted`) are possible.
+ - Various versions can now convert to and from other representations.
+
+### Changed
+
+ - Restructured some code internally, does not affect the public API.
 
 ### Fixed
 

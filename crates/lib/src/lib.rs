@@ -1,16 +1,12 @@
 #![doc = include_str!("../README.md")]
 
-mod builder;
 pub mod changelog;
 pub mod dependency;
-mod display;
 pub mod error;
 pub mod modinfo;
-mod parse;
 mod semver;
-mod serialization;
+mod serde;
 pub mod version;
 
-pub use builder::ModInfoBuilder;
-pub use modinfo::ModInfo;
+pub use modinfo::{ModInfo, ModInfoBuilder};
 pub use version::FactorioVersion;

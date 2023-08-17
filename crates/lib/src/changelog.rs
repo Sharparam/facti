@@ -1,27 +1,32 @@
 use std::{
     collections::{HashMap, HashSet},
+    fmt::{self, Display, Write},
     str::FromStr,
 };
 
 use pest::Parser;
 use pest_derive::Parser;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::version::Version;
 
-#[derive(Debug)]
+/// Version section start is a sequence of 99 dashes exactly.
+const SECTION_START: &str = "---------------------------------------------------------------------------------------------------";
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Changelog {
     pub sections: Vec<Section>,
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Section {
     pub version: Version,
     pub date: Option<String>,
     pub categories: HashMap<CategoryType, HashSet<String>>,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum CategoryType {
     MajorFeatures,
     Features,
@@ -51,101 +56,190 @@ pub enum CategoryType {
 struct ChangelogParser;
 
 #[derive(Error, Debug)]
-pub enum ChangelogParseError {
+pub enum ParseChangelogError {
     #[error("Pest error when parsing")]
     Pest(#[source] Box<pest::error::Error<Rule>>),
 }
 
-pub fn parse(content: &str) -> Result<Changelog, ChangelogParseError> {
-    let mut result = Changelog { sections: vec![] };
-
-    let changelog = ChangelogParser::parse(Rule::changelog, content)
-        .map_err(|e| ChangelogParseError::Pest(Box::new(e)))?
-        .next()
-        .unwrap();
-
-    for section_pair in changelog.into_inner() {
-        match section_pair.as_rule() {
-            Rule::section => {
-                let mut inner_rules = section_pair.into_inner();
-                let ver_str = inner_rules.next().unwrap().as_str();
-                let version = Version::from_str(ver_str).unwrap();
-
-                let mut section = Section {
-                    version,
-                    date: None,
-                    categories: HashMap::new(),
-                };
-
-                for remaining in inner_rules {
-                    match remaining.as_rule() {
-                        Rule::date => {
-                            section.date = Some(remaining.as_str().to_owned());
-                        }
-                        Rule::category => {
-                            let mut inner_rules = remaining.into_inner();
-                            let category_type =
-                                CategoryType::from_str(inner_rules.next().unwrap().as_str())
-                                    .unwrap();
-                            let entries = section.categories.entry(category_type).or_default();
-
-                            for entry_pair in inner_rules {
-                                match entry_pair.as_rule() {
-                                    Rule::entry => {
-                                        let str = entry_pair
-                                            .into_inner()
-                                            .map(|e| e.as_str())
-                                            .collect::<Vec<_>>()
-                                            .join("\n");
-
-                                        entries.insert(str);
-                                    }
-                                    _ => unreachable!(),
-                                }
-                            }
-                        }
-                        _ => unreachable!(),
-                    }
-                }
-
-                result.sections.push(section);
-            }
-            Rule::EOI => (),
-            _ => unreachable!(),
-        }
+impl Changelog {
+    pub fn parse<T: AsRef<str>>(s: T) -> Result<Self, ParseChangelogError> {
+        s.as_ref().parse()
     }
 
-    result.sections.sort_by(|a, b| b.version.cmp(&a.version));
+    pub fn to_string_sorted(&self) -> Result<String, fmt::Error> {
+        let mut sections = self.sections.to_owned();
+        sections.sort_by(|a, b| b.version.cmp(&a.version));
 
-    Ok(result)
+        let mut s = String::new();
+
+        for section in sections {
+            write!(s, "{}", section)?;
+        }
+
+        Ok(s)
+    }
+}
+
+impl FromStr for Changelog {
+    type Err = ParseChangelogError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut result = Self { sections: vec![] };
+
+        let changelog = ChangelogParser::parse(Rule::changelog, s)
+            .map_err(|e| ParseChangelogError::Pest(Box::new(e)))?
+            .next()
+            .unwrap();
+
+        for section_pair in changelog.into_inner() {
+            match section_pair.as_rule() {
+                Rule::section => {
+                    let mut inner_rules = section_pair.into_inner();
+                    let ver_str = inner_rules.next().unwrap().as_str();
+                    let version = Version::from_str(ver_str).unwrap();
+
+                    let mut section = Section {
+                        version,
+                        date: None,
+                        categories: HashMap::new(),
+                    };
+
+                    for remaining in inner_rules {
+                        match remaining.as_rule() {
+                            Rule::date => {
+                                section.date = Some(remaining.as_str().to_owned());
+                            }
+                            Rule::category => {
+                                let mut inner_rules = remaining.into_inner();
+                                let category_type =
+                                    CategoryType::from_str(inner_rules.next().unwrap().as_str())
+                                        .unwrap();
+                                let entries = section.categories.entry(category_type).or_default();
+
+                                for entry_pair in inner_rules {
+                                    match entry_pair.as_rule() {
+                                        Rule::entry => {
+                                            let str = entry_pair
+                                                .into_inner()
+                                                .map(|e| e.as_str())
+                                                .collect::<Vec<_>>()
+                                                .join("\n");
+
+                                            entries.insert(str);
+                                        }
+                                        _ => unreachable!(),
+                                    }
+                                }
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
+
+                    result.sections.push(section);
+                }
+                Rule::EOI => (),
+                _ => unreachable!(),
+            }
+        }
+
+        result.sections.sort_by(|a, b| b.version.cmp(&a.version));
+
+        Ok(result)
+    }
+}
+
+impl Display for Changelog {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for section in &self.sections {
+            write!(f, "{}", section)?;
+        }
+
+        Ok(())
+    }
+}
+
+impl Display for Section {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "{}\nVersion: {}", SECTION_START, self.version)?;
+
+        if let Some(date) = &self.date {
+            writeln!(f, "Date: {}", date)?;
+        }
+
+        for (category, entries) in &self.categories {
+            writeln!(f, "  {}:", category)?;
+
+            for entry in entries {
+                let mut lines = entry.lines();
+                if let Some(line) = lines.next() {
+                    writeln!(f, "    - {}", line)?;
+                }
+                for line in lines {
+                    writeln!(f, "      {}", line)?;
+                }
+            }
+        }
+
+        Ok(())
+    }
 }
 
 impl FromStr for CategoryType {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "Major Features" => Ok(Self::MajorFeatures),
-            "Features" => Ok(Self::Features),
-            "Minor Features" => Ok(Self::MinorFeatures),
-            "Graphics" => Ok(Self::Graphics),
-            "Sounds" => Ok(Self::Sounds),
-            "Optimizations" => Ok(Self::Optimizations),
-            "Balancing" => Ok(Self::Balancing),
-            "Combat Balancing" => Ok(Self::CombatBalancing),
-            "Circuit Network" => Ok(Self::CircuitNetwork),
-            "Changes" => Ok(Self::Changes),
-            "Bugfixes" => Ok(Self::Bugfixes),
-            "Modding" => Ok(Self::Modding),
-            "Scripting" => Ok(Self::Scripting),
-            "Gui" => Ok(Self::Gui),
-            "Control" => Ok(Self::Control),
-            "Translation" => Ok(Self::Translation),
-            "Debug" => Ok(Self::Debug),
-            "Ease of use" => Ok(Self::EaseOfUse),
-            "Info" => Ok(Self::Info),
-            "Locale" => Ok(Self::Locale),
-            o => Ok(Self::Other(o.to_owned())),
-        }
+        use CategoryType::*;
+        Ok(match s {
+            "Major Features" => MajorFeatures,
+            "Features" => Features,
+            "Minor Features" => MinorFeatures,
+            "Graphics" => Graphics,
+            "Sounds" => Sounds,
+            "Optimizations" => Optimizations,
+            "Balancing" => Balancing,
+            "Combat Balancing" => CombatBalancing,
+            "Circuit Network" => CircuitNetwork,
+            "Changes" => Changes,
+            "Bugfixes" => Bugfixes,
+            "Modding" => Modding,
+            "Scripting" => Scripting,
+            "Gui" => Gui,
+            "Control" => Control,
+            "Translation" => Translation,
+            "Debug" => Debug,
+            "Ease of use" => EaseOfUse,
+            "Info" => Info,
+            "Locale" => Locale,
+            o => Other(o.to_owned()),
+        })
+    }
+}
+
+impl Display for CategoryType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use CategoryType::*;
+        f.write_str(match self {
+            MajorFeatures => "Major Features",
+            Features => "Features",
+            MinorFeatures => "Minor Features",
+            Graphics => "Graphics",
+            Sounds => "Sounds",
+            Optimizations => "Optimizations",
+            Balancing => "Balancing",
+            CombatBalancing => "Combat Balancing",
+            CircuitNetwork => "Circuit Network",
+            Changes => "Changes",
+            Bugfixes => "Bugfixes",
+            Modding => "Modding",
+            Scripting => "Scripting",
+            Gui => "Gui",
+            Control => "Control",
+            Translation => "Translation",
+            Debug => "Debug",
+            EaseOfUse => "Ease of use",
+            Info => "Info",
+            Locale => "Locale",
+            Other(o) => o,
+        })
     }
 }
