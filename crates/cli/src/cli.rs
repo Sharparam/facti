@@ -18,11 +18,6 @@ const ENV_API_KEY: &str = "FACTI_API_KEY";
 const ENV_API_KEY_FILE: &str = "FACTI_API_KEY_FILE";
 const ENV_BASE_URL: &str = "FACTI_BASE_URL";
 
-// const LOG_LEVEL_VALS: &[&str] = &[
-//     "error", "err", "e", "warning", "warn", "w", "info", "inf", "i", "debug", "dbg", "d", "trace",
-//     "t", "0", "1", "2", "3", "4", "5",
-// ];
-
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
 pub struct Cli {
