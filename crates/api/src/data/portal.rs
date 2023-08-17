@@ -1,15 +1,16 @@
-use std::{fmt::Display, str::FromStr};
+use std::fmt::Display;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use strum::Display;
 use url::Url;
 
 use facti_lib::{dependency::Dependency, version::Version, FactorioVersion};
 
-use crate::error::{ApiError, ApiErrorKind};
-
-use super::detail::{self, Category, Tag};
+use super::{
+    detail::{self, Category, Tag},
+    pagination::{PageSize, Pagination},
+    sorting::{SortMode, SortOrder},
+};
 
 #[derive(Debug, Serialize)]
 pub struct SearchQuery {
@@ -73,7 +74,7 @@ pub struct SearchResult {
     pub description: Option<String>,
     pub source_url: Option<Url>,
 
-    #[deprecated(note = "Use `source_url` instead")]
+    #[deprecated(note = "Use [`source_url`] instead")]
     pub github_path: Option<String>,
 
     pub homepage: Option<String>,
@@ -105,25 +106,6 @@ impl Display for SearchResult {
 
         Ok(())
     }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Pagination {
-    pub count: u32,
-    pub links: PaginationLinks,
-    pub page: u32,
-    pub page_count: u32,
-    pub page_size: u32,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct PaginationLinks {
-    pub first: Option<Url>,
-    #[serde(rename = "prev")]
-    pub previous: Option<Url>,
-
-    pub next: Option<Url>,
-    pub last: Option<Url>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -167,114 +149,6 @@ impl Default for SearchQuery {
             sort_order: None,
             namelist: None,
             version: None,
-        }
-    }
-}
-
-#[derive(Copy, Clone, Debug, Serialize)]
-pub enum PageSize {
-    #[serde(rename = "max")]
-    Max,
-
-    #[serde(untagged, serialize_with = "serialize_custom_page_size")]
-    Custom(u32),
-}
-
-impl FromStr for PageSize {
-    type Err = ApiError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s == "max" {
-            Ok(PageSize::Max)
-        } else {
-            s.parse::<u32>().map(PageSize::Custom).map_err(|_| {
-                ApiError::new(
-                    ApiErrorKind::InvalidPageSize,
-                    format!("{} is not a valid page size", s),
-                    None,
-                )
-            })
-        }
-    }
-}
-
-impl Display for PageSize {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            PageSize::Max => f.write_str("max"),
-            PageSize::Custom(size) => write!(f, "{}", size),
-        }
-    }
-}
-
-fn serialize_custom_page_size<S>(size: &u32, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-{
-    serializer.serialize_u32(*size)
-}
-
-#[derive(Copy, Clone, Display, Debug, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum SortMode {
-    Name,
-    CreatedAt,
-    UpdatedAt,
-}
-
-impl FromStr for SortMode {
-    type Err = ApiError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            s if s.eq_ignore_ascii_case("name") => Ok(SortMode::Name),
-            s if s.eq_ignore_ascii_case("created_at")
-                || s.eq_ignore_ascii_case("createdat")
-                || s.eq_ignore_ascii_case("created") =>
-            {
-                Ok(SortMode::CreatedAt)
-            }
-            s if s.eq_ignore_ascii_case("updated_at")
-                || s.eq_ignore_ascii_case("updatedat")
-                || s.eq_ignore_ascii_case("updated") =>
-            {
-                Ok(SortMode::UpdatedAt)
-            }
-            _ => Err(ApiError::new(
-                ApiErrorKind::InvalidSortMode,
-                format!("{} is not a valid sort mode", s),
-                None,
-            )),
-        }
-    }
-}
-
-#[derive(Default, Copy, Clone, Display, Debug, Serialize)]
-pub enum SortOrder {
-    #[serde(rename = "asc")]
-    Ascending,
-
-    #[serde(rename = "desc")]
-    #[default]
-    Descending,
-}
-
-impl FromStr for SortOrder {
-    type Err = ApiError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            s if s.eq_ignore_ascii_case("asc") || s.eq_ignore_ascii_case("ascending") => {
-                Ok(SortOrder::Ascending)
-            }
-            s if s.eq_ignore_ascii_case("desc") || s.eq_ignore_ascii_case("descending") => {
-                Ok(SortOrder::Descending)
-            }
-            _ => Err(ApiError::new(
-                ApiErrorKind::InvalidSortOrder,
-                format!("{} is not a valid sort order", s),
-                None,
-            )),
         }
     }
 }

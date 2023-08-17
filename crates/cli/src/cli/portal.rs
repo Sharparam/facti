@@ -40,7 +40,7 @@ pub struct PortalSearchArgs {
 
     /// The amount of results to show, specify 'max' for maximum possible.
     #[arg(short = 'n', long = "size", value_name = "SIZE")]
-    pub page_size: Option<facti_api::portal::PageSize>,
+    pub page_size: Option<facti_api::data::pagination::PageSize>,
 
     /// The property to sort results by, defaults to name if not given.
     ///
@@ -49,7 +49,7 @@ pub struct PortalSearchArgs {
     ///  - created or created_at
     ///  - updated or updated_at
     #[arg(short, long = "sort", value_name = "SORT")]
-    pub sort_mode: Option<facti_api::portal::SortMode>,
+    pub sort_mode: Option<facti_api::data::sorting::SortMode>,
 
     /// Select whether to sort ascending or descending, default is descending.
     ///
@@ -57,7 +57,7 @@ pub struct PortalSearchArgs {
     ///  - ascending or asc
     ///  - descending or desc
     #[arg(short = 'o', long = "order", value_name = "ORDER")]
-    pub sort_order: Option<facti_api::portal::SortOrder>,
+    pub sort_order: Option<facti_api::data::sorting::SortOrder>,
 
     /// Only return non-deprecated mods compatible with the specified Factorio version.
     ///
@@ -93,7 +93,7 @@ impl PortalArgs {
 
 impl PortalSearchArgs {
     pub fn run(&self, client: &ApiClient, json: bool) -> anyhow::Result<()> {
-        let query = facti_api::portal::SearchQuery {
+        let query = facti_api::data::portal::SearchQuery {
             hide_deprecated: !self.deprecated,
             page: self.page,
             page_size: self.page_size,

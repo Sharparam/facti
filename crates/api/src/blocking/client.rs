@@ -5,13 +5,15 @@ use serde::de::DeserializeOwned;
 use url::Url;
 
 use crate::{
-    detail::{ModDetailsRequest, ModDetailsResponse},
+    data::{
+        detail::{ModDetailsRequest, ModDetailsResponse},
+        image::{ImageAddResponse, ImageEditRequest, ImageEditResponse, ImageUploadResponse},
+        portal::{SearchQuery, SearchResponse, SearchResult},
+        publish::{InitPublishResponse, PublishRequest, PublishResponse},
+        upload::{InitUploadResponse, UploadResponse},
+    },
     error::{ApiError, ApiErrorKind},
-    image::{ImageAddResponse, ImageEditRequest, ImageEditResponse, ImageUploadResponse},
-    portal::{SearchQuery, SearchResponse, SearchResult},
-    publish::{InitPublishResponse, PublishRequest, PublishResponse},
     reqwest::FormContainer,
-    upload::{InitUploadResponse, UploadResponse},
     DEFAULT_BASE_URL,
 };
 
