@@ -15,7 +15,9 @@ anyhow = "1.0.72"
 clap = { version = "4.3.21", features = ["derive", "env"] }
 clap_complete = "4.3.2"
 directories = "5.0.1"
-facti-api = { version = "0.1.0", features = ["blocking"], path = "../api" }
+facti-api = { version = "0.1.0", path = "../api", default_features = false, features = [
+  "blocking"
+] }
 facti-lib = { version = "0.1.0", path = "../lib" }
 git2 = { version = "0.17.2", default-features = false }
 indoc = "2.0.3"

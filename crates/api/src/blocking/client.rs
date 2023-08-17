@@ -1,6 +1,9 @@
 use std::path::Path;
 
-use reqwest::{blocking::RequestBuilder, header};
+use reqwest::{
+    blocking::{multipart::Form, RequestBuilder},
+    header,
+};
 use serde::de::DeserializeOwned;
 use url::Url;
 
@@ -148,63 +151,59 @@ impl ApiClient {
     }
 
     pub fn init_upload<T: Into<String>>(&self, name: T) -> Result<InitUploadResponse> {
-        let form = reqwest::blocking::multipart::Form::new().text("mod", name.into());
+        let form = Form::new().text("mod", name.into());
         self.post("v2/mods/upload", true, |r| r.multipart(form))
     }
 
     pub fn upload(&self, url: Url, path: &Path) -> Result<UploadResponse> {
-        let form = reqwest::blocking::multipart::Form::new()
-            .file("file", path)
-            .map_err(|e| {
-                ApiError::new(
-                    ApiErrorKind::ImageIo,
-                    format!("Could not read mod file {:?}", e),
-                    None,
-                )
-            })?;
+        let form = Form::new().file("file", path).map_err(|e| {
+            ApiError::new(
+                ApiErrorKind::ImageIo,
+                format!("Could not read mod file {:?}", e),
+                None,
+            )
+        })?;
 
         self.send(self.client.post(url).multipart(form), false)
     }
 
     pub fn edit_details(&self, data: ModDetailsRequest) -> Result<ModDetailsResponse> {
-        let container: FormContainer<reqwest::blocking::multipart::Form> = data.into();
+        let container: FormContainer<Form> = data.into();
         let form = container.into_inner();
         self.post("v2/mods/edit_details", true, |r| r.multipart(form))
     }
 
     pub fn add_image<T: Into<String>>(&self, name: T) -> Result<ImageAddResponse> {
         self.post("v2/mods/images/add", true, |r| {
-            r.multipart(reqwest::blocking::multipart::Form::new().text("mod", name.into()))
+            r.multipart(Form::new().text("mod", name.into()))
         })
     }
 
     pub fn upload_image(&self, url: Url, path: &Path) -> Result<ImageUploadResponse> {
-        let form = reqwest::blocking::multipart::Form::new()
-            .file("image", path)
-            .map_err(|e| {
-                ApiError::new(
-                    ApiErrorKind::ImageIo,
-                    format!("Could not read image file: {:?}", e),
-                    None,
-                )
-            })?;
+        let form = Form::new().file("image", path).map_err(|e| {
+            ApiError::new(
+                ApiErrorKind::ImageIo,
+                format!("Could not read image file: {:?}", e),
+                None,
+            )
+        })?;
 
         self.send(self.client.post(url).multipart(form), false)
     }
 
     pub fn edit_images(&self, data: ImageEditRequest) -> Result<ImageEditResponse> {
-        let container: FormContainer<reqwest::blocking::multipart::Form> = data.into();
+        let container: FormContainer<Form> = data.into();
         let form = container.into_inner();
         self.post("v2/mods/images/edit", true, |r| r.multipart(form))
     }
 
     pub fn init_publish<T: Into<String>>(&self, name: T) -> Result<InitPublishResponse> {
-        let form = reqwest::blocking::multipart::Form::new().text("mod", name.into());
+        let form = Form::new().text("mod", name.into());
         self.post("v2/mods/init_publish", true, |r| r.multipart(form))
     }
 
     pub fn publish(&self, url: Url, data: PublishRequest, path: &Path) -> Result<PublishResponse> {
-        let container: FormContainer<reqwest::blocking::multipart::Form> = data.into();
+        let container: FormContainer<Form> = data.into();
         let mut form = container.into_inner();
         form = form.file("file", path).map_err(|e| {
             ApiError::new(
@@ -227,7 +226,7 @@ impl ApiClient {
         })
     }
 
-    fn send<T>(&self, request: reqwest::blocking::RequestBuilder, auth: bool) -> Result<T>
+    fn send<T>(&self, request: RequestBuilder, auth: bool) -> Result<T>
     where
         T: DeserializeOwned,
     {
@@ -255,7 +254,7 @@ impl ApiClient {
 
     fn get<T, F>(&self, path: &str, auth: bool, f: F) -> Result<T>
     where
-        T: serde::de::DeserializeOwned,
+        T: DeserializeOwned,
         F: FnOnce(RequestBuilder) -> RequestBuilder,
     {
         let url = self.url(path)?;
@@ -266,7 +265,7 @@ impl ApiClient {
 
     fn post<T, F>(&self, path: &str, auth: bool, f: F) -> Result<T>
     where
-        T: serde::de::DeserializeOwned,
+        T: DeserializeOwned,
         F: FnOnce(RequestBuilder) -> RequestBuilder,
     {
         let url = self.url(path)?;
