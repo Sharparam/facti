@@ -2,7 +2,7 @@
 
 pkgname=facti-git
 _base="${pkgname%-git}"
-pkgver='0.1.0'
+pkgver=v0.1.0.r31.g229025f
 pkgrel=1
 pkgdesc="CLI tool that aids in Factorio mod development"
 arch=(x86_64 i686 aarch64)
@@ -50,8 +50,7 @@ package() {
   cd "${_base}"
   install -Dm755 "target/release/${_binname}" "${pkgdir}/usr/bin/${_binname}"
 
-  install -Dm644 target/assets/man/* "${pkgdir}/usr/share/man/man1"
-
+  install -Dm644 -t "${pkgdir}/usr/share/man/man1" target/assets/man/*
   install -Dm644 target/assets/completion/bash "${pkgdir}/usr/share/bash-completion/completions/${_binname}"
   install -Dm644 target/assets/completion/zsh "${pkgdir}/usr/share/zsh/site-functions/_${_binname}"
   install -Dm644 target/assets/completion/fish "${pkgdir}/usr/share/fish/vendor_completions.d/${_binname}.fish"
