@@ -1,5 +1,4 @@
 use std::{
-    env,
     fs::{self, File},
     io::{BufReader, Read, Write},
     path::PathBuf,
@@ -18,9 +17,6 @@ const APP_QUALIFIER: &str = "com";
 const APP_ORG: &str = "Sharparam";
 const APP_NAME: &str = "facti";
 const CONFIG_FILENAME: &str = "config.toml";
-
-const ENV_CONFIG_PATH: &str = "FACTI_CONFIG";
-const ENV_FACTORIO_API_KEY: &str = "FACTI_FACTORIO_API_KEY";
 
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -87,15 +83,12 @@ pub enum ConfigPath {
 
 impl Config {
     pub fn default_path() -> Result<PathBuf> {
-        if let Ok(val) = env::var(ENV_CONFIG_PATH) {
-            debug!("Config file path set from environment variable: {:?}", val);
-            return Ok(PathBuf::from(val));
-        }
-
         let project_dirs = ProjectDirs::from(APP_QUALIFIER, APP_ORG, APP_NAME)
             .context("Failed to resolve config directory")?;
         let config_dir = project_dirs.config_dir();
         let config_path = config_dir.join(CONFIG_FILENAME);
+
+        debug!("Resolved default config path as {}", config_path.display());
 
         Ok(config_path)
     }
@@ -108,8 +101,8 @@ impl Config {
             debug!("Loading config from default path");
             Self::default_path()?
         };
-        debug!("Loading config from {:?}", config_path);
-        let mut config: Config = if config_path.exists() {
+        debug!("Loading config from {}", config_path.display());
+        let config: Config = if config_path.exists() {
             let file = File::open(config_path).context("Failed to open config file")?;
             let mut reader = BufReader::new(file);
             let mut contents = String::new();
@@ -120,11 +113,6 @@ impl Config {
         } else {
             Default::default()
         };
-
-        if let Ok(api_key) = env::var(ENV_FACTORIO_API_KEY) {
-            debug!("Setting Factorio API key from environment variable");
-            config.factorio_api.api_key = Some(api_key);
-        }
 
         Ok(config)
     }

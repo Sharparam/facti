@@ -12,7 +12,7 @@ categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]
 anyhow = "1.0.72"
-clap = { version = "4.3.21", features = ["derive"] }
+clap = { version = "4.3.21", features = ["derive", "env"] }
 clap_complete = "4.3.2"
 directories = "5.0.1"
 facti-api = { version = "0.1.0", features = ["blocking"], path = "../api" }

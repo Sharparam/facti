@@ -12,6 +12,12 @@ pub mod new;
 pub mod portal;
 mod verbose;
 
+const ENV_CONFIG_PATH: &str = "FACTI_CONFIG";
+const ENV_LOG_LEVEL: &str = "FACTI_LOG_LEVEL";
+const ENV_API_KEY: &str = "FACTI_API_KEY";
+const ENV_API_KEY_FILE: &str = "FACTI_API_KEY_FILE";
+const ENV_BASE_URL: &str = "FACTI_BASE_URL";
+
 // const LOG_LEVEL_VALS: &[&str] = &[
 //     "error", "err", "e", "warning", "warn", "w", "info", "inf", "i", "debug", "dbg", "d", "trace",
 //     "t", "0", "1", "2", "3", "4", "5",
@@ -27,18 +33,24 @@ pub struct Cli {
     ///
     /// If this option is specified, the verbosity (-v) and quiet (-q) flags
     /// will be ignored.
-    #[arg(short, long, global = true)]
+    #[arg(
+        short,
+        long,
+        env = ENV_LOG_LEVEL,
+        alias = "log-level-filter",
+        global = true
+    )]
     pub log_level: Option<LogLevelFilter>,
 
     /// Override config file path.
     ///
     /// When specified, will use this config file instead of looking in the
     /// default locations.
-    #[arg(short, long, value_hint = ValueHint::FilePath)]
+    #[arg(short, long, env = ENV_CONFIG_PATH, value_hint = ValueHint::FilePath)]
     pub config: Option<PathBuf>,
 
     /// Set API key to use.
-    #[arg(short = 'k', long, value_hint = ValueHint::Other)]
+    #[arg(short = 'k', long, env = ENV_API_KEY, value_hint = ValueHint::Other)]
     pub api_key: Option<String>,
 
     /// Read API key from stdin.
@@ -54,13 +66,13 @@ pub struct Cli {
     ///
     /// This can be useful as a way to avoid having your API key end up
     /// in your shell history.
-    #[arg(long, value_hint = ValueHint::FilePath, conflicts_with_all = &["api_key", "api_key_stdin"])]
+    #[arg(long, env = ENV_API_KEY_FILE, value_hint = ValueHint::FilePath, conflicts_with_all = &["api_key", "api_key_stdin"])]
     pub api_key_file: Option<PathBuf>,
 
     /// Override the base URL to the Factorio REST API.
     ///
     /// The default base URL is https://mods.factorio.com/api/
-    #[arg(long, value_hint = ValueHint::Url)]
+    #[arg(long, env = ENV_BASE_URL, value_hint = ValueHint::Url)]
     pub base_url: Option<Url>,
 
     #[command(subcommand)]
