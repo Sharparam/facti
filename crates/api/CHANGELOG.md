@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
  - Proper changelog.
+ - Async version of `ApiClient`, enabled by default or by explicitly enabling
+   the `async` feature.
 
 ### Changed
 
