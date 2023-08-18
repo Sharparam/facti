@@ -10,6 +10,10 @@ license.workspace = true
 keywords = ["factorio"]
 categories = ["api-bindings"]
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [features]
 default = ["async"]
 async = ["dep:async-trait", "dep:mime_guess"]

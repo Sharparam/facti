@@ -42,13 +42,17 @@ pub enum ChangelogFormat {
     Factorio,
     Json,
     #[cfg(feature = "yaml")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "yaml")))]
     Yaml,
     Toml,
     #[cfg(feature = "ron")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "ron")))]
     Ron,
     #[cfg(feature = "sexpr")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "sexpr")))]
     Sexpr,
     #[cfg(feature = "sexpr")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "sexpr")))]
     Elisp,
 }
 
