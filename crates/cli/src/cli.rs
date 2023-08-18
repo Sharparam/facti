@@ -5,8 +5,12 @@ use url::Url;
 
 use crate::logging::LogLevelFilter;
 
-use self::{completion::CompletionArgs, new::NewArgs, portal::PortalArgs, verbose::Verbosity};
+use self::{
+    changelog::ChangelogArgs, completion::CompletionArgs, new::NewArgs, portal::PortalArgs,
+    verbose::Verbosity,
+};
 
+pub mod changelog;
 pub mod completion;
 pub mod new;
 pub mod portal;
@@ -80,6 +84,8 @@ pub enum Commands {
 
     #[command(visible_alias = "init")]
     New(Box<NewArgs>),
+
+    Changelog(ChangelogArgs),
 
     Completion(CompletionArgs),
 

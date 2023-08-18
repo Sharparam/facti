@@ -1,3 +1,9 @@
+//! # Features
+//!
+//! - **`ron`:** Enables RON support for changelog conversion.
+//! - **`sexpr`:** Enables S-Expression and Emacs Lisp support for changelog conversion.
+//! - **`yaml`:** Enables YAML support for changelog conversion.
+
 use std::{
     fs::File,
     io::{self, Read, Write},
@@ -18,13 +24,18 @@ mod config;
 mod logging;
 mod vcs;
 
-// xtask needs access to the structs for main and sub commands for the CLI,
-// but we don't want to expose them to users.
+/// xtask needs access to the structs for main and sub commands for the CLI,
+/// but we don't want to expose them to users.
 #[doc(hidden)]
 pub mod __xtask {
     pub use super::cli::Cli;
 }
 
+/// Runs the CLI interface.
+///
+/// Not meant to be called by anything other than the `facti` binary.
+/// It needs to be exposed in order for the `facti` crate to be able to be used
+/// in the `xtask` crate to generate manpages.
 pub fn run() -> Result<()> {
     let cli = Cli::try_parse()?;
 
@@ -66,6 +77,7 @@ pub fn run() -> Result<()> {
     match cli.command {
         cli::Commands::Portal(portal) => portal.run(&api_client),
         cli::Commands::New(new) => new.run(&config),
+        cli::Commands::Changelog(changelog) => changelog.run(),
         cli::Commands::Completion(completion) => completion.run(),
 
         #[cfg(debug_assertions)]

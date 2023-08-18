@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `author`
     * `contact`
     * `factorio-version`
+ - New command: `facti changelog convert` to convert changelogs between various
+   formats.
 
 ### Changed
 
