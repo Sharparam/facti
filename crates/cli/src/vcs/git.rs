@@ -5,7 +5,7 @@ use anyhow::{bail, Context, Result};
 use git2::Repository;
 use tracing::{debug, info};
 
-pub struct Git {}
+pub struct Git;
 
 impl Vcs for Git {
     fn init(path: &std::path::Path) -> Result<()> {
