@@ -28,7 +28,7 @@ jobs:
             --generate-notes \
             --title "${{ env.FACTI_VERSION }}" \
             --verify-tag \
-            "${{ env.GITHUB_REF_NAME }}"
+            "${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ github.token }}
   build-release:
