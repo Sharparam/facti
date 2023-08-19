@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2023-08-19
+
 ### Added
 
  - Proper changelog.
@@ -44,5 +46,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Ability to load info.json files.
  - Implementations of various data formats relevant to Factorio mods.
 
-[unreleased]: https://github.com/Sharparam/facti/compare/lib/v0.1.0...HEAD
+[unreleased]: https://github.com/Sharparam/facti/compare/lib/v0.2.0...HEAD
+[0.2.0]: https://github.com/Sharparam/facti/compare/lib/v0.1.0...lib/v0.2.0
 [0.1.0]: https://github.com/Sharparam/facti/releases/tag/lib/v0.1.0
