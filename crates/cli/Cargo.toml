@@ -27,7 +27,7 @@ etcetera = "0.8.0"
 facti-api = { version = "0.1.0", path = "../api", default-features = false, features = [
     "blocking"
 ] }
-facti-lib = { version = "0.2.0", path = "../lib" }
+facti-lib = { version = "0.2.1", path = "../lib" }
 git2 = { version = "0.17.2", default-features = false }
 human-panic = "1.1.5"
 indoc = "2.0.3"
