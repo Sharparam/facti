@@ -4,6 +4,9 @@ on:
 
 name: Test
 
+env:
+  RUST_BACKTRACE: full
+
 jobs:
   test:
     name: Test
