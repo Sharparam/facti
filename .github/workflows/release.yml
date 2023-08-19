@@ -70,7 +70,7 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           target: ${{ matrix.target }}
-      - name: Use cross
+      - name: Setup cross
         if: matrix.cross == 'true'
         shell: bash
         run: |
@@ -99,7 +99,7 @@ jobs:
       - name: Strip release binary (linux)
         if: matrix.build == 'linux' || matrix.build == 'linux-musl'
         run: strip "target/${{ matrix.target }}/release/facti"
-      - name: Build archives
+      - name: Build release archives
         shell: bash
         run: |
           dist="target/dist"
