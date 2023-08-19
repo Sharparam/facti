@@ -12,11 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Proper changelog.
  - Async version of `ApiClient`, enabled by default or by explicitly enabling
    the `async` feature.
+ - Ability to fetch latest game versions.
 
 ### Changed
 
  - Made methods on `ApiClient` and `ApiClientBuilder` a bit more idiotmatic
    (hopefully).
+ - **BREAKING:** Due to introducing new APIs that use a different base URL,
+   there are now two base URL settings on the API clients:
+    - `portal_base_url` for the mod portal API.
+    - `game_base_url` for the game API.
 
 ### Security
 
