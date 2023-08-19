@@ -19,7 +19,7 @@ _pkgid="${_base}"
 
 pkgver() {
   cd "${_base}"
-  ./bin/version cli | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+  ./bin/version --long cli | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 prepare() {

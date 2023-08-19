@@ -4,22 +4,50 @@ set -euo pipefail
 
 ver() {
   local prefix="${1}/"
-  v=$(git describe --tags --long --match "${prefix}*")
+  local v
+  if (( LONG == 1 )); then
+    v=$(git describe --tags --long --match "${prefix}*")
+  else
+    v=$(git describe --tags --match "${prefix}*")
+  fi
   echo "${v##"$prefix"}"
 }
 
-case ${1-} in
-  cli)
-    ver "cli"
-  ;;
-  api)
-    ver "api"
-  ;;
-  lib)
-    ver "lib"
-  ;;
-  *)
-    echo "Usage: $0 <cli|api|lib>" >&2
-    exit 1
-  ;;
-esac
+usage() {
+  echo "Usage: $0 [-l|--long] <cli|api|lib>" >&2
+  exit 1
+}
+
+MODE=""
+LONG=0
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -l|--long)
+      LONG=1
+      shift
+    ;;
+    cli)
+      [[ -n "$MODE" ]] && usage
+      MODE="cli"
+      shift
+    ;;
+    api)
+      [[ -n "$MODE" ]] && usage
+      MODE="api"
+      shift
+    ;;
+    lib)
+      [[ -n "$MODE" ]] && usage
+      MODE="lib"
+      shift
+    ;;
+    *)
+      usage
+    ;;
+  esac
+done
+
+[[ -z "$MODE" ]] && usage
+
+ver "$MODE"
