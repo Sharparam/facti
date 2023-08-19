@@ -20,6 +20,7 @@ pub fn config() -> Result<PathBuf> {
     Ok(strategy()?.config_dir())
 }
 
+#[allow(dead_code)]
 pub fn data() -> Result<PathBuf> {
     Ok(strategy()?.data_dir())
 }
