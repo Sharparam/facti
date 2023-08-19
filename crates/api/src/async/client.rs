@@ -7,6 +7,7 @@ use url::Url;
 use crate::{
     data::{
         detail::{ModDetailsRequest, ModDetailsResponse},
+        game::LatestReleases,
         image::{ImageAddResponse, ImageEditRequest, ImageEditResponse, ImageUploadResponse},
         portal::{SearchQuery, SearchResponse, SearchResult},
         publish::{InitPublishResponse, PublishRequest, PublishResponse},
@@ -14,14 +15,15 @@ use crate::{
     },
     error::{ApiError, ApiErrorKind},
     reqwest::FormContainer,
-    DEFAULT_BASE_URL,
+    DEFAULT_GAME_BASE_URL, DEFAULT_PORTAL_BASE_URL,
 };
 
 use super::{error, reqwest::AsyncFormFile};
 
 pub struct ApiClient {
     client: reqwest::Client,
-    base_url: Url,
+    portal_base_url: Url,
+    game_base_url: Url,
     api_key: Option<String>,
 }
 
@@ -31,7 +33,8 @@ impl ApiClient {
     pub fn new() -> Self {
         Self {
             client: Default::default(),
-            base_url: Url::parse(DEFAULT_BASE_URL).unwrap(),
+            portal_base_url: Url::parse(DEFAULT_PORTAL_BASE_URL).unwrap(),
+            game_base_url: Url::parse(DEFAULT_GAME_BASE_URL).unwrap(),
             api_key: None,
         }
     }
@@ -48,22 +51,31 @@ impl ApiClient {
     }
 
     pub async fn search(&self, query: &SearchQuery) -> Result<SearchResponse> {
-        self.get("mods", false, |r| r.query(query)).await
+        self.get(self.portal_url("mods")?, false, |r| r.query(query))
+            .await
     }
 
     pub async fn info_short(&self, name: &str) -> Result<SearchResult> {
-        self.get(&format!("mods/{}", name), false, |r| r).await
+        self.get(self.portal_url(format!("mods/{}", name))?, false, |r| r)
+            .await
     }
 
     /// Get detailed information about a mod by its internal name.
     pub async fn info_full(&self, name: &str) -> Result<SearchResult> {
-        self.get(&format!("mods/{}/full", name), false, |r| r).await
+        self.get(
+            self.portal_url(format!("mods/{}/full", name))?,
+            false,
+            |r| r,
+        )
+        .await
     }
 
     pub async fn init_upload<T: Into<String>>(&self, name: T) -> Result<InitUploadResponse> {
         let form = Form::new().text("mod", name.into());
-        self.post("v2/mods/upload", true, |r| r.multipart(form))
-            .await
+        self.post(self.portal_url("v2/mods/upload")?, true, |r| {
+            r.multipart(form)
+        })
+        .await
     }
 
     pub async fn upload(&self, url: Url, path: &Path) -> Result<UploadResponse> {
@@ -82,12 +94,14 @@ impl ApiClient {
     pub async fn edit_details(&self, data: ModDetailsRequest) -> Result<ModDetailsResponse> {
         let container: FormContainer<Form> = data.into();
         let form = container.into_inner();
-        self.post("v2/mods/edit_details", true, |r| r.multipart(form))
-            .await
+        self.post(self.portal_url("v2/mods/edit_details")?, true, |r| {
+            r.multipart(form)
+        })
+        .await
     }
 
     pub async fn add_image<T: Into<String>>(&self, name: T) -> Result<ImageAddResponse> {
-        self.post("v2/mods/images/add", true, |r| {
+        self.post(self.portal_url("v2/mods/images/add")?, true, |r| {
             r.multipart(Form::new().text("mod", name.into()))
         })
         .await
@@ -109,14 +123,18 @@ impl ApiClient {
     pub async fn edit_images(&self, data: ImageEditRequest) -> Result<ImageEditResponse> {
         let container: FormContainer<Form> = data.into();
         let form = container.into_inner();
-        self.post("v2/mods/images/edit", true, |r| r.multipart(form))
-            .await
+        self.post(self.portal_url("v2/mods/images/edit")?, true, |r| {
+            r.multipart(form)
+        })
+        .await
     }
 
     pub async fn init_publish<T: Into<String>>(&self, name: T) -> Result<InitPublishResponse> {
         let form = Form::new().text("mod", name.into());
-        self.post("v2/mods/init_publish", true, |r| r.multipart(form))
-            .await
+        self.post(self.portal_url("v2/mods/init_publish")?, true, |r| {
+            r.multipart(form)
+        })
+        .await
     }
 
     pub async fn publish(
@@ -139,11 +157,27 @@ impl ApiClient {
             .await
     }
 
-    fn url(&self, path: &str) -> Result<Url> {
-        self.base_url.join(path).map_err(|_| {
+    /// Get information about the latest available releases of the game.
+    pub async fn latest_releases(&self) -> Result<LatestReleases> {
+        self.get(self.game_url("latest-releases")?, false, |r| r)
+            .await
+    }
+
+    fn portal_url<T: AsRef<str>>(&self, path: T) -> Result<Url> {
+        self.portal_base_url.join(path.as_ref()).map_err(|_| {
             ApiError::new(
                 ApiErrorKind::UrlParseFailed,
-                format!("Failed to join base URL with path {}", path),
+                format!("Failed to join base URL with path {}", path.as_ref()),
+                None,
+            )
+        })
+    }
+
+    fn game_url(&self, path: &str) -> Result<Url> {
+        self.game_base_url.join(path).map_err(|_| {
+            ApiError::new(
+                ApiErrorKind::UrlParseFailed,
+                format!("Failed to join game base URL with path {}", path),
                 None,
             )
         })
@@ -175,24 +209,24 @@ impl ApiClient {
         }
     }
 
-    async fn get<T, F>(&self, path: &str, auth: bool, f: F) -> Result<T>
+    async fn get<T, U, F>(&self, url: U, auth: bool, f: F) -> Result<T>
     where
         T: DeserializeOwned,
+        U: Into<Url>,
         F: FnOnce(RequestBuilder) -> RequestBuilder,
     {
-        let url = self.url(path)?;
-        let request = f(self.client.get(url));
+        let request = f(self.client.get(url.into()));
 
         self.send::<T>(request, auth).await
     }
 
-    async fn post<T, F>(&self, path: &str, auth: bool, f: F) -> Result<T>
+    async fn post<T, U, F>(&self, url: U, auth: bool, f: F) -> Result<T>
     where
         T: DeserializeOwned,
+        U: Into<Url>,
         F: FnOnce(RequestBuilder) -> RequestBuilder,
     {
-        let url = self.url(path)?;
-        let request = f(self.client.post(url));
+        let request = f(self.client.post(url.into()));
 
         self.send::<T>(request, auth).await
     }
@@ -204,43 +238,4 @@ impl Default for ApiClient {
     }
 }
 
-#[derive(Default)]
-pub struct ApiClientBuilder {
-    client: Option<reqwest::Client>,
-    base_url: Option<Url>,
-    api_key: Option<String>,
-}
-
-impl ApiClientBuilder {
-    pub fn new() -> Self {
-        Default::default()
-    }
-
-    pub fn client(&mut self, client: reqwest::Client) -> &mut Self {
-        self.client = Some(client);
-        self
-    }
-
-    pub fn base_url<T: Into<Url>>(&mut self, base_url: T) -> &mut Self {
-        self.base_url = Some(base_url.into());
-        self
-    }
-
-    pub fn api_key<T: Into<String>>(&mut self, api_key: T) -> &mut Self {
-        self.api_key = Some(api_key.into());
-        self
-    }
-
-    pub fn build(self) -> ApiClient {
-        let client = self.client.unwrap_or_default();
-        let base_url = self
-            .base_url
-            .unwrap_or(Url::parse(DEFAULT_BASE_URL).unwrap());
-
-        ApiClient {
-            client,
-            base_url,
-            api_key: self.api_key,
-        }
-    }
-}
+api_client_builder!(reqwest::Client, ApiClient);

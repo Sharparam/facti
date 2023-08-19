@@ -10,6 +10,9 @@
 //! - **`blocking`:** Enables the [`blocking`] module, which provides a blocking client.
 //!
 
+#[macro_use]
+mod client;
+
 #[cfg(feature = "async")]
 mod r#async;
 #[cfg(feature = "blocking")]
@@ -24,4 +27,7 @@ mod reqwest;
 pub use r#async::client::{ApiClient, ApiClientBuilder};
 
 /// The default base URL for the Factorio mod portal API.
-pub const DEFAULT_BASE_URL: &str = "https://mods.factorio.com/api/";
+pub const DEFAULT_PORTAL_BASE_URL: &str = "https://mods.factorio.com/api/";
+
+/// The default base URL for the Factorio game API.
+pub const DEFAULT_GAME_BASE_URL: &str = "https://factorio.com/api/";

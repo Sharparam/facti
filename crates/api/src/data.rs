@@ -1,4 +1,5 @@
 pub mod detail;
+pub mod game;
 pub mod image;
 pub mod pagination;
 pub mod portal;

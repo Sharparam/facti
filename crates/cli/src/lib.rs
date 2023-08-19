@@ -68,7 +68,7 @@ pub fn run() -> Result<LogState> {
     let mut api_builder = facti_api::blocking::ApiClient::builder();
 
     if let Some(base_url) = base_url {
-        api_builder.base_url(base_url);
+        api_builder.portal_base_url(base_url);
     }
 
     if let Some(api_key) = api_key {

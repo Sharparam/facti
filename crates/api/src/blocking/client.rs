@@ -10,6 +10,7 @@ use url::Url;
 use crate::{
     data::{
         detail::{ModDetailsRequest, ModDetailsResponse},
+        game::LatestReleases,
         image::{ImageAddResponse, ImageEditRequest, ImageEditResponse, ImageUploadResponse},
         portal::{SearchQuery, SearchResponse, SearchResult},
         publish::{InitPublishResponse, PublishRequest, PublishResponse},
@@ -17,7 +18,7 @@ use crate::{
     },
     error::{ApiError, ApiErrorKind},
     reqwest::FormContainer,
-    DEFAULT_BASE_URL,
+    DEFAULT_GAME_BASE_URL, DEFAULT_PORTAL_BASE_URL,
 };
 
 /// A blocking [`ApiClient`] to make requests to the Factorio APIs with.
@@ -75,7 +76,8 @@ use crate::{
 /// [`DEFAULT_BASE_URL`].
 pub struct ApiClient {
     client: reqwest::blocking::Client,
-    base_url: Url,
+    portal_base_url: Url,
+    game_base_url: Url,
     api_key: Option<String>,
 }
 
@@ -89,7 +91,8 @@ impl ApiClient {
     pub fn new() -> Self {
         Self {
             client: Default::default(),
-            base_url: Url::parse(DEFAULT_BASE_URL).unwrap(),
+            portal_base_url: Url::parse(DEFAULT_PORTAL_BASE_URL).unwrap(),
+            game_base_url: Url::parse(DEFAULT_GAME_BASE_URL).unwrap(),
             api_key: None,
         }
     }
@@ -125,7 +128,7 @@ impl ApiClient {
     /// Any other fields on [`SearchResult`] will *never* have a value set when
     /// constructed as a result of calling this method.
     pub fn search(&self, query: &SearchQuery) -> Result<SearchResponse> {
-        self.get("mods", false, |r| r.query(query))
+        self.get(self.portal_url("mods")?, false, |r| r.query(query))
     }
 
     /// Get brief information about a mod by its internal name.
@@ -142,12 +145,16 @@ impl ApiClient {
     /// # Ok::<(), Box<dyn Error>>(())
     /// ```
     pub fn info_short(&self, name: &str) -> Result<SearchResult> {
-        self.get(&format!("mods/{}", name), false, |r| r)
+        self.get(self.portal_url(format!("mods/{}", name))?, false, |r| r)
     }
 
     /// Get detailed information about a mod by its internal name.
     pub fn info_full(&self, name: &str) -> Result<SearchResult> {
-        self.get(&format!("mods/{}/full", name), false, |r| r)
+        self.get(
+            self.portal_url(format!("mods/{}/full", name))?,
+            false,
+            |r| r,
+        )
     }
 
     pub fn init_upload<T: Into<String>>(&self, name: T) -> Result<InitUploadResponse> {
@@ -216,11 +223,26 @@ impl ApiClient {
         self.send(self.client.post(url).multipart(form), false)
     }
 
-    fn url(&self, path: &str) -> Result<Url> {
-        self.base_url.join(path).map_err(|_| {
+    /// Get information about the latest available releases of the game.
+    pub fn latest_releases(&self) -> Result<LatestReleases> {
+        self.get(self.game_url("latest-releases")?, false, |r| r)
+    }
+
+    fn portal_url<T: AsRef<str>>(&self, path: T) -> Result<Url> {
+        self.portal_base_url.join(path.as_ref()).map_err(|_| {
             ApiError::new(
                 ApiErrorKind::UrlParseFailed,
-                format!("Failed to join base URL with path {}", path),
+                format!("Failed to join portal base URL with path {}", path.as_ref()),
+                None,
+            )
+        })
+    }
+
+    fn game_url(&self, path: &str) -> Result<Url> {
+        self.game_base_url.join(path).map_err(|_| {
+            ApiError::new(
+                ApiErrorKind::UrlParseFailed,
+                format!("Failed to join game base URL with path {}", path),
                 None,
             )
         })
@@ -252,13 +274,13 @@ impl ApiClient {
         }
     }
 
-    fn get<T, F>(&self, path: &str, auth: bool, f: F) -> Result<T>
+    fn get<T, U, F>(&self, url: U, auth: bool, f: F) -> Result<T>
     where
         T: DeserializeOwned,
+        U: Into<Url>,
         F: FnOnce(RequestBuilder) -> RequestBuilder,
     {
-        let url = self.url(path)?;
-        let request = f(self.client.get(url));
+        let request = f(self.client.get(url.into()));
 
         self.send::<T>(request, auth)
     }
@@ -268,7 +290,7 @@ impl ApiClient {
         T: DeserializeOwned,
         F: FnOnce(RequestBuilder) -> RequestBuilder,
     {
-        let url = self.url(path)?;
+        let url = self.portal_url(path)?;
         let request = f(self.client.post(url));
 
         self.send::<T>(request, auth)
@@ -281,43 +303,4 @@ impl Default for ApiClient {
     }
 }
 
-#[derive(Default)]
-pub struct ApiClientBuilder {
-    client: Option<reqwest::blocking::Client>,
-    base_url: Option<Url>,
-    api_key: Option<String>,
-}
-
-impl ApiClientBuilder {
-    pub fn new() -> Self {
-        Default::default()
-    }
-
-    pub fn client(&mut self, client: reqwest::blocking::Client) -> &mut Self {
-        self.client = Some(client);
-        self
-    }
-
-    pub fn base_url<T: Into<Url>>(&mut self, base_url: T) -> &mut Self {
-        self.base_url = Some(base_url.into());
-        self
-    }
-
-    pub fn api_key<T: Into<String>>(&mut self, api_key: T) -> &mut Self {
-        self.api_key = Some(api_key.into());
-        self
-    }
-
-    pub fn build(self) -> ApiClient {
-        let client = self.client.unwrap_or_default();
-        let base_url = self
-            .base_url
-            .unwrap_or(Url::parse(DEFAULT_BASE_URL).unwrap());
-
-        ApiClient {
-            client,
-            base_url,
-            api_key: self.api_key,
-        }
-    }
-}
+api_client_builder!(reqwest::blocking::Client, ApiClient);
