@@ -13,8 +13,9 @@ use crate::dirs;
 pub enum LogLevelFilter {
     Off,
 
-    #[default]
     Error,
+
+    #[default]
     Warn,
     Info,
     Debug,
