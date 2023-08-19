@@ -1,0 +1,111 @@
+name: Bug report
+description: Create a report to help us improve
+labels:
+  - bug
+body:
+  - type: dropdown
+    id: crate
+    attributes:
+      label: Crate
+      description: Which crate is this bug related to?
+      options:
+        - facti (CLI tool)
+        - facti-api (API wrapper)
+        - facti-lib (Library)
+        - Other
+      default: 0
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: >-
+        Provide a more detailed introduction to the issue itself,
+        and why you consider it to be a bug.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: Tell us what you expected would happen.
+    validations:
+      required: false
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: Tell us what happens instead.
+    validations:
+      required: false
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: >-
+        Provide a link to a live example, or an unambiguous set of steps to
+        reliably reproduce the bug.
+      placeholder: |
+        1.
+        2.
+        3.
+        4.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: How has this bug affected you? What were you trying to accomplish?
+    validations:
+      required: false
+  - type: textarea
+    id: fix
+    attributes:
+      label: Possible fix
+      description: >-
+        Not obligatory, but if you have an idea for how to fix the bug,
+        you can suggest it here.
+    validations:
+      required: false
+  - type: input
+    id: affected_versions
+    attributes:
+      label: Affected version(s)
+      description: >-
+        The version of the affected crate that you're using.
+        If the issue affects multiple crates, please list all relevant versions
+        here. (E.g. facti: v1.0.0, facti-api: v1.2.0, facti-lib: v1.0.1)
+
+        You can also list ranges if you know that the issue affects multiple
+        versions of a crate, e.g. v1.0.0 - v1.5.0.
+
+        If you are building from source, please specify the branch and/or
+        commit hash you're using.
+      placeholder: v1.0.0
+    validations:
+      required: true
+  - type: input
+    id: factorio_version
+    attributes:
+      label: Factorio version
+      description: If relevant, the version of Factorio that you're using.
+      placeholder: '1.1.87'
+    validations:
+      required: false
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      description: The operating system (and preferably version) that you're using.
+      placeholder: ex. Windows 10 x64 Version 1607 OS Build 14339.693
+    validations:
+      required: true
+  - type: checkboxes
+    id: additional
+    attributes:
+      label: Additional
+      description: Please check any that apply
+      options:
+        - label: I will work on a fix myself and submit a pull request.
