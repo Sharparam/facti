@@ -42,13 +42,17 @@ jobs:
       RUST_BACKTRACE: 1
     strategy:
       matrix:
-        build: [linux, macos, win-msvc]
+        build: [linux, linux-arm, macos, win-msvc]
         rust: [stable]
         include:
           - build: linux
             os: ubuntu-latest
             target: x86_64-unknown-linux-musl
             cross: false
+          - build: linux-arm
+            os: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            cross: true
           - build: macos
             os: macos-latest
             target: x86_64-apple-darwin
