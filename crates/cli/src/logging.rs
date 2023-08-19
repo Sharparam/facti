@@ -3,7 +3,10 @@ use std::{fmt::Display, io, str::FromStr};
 use anyhow::Context;
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
-use tracing_subscriber::FmtSubscriber;
+use tracing_appender::non_blocking::WorkerGuard;
+use tracing_subscriber::{prelude::*, util::SubscriberInitExt, Layer};
+
+use crate::dirs;
 
 #[derive(Default, Copy, Clone, Debug, Serialize, Deserialize, ValueEnum)]
 pub enum LogLevelFilter {
@@ -17,16 +20,72 @@ pub enum LogLevelFilter {
     Trace,
 }
 
-pub fn init_logging<T: Into<LogLevelFilter>>(filter: T) -> anyhow::Result<()> {
-    let subscriber = FmtSubscriber::builder()
+#[must_use]
+#[derive(Debug)]
+pub struct LogGuard {
+    _file_guard: WorkerGuard,
+    _json_guard: WorkerGuard,
+}
+
+pub fn init<T: Into<LogLevelFilter>>(filter: T) -> anyhow::Result<LogGuard> {
+    let log_level = filter.into();
+    let file_log_level = match log_level {
+        LogLevelFilter::Off => LogLevelFilter::Off,
+        LogLevelFilter::Info => LogLevelFilter::Info,
+        LogLevelFilter::Debug => LogLevelFilter::Debug,
+        LogLevelFilter::Trace => LogLevelFilter::Trace,
+        _ => LogLevelFilter::Warn,
+    };
+    let level_filter = tracing_subscriber::filter::LevelFilter::from(log_level);
+    let file_level_filter = tracing_subscriber::filter::LevelFilter::from(file_log_level);
+
+    let logs_dir = dirs::data_local()?.join("logs");
+    let file_appender = tracing_appender::rolling::daily(&logs_dir, "facti.log");
+    let (file_appender, file_guard) = tracing_appender::non_blocking(file_appender);
+    let json_appender = tracing_appender::rolling::daily(&logs_dir, "facti.json.log");
+    let (json_appender, json_guard) = tracing_appender::non_blocking(json_appender);
+
+    #[cfg(debug_assertions)]
+    let stderr_layer = tracing_subscriber::fmt::layer()
         .with_writer(io::stderr)
-        .with_max_level(filter.into())
-        .finish();
+        .pretty()
+        .without_time()
+        .with_filter(level_filter);
+    #[cfg(not(debug_assertions))]
+    let stderr_layer = tracing_subscriber::fmt::layer()
+        .with_writer(io::stderr)
+        .without_time()
+        .with_filter(level_filter)
+        .with_filter(tracing_subscriber::filter::filter_fn(|metadata| {
+            metadata.target().starts_with("facti")
+        }));
 
-    tracing::subscriber::set_global_default(subscriber)
-        .context("failed to set global default subscriber")?;
+    let pretty_file = tracing_subscriber::fmt::layer()
+        .with_writer(file_appender)
+        .pretty()
+        .with_ansi(false)
+        .with_filter(file_level_filter);
+    let json = tracing_subscriber::fmt::layer()
+        .with_writer(json_appender)
+        .with_file(true)
+        .with_line_number(true)
+        .with_thread_ids(true)
+        .with_thread_names(true)
+        .with_span_events(tracing_subscriber::fmt::format::FmtSpan::FULL)
+        .json()
+        .with_filter(file_level_filter);
 
-    Ok(())
+    tracing_subscriber::registry()
+        .with(stderr_layer)
+        .with(pretty_file)
+        .with(json)
+        .try_init()
+        .context("Failed to set default logger")?;
+
+    Ok(LogGuard {
+        _file_guard: file_guard,
+        _json_guard: json_guard,
+    })
 }
 
 impl From<LogLevelFilter> for tracing::metadata::LevelFilter {

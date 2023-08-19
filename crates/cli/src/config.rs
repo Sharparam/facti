@@ -5,17 +5,13 @@ use std::{
 };
 
 use anyhow::{Context, Result};
-use directories::ProjectDirs;
 use facti_lib::FactorioVersion;
 use serde::{Deserialize, Serialize};
 use tracing::debug;
 use url::Url;
 
-use crate::logging::LogLevelFilter;
+use crate::{dirs, logging::LogLevelFilter};
 
-const APP_QUALIFIER: &str = "com";
-const APP_ORG: &str = "Sharparam";
-const APP_NAME: &str = "facti";
 const CONFIG_FILENAME: &str = "config.toml";
 
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
@@ -83,9 +79,7 @@ pub enum ConfigPath {
 
 impl Config {
     pub fn default_path() -> Result<PathBuf> {
-        let project_dirs = ProjectDirs::from(APP_QUALIFIER, APP_ORG, APP_NAME)
-            .context("Failed to resolve config directory")?;
-        let config_dir = project_dirs.config_dir();
+        let config_dir = dirs::config()?;
         let config_path = config_dir.join(CONFIG_FILENAME);
 
         debug!("Resolved default config path as {}", config_path.display());

@@ -17,10 +17,12 @@ use clap::Parser;
 use self::{
     cli::Cli,
     config::{Config, ConfigPath},
+    logging::LogGuard,
 };
 
 mod cli;
 mod config;
+mod dirs;
 mod logging;
 mod vcs;
 
@@ -36,7 +38,7 @@ pub mod __xtask {
 /// Not meant to be called by anything other than the `facti` binary.
 /// It needs to be exposed in order for the `facti` crate to be able to be used
 /// in the `xtask` crate to generate manpages.
-pub fn run() -> Result<()> {
+pub fn run() -> Result<LogGuard> {
     let cli = Cli::try_parse()?;
 
     let config = Config::load(match &cli.config {
@@ -52,7 +54,7 @@ pub fn run() -> Result<()> {
         },
     };
 
-    logging::init_logging(level_filter)?;
+    let log_guard = logging::init(level_filter)?;
 
     let base_url = if let Some(url) = &cli.base_url {
         Some(url.to_owned())
@@ -82,7 +84,11 @@ pub fn run() -> Result<()> {
 
         #[cfg(debug_assertions)]
         cli::Commands::NoOp => Ok(()),
-    }
+        #[cfg(debug_assertions)]
+        cli::Commands::LogTest => log_test(),
+    }?;
+
+    Ok(log_guard)
 }
 
 fn resolve_api_key(cli: &Cli, config: &Config) -> Result<Option<String>> {
@@ -123,4 +129,16 @@ fn api_key_from_file(path: &Path) -> Result<String> {
         .read_to_string(&mut api_key)
         .context("Failed to read API key from file")?;
     Ok(api_key.trim().to_owned())
+}
+
+#[cfg(debug_assertions)]
+fn log_test() -> Result<()> {
+    let _error_span = tracing::error_span!("This is an error span").entered();
+    tracing::trace!("This is a trace message");
+    tracing::debug!("This is a debug message");
+    tracing::info!("This is an info message");
+    tracing::warn!("This is a warning");
+    tracing::error!("This is an error");
+
+    Ok(())
 }

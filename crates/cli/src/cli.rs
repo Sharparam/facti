@@ -95,6 +95,13 @@ pub enum Commands {
     #[cfg(debug_assertions)]
     #[command(name = "noop", visible_alias = "nop")]
     NoOp,
+
+    /// Print log messages for all log levels.
+    ///
+    /// Used for debugging.
+    #[cfg(debug_assertions)]
+    #[command(name = "logtest")]
+    LogTest,
 }
 
 impl Cli {

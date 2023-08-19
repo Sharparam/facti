@@ -28,12 +28,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `factorio-version`
  - New command: `facti changelog convert` to convert changelogs between various
    formats.
+ - Added logging to file:
+    - A log file will be created in the log directory which will have more
+      detailed logs written to it.
+    - A log file in JSON format will also be created in the log directory which
+      contains *even more detailed* logs in it, meant for debugging or
+      troubleshooting and not for direct human consumption.
 
 ### Changed
 
  - Can now use either `kebab-case` or `snake_case` for config file keys.
  - `--api-key` can now only be specified at the base of the `facti` command,
    it is no longer accepted by the subcommands.
+ - Refined logging to the terminal (STDERR) to be more readable.
 
 ## [0.1.0] - 2023-08-15
 
