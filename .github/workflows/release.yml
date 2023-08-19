@@ -1,0 +1,124 @@
+name: Release
+on:
+  push:
+    tags:
+      - "cli/v[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      facti_version: ${{ env.FACTI_VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Get release version from tag
+        shell: bash
+        run: |
+          bin/version --long cli >> $GITHUB_ENV
+          echo "Version is: ${{ env.FACTI_VERSION }}"
+      - name: Create GitHub release
+        run: |
+          gh release create \
+            --draft \
+            --generate-notes \
+            --title "${{ env.FACTI_VERSION }}" \
+            --verify-tag \
+            "${{ env.GITHUB_REF_NAME }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+  build-release:
+    name: Build Release
+    needs: [create-release]
+    runs-on: ${{ matrix.os }}
+    env:
+      CARGO: cargo
+      TARGET_FLAGS: ""
+      TARGET_DIR: ./target
+      RUST_BACKTRACE: 1
+    strategy:
+      matrix:
+        build: [linux, macos, win-msvc]
+        rust: [stable]
+        include:
+          - build: linux
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            cross: false
+          - build: macos
+            os: macos-latest
+            target: x86_64-apple-darwin
+            cross: false
+          - build: win-msvc
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            cross: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          target: ${{ matrix.target }}
+      - name: Use cross
+        if: matrix.cross == 'true'
+        shell: bash
+        run: |
+          cargo install cross
+          echo "CARGO=cross" >> $GITHUB_ENV
+          echo "TARGET_FLAGS=--target ${{ matrix.target }}" >> $GITHUB_ENV
+          echo "TARGET_DIR=./target/${{ matrix.target }}" >> $GITHUB_ENV
+      - name: Show cargo command
+        run: |
+          echo "cross is: ${{ matrix.cross }}"
+          echo "cargo command is: ${{ env.CARGO }}"
+          echo "target flag is: ${{ env.TARGET_FLAGS }}"
+          echo "target dir is: ${{ env.TARGET_DIR }}"
+      - name: Build release binary
+        run: ${{ env.CARGO }} build --release --all-features --locked --verbose ${{ env.TARGET_FLAGS }}
+      - name: Build manpages
+        if: matrix.build == 'linux' || matrix.build == 'linux-musl'
+        run: ${{ env.CARGO }} xtask-ci man
+      - name: Generate completions
+        run: |
+          mkdir -p target/assets/completion
+          ${{ env.CARGO }} run --release --package facti -- completion zsh > target/assets/completion/_facti
+          ${{ env.CARGO }} run --release --package facti -- completion bash > target/assets/completion/facti.bash
+          ${{ env.CARGO }} run --release --package facti -- completion fish > target/assets/completion/facti.fish
+          ${{ env.CARGO }} run --release --package facti -- completion powershell > target/assets/completion/_facti.ps1
+      - name: Strip release binary (linux)
+        if: matrix.build == 'linux' || matrix.build == 'linux-musl'
+        run: strip "target/${{ matrix.target }}/release/facti"
+      - name: Build archives
+        shell: bash
+        run: |
+          dist="target/dist"
+          mkdir -p "$dist"
+          staging="facti-${{ needs.create-release.outputs.facti_version }}-${{ matrix.target }}"
+          mkdir -p "$staging"/completion
+
+          cp {README.md,LICENSE,CHANGELOG.md} "$staging"
+          cp target/assets/completion/* "$staging"/completion
+
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            cp "target/${{ matrix.target }}/release/facti.exe" "$staging/"
+            7z a "$dist/$staging.zip" "$staging"
+            certutil -hashfile "$dist/$staging.zip" SHA512 > "$dist/$staging.zip.sha512"
+          else
+            cp "target/${{ matrix.target }}/release/facti" "$staging/"
+            mkdir "$staging"/man
+            cp target/assets/man/* "$staging"/man
+            tar -czvf "$dist/$staging.tar.gz" "$staging"
+            shasum -a 512 "$dist/$staging.tar.gz" > "$dist/$staging.tar.gz.sha512"
+            tar --zstd -cvf "$dist/$staging.tar.zst" "$staging"
+            shasum -a 512 "$dist/$staging.tar.zst" > "$dist/$staging.tar.zst.sha512"
+          fi
+      - name: Upload release archives
+        run: gh release upload ${{ needs.create-release.outputs.facti_version }} target/dist/*
+        env:
+          GH_TOKEN: ${{ github.token }}
