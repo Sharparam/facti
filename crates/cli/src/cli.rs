@@ -20,7 +20,8 @@ const ENV_CONFIG_PATH: &str = "FACTI_CONFIG";
 const ENV_LOG_LEVEL: &str = "FACTI_LOG_LEVEL";
 const ENV_API_KEY: &str = "FACTI_API_KEY";
 const ENV_API_KEY_FILE: &str = "FACTI_API_KEY_FILE";
-const ENV_BASE_URL: &str = "FACTI_BASE_URL";
+const ENV_PORTAL_BASE_URL: &str = "FACTI_PORTAL_BASE_URL";
+const ENV_GAME_BASE_URL: &str = "FACTI_GAME_BASE_URL";
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
@@ -68,11 +69,17 @@ pub struct Cli {
     #[arg(long, env = ENV_API_KEY_FILE, value_hint = ValueHint::FilePath, conflicts_with_all = &["api_key", "api_key_stdin"])]
     pub api_key_file: Option<PathBuf>,
 
-    /// Override the base URL to the Factorio REST API.
+    /// Override the base URL to the Factorio mod portal API.
     ///
-    /// The default base URL is https://mods.factorio.com/api/
-    #[arg(long, env = ENV_BASE_URL, value_hint = ValueHint::Url)]
-    pub base_url: Option<Url>,
+    /// The default base URL is <https://mods.factorio.com/api/>.
+    #[arg(long, env = ENV_PORTAL_BASE_URL, value_hint = ValueHint::Url)]
+    pub portal_base_url: Option<Url>,
+
+    /// Override the base URL to the Factorio game API.
+    ///
+    /// The default base URL is <https://factorio.com/api/>.
+    #[arg(long, env = ENV_GAME_BASE_URL, value_hint = ValueHint::Url)]
+    pub game_base_url: Option<Url>,
 
     #[command(subcommand)]
     pub command: Commands,

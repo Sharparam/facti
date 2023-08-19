@@ -34,6 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - A log file in JSON format will also be created in the log directory which
       contains *even more detailed* logs in it, meant for debugging or
       troubleshooting and not for direct human consumption.
+ - New CLI parameter to set game base URL: `--game-base-url`.
+ - New environment variable to set game base URL: `FACTI_GAME_BASE_URL`.
+ - New config file setting to set game base URL: `game-base-url` under the
+   `factorio-api` section.
 
 ### Changed
 
@@ -41,6 +45,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `--api-key` can now only be specified at the base of the `facti` command,
    it is no longer accepted by the subcommands.
  - Refined logging to the terminal (STDERR) to be more readable.
+ - **BREAKING:** The `--base-url` argument has been renamed to `--portal-base-url`.
+ - **BREAKING:** The `FACTI_BASE_URL` environment variable has been renamed
+   to `FACTI_PORTAL_BASE_URL`.
+ - **BREAKING:** The `base-url` setting under `factorio-api` in the config file
+   has been renamed to `portal-base-url`.
 
 ## [0.1.0] - 2023-08-15
 

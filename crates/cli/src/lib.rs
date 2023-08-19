@@ -57,18 +57,28 @@ pub fn run() -> Result<LogState> {
 
     log_guard.set_level_filter(level_filter)?;
 
-    let base_url = if let Some(url) = &cli.base_url {
+    let portal_base_url = if let Some(url) = &cli.portal_base_url {
         Some(url.to_owned())
     } else {
-        config.factorio_api.base_url.to_owned()
+        config.factorio_api.portal_base_url.to_owned()
+    };
+
+    let game_base_url = if let Some(url) = &cli.game_base_url {
+        Some(url.to_owned())
+    } else {
+        config.factorio_api.game_base_url.to_owned()
     };
 
     let api_key = resolve_api_key(&cli, &config).context("Failed to resolve API key")?;
 
     let mut api_builder = facti_api::blocking::ApiClient::builder();
 
-    if let Some(base_url) = base_url {
+    if let Some(base_url) = portal_base_url {
         api_builder.portal_base_url(base_url);
+    }
+
+    if let Some(base_url) = game_base_url {
+        api_builder.game_base_url(base_url);
     }
 
     if let Some(api_key) = api_key {

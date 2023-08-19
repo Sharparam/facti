@@ -30,8 +30,11 @@ pub struct Config {
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub struct FactorioApiConfig {
-    #[serde(alias = "base_url", skip_serializing_if = "Option::is_none")]
-    pub base_url: Option<Url>,
+    #[serde(alias = "portal_base_url", skip_serializing_if = "Option::is_none")]
+    pub portal_base_url: Option<Url>,
+
+    #[serde(alias = "game_base_url", skip_serializing_if = "Option::is_none")]
+    pub game_base_url: Option<Url>,
 
     #[serde(alias = "api_key", skip_serializing_if = "Option::is_none")]
     pub api_key: Option<String>,
