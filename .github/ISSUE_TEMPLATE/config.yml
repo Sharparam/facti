@@ -1,1 +1,8 @@
 blank_issues_enabled: true
+contact_links:
+  - name: I have a question
+    url: https://github.com/Sharparam/facti/discussions
+    about: |
+      If you have questions about usage of Facti or other inquiries that do not
+      involve bugs or feature requests, please use the discussions on this repo
+      to get help.
