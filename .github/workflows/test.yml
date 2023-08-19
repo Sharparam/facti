@@ -43,9 +43,9 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --verbose
+          args: --release --all-features --verbose
       - name: Test
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --verbose
+          args: --all-features --verbose
