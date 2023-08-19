@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Setup Hugo
@@ -34,15 +36,9 @@ jobs:
       - name: Setup pandoc
         uses: nikeee/setup-pandoc@v1
       - name: Generate docs
-        uses: actions-rs/cargo@v1
-        with:
-          command: doc
-          args: --release --workspace
+        run: cargo doc --release --workspace --all-features
       - name: Generate manpages
-        uses: actions-rs/cargo@v1
-        with:
-          command: xtask
-          args: man
+        run: cargo xtask-ci man
       - name: Copy generated docs to static/doc
         run: cp -r target/doc/* site/static/doc
       - name: Prepare man directory

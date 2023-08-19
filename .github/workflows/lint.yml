@@ -19,17 +19,12 @@ jobs:
           - nightly
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
           toolchain: ${{ matrix.rust }}
-          override: true
           components: rustfmt, clippy
-      - uses: actions-rs/cargo@v1
+      - name: Run cargo fmt
+        run: cargo fmt --all --check --verbose
+      - uses: clechasseur/rs-clippy-check@v2
         with:
-          command: fmt
-          args: --all -- --check
-      - uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features -- -D warnings
