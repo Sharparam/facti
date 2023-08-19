@@ -3,8 +3,10 @@
 use std::{io, process::ExitCode};
 
 use facti::run;
+use human_panic::setup_panic;
 
 fn main() -> ExitCode {
+    setup_panic!();
     if let Err(err) = run() {
         if let Some(clap_err) = err.root_cause().downcast_ref::<clap::Error>() {
             clap_err.print().unwrap();
