@@ -67,9 +67,10 @@ impl Dependency {
     /// Shortcut for:
     ///
     /// ```
+    /// # use facti_lib::dependency::{Compatibility, Dependency, DependencyMode};
     /// # let name = "placeholder";
     /// # let version_req = facti_lib::version::VersionReq::Latest;
-    /// Dependency::new(name, Compatibility::Compatible(DependencyMode::Required, version_req))
+    /// let dependency = Dependency::new(name, Compatibility::Compatible(DependencyMode::Required, version_req));
     /// ```
     pub fn required<T: Into<String>>(name: T, version_req: VersionReq) -> Self {
         Self::new(
@@ -83,10 +84,11 @@ impl Dependency {
     /// Shortcut for:
     ///
     /// ```
+    /// # use facti_lib::dependency::{Compatibility, Dependency, DependencyMode};
     /// # let name = "placeholder";
     /// # let version_req = facti_lib::version::VersionReq::Latest;
     /// # let hidden = false;
-    /// Dependency::new(name, Compatibility::Compatible(DependencyMode::Optional { hidden }, version_req))
+    /// let dependency = Dependency::new(name, Compatibility::Compatible(DependencyMode::Optional { hidden }, version_req));
     /// ```
     pub fn optional<T: Into<String>>(name: T, version_req: VersionReq, hidden: bool) -> Self {
         Self::new(
@@ -100,9 +102,10 @@ impl Dependency {
     /// Shortcut for:
     ///
     /// ```
+    /// # use facti_lib::dependency::{Compatibility, Dependency, DependencyMode};
     /// # let name = "placeholder";
     /// # let version_req = facti_lib::version::VersionReq::Latest;
-    /// Dependency::new(name, Compatibility::Compatible(DependencyMode::Independent, version_req))
+    /// let dependency = Dependency::new(name, Compatibility::Compatible(DependencyMode::Independent, version_req));
     /// ```
     pub fn independent<T: Into<String>>(name: T, version_req: VersionReq) -> Self {
         Self::new(
