@@ -15,46 +15,33 @@ use crate::{dirs, logging::LogLevelFilter};
 const CONFIG_FILENAME: &str = "config.toml";
 
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub struct Config {
-    #[serde(
-        rename = "log-level-filter",
-        alias = "log_level_filter",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(alias = "log_level_filter", skip_serializing_if = "Option::is_none")]
     pub log_level_filter: Option<LogLevelFilter>,
 
-    #[serde(default, rename = "factorio-api", alias = "factorio_api")]
+    #[serde(default, alias = "factorio_api")]
     pub factorio_api: FactorioApiConfig,
 
-    #[serde(default, rename = "mod-defaults", alias = "mod_defaults")]
+    #[serde(default, alias = "mod_defaults")]
     pub mod_defaults: ModDefaultsConfig,
 }
 
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub struct FactorioApiConfig {
-    #[serde(
-        rename = "base-url",
-        alias = "base_url",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(alias = "base_url", skip_serializing_if = "Option::is_none")]
     pub base_url: Option<Url>,
 
-    #[serde(
-        rename = "api-key",
-        alias = "api_key",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(alias = "api_key", skip_serializing_if = "Option::is_none")]
     pub api_key: Option<String>,
 
-    #[serde(
-        rename = "api-key-file",
-        alias = "api_key_file",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(alias = "api_key_file", skip_serializing_if = "Option::is_none")]
     pub api_key_file: Option<PathBuf>,
 }
 
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub struct ModDefaultsConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub author: Option<String>,
@@ -62,11 +49,7 @@ pub struct ModDefaultsConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub contact: Option<String>,
 
-    #[serde(
-        rename = "factorio-version",
-        alias = "factorio_version",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(alias = "factorio_version", skip_serializing_if = "Option::is_none")]
     pub factorio_version: Option<FactorioVersion>,
 }
 
@@ -177,7 +160,20 @@ mod tests {
             r#"
             [factorio-api]
             api-key = "foobar"
-        "#,
+            "#,
+        )
+        .unwrap();
+
+        assert_eq!(config.factorio_api.api_key.unwrap(), "foobar");
+    }
+
+    #[test]
+    fn test_config_snake_case_parse() {
+        let config: Config = toml::from_str(
+            r#"
+            [factorio_api]
+            api_key = "foobar"
+            "#,
         )
         .unwrap();
 
