@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
- - Made methods on `ApiClient` and `ApiClientBuilder` a bit more idiotmatic
+ - Made methods on `ApiClient` and `ApiClientBuilder` a bit more idiomatic
    (hopefully).
  - **BREAKING:** Due to introducing new APIs that use a different base URL,
    there are now two base URL settings on the API clients:
