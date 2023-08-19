@@ -15,7 +15,7 @@ use crate::error::ParseVersionError;
 /// and some wrongly configured mods on the mod portal may also have it
 /// set (in error).
 ///
-/// If you're constructing a [`ModInfo`][`facti_lib::ModInfo`] struct,
+/// If you're constructing a [`ModInfo`][crate::ModInfo] struct,
 /// you **MUST NOT** set the patch component, as that is considered invalid
 /// and the mod portal will reject your mod. It may also make the game behave
 /// in unexpected ways.
