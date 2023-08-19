@@ -72,8 +72,9 @@ use crate::{
 /// where you can set (or not set) any of the client properties. Those that are
 /// not set will get their default values.
 ///
-/// The default base URL for the Factorio API can be obtained from the constant
-/// [`DEFAULT_BASE_URL`].
+/// Default URLs for the Factorio APIs can be obtained from constants:
+/// - [`DEFAULT_PORTAL_BASE_URL`] for the mod portal API base URL.
+/// - [`DEFAULT_GAME_BASE_URL`] for the game API base URL.
 pub struct ApiClient {
     client: reqwest::blocking::Client,
     portal_base_url: Url,
