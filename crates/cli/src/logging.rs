@@ -1,10 +1,11 @@
 use std::{fmt::Display, io, str::FromStr};
 
-use anyhow::Context;
+use anyhow::{anyhow, Context, Result};
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
+use tracing::{metadata::LevelFilter, Level};
 use tracing_appender::non_blocking::WorkerGuard;
-use tracing_subscriber::{prelude::*, util::SubscriberInitExt, Layer};
+use tracing_subscriber::{fmt::format::FmtSpan, prelude::*, reload, Layer, Registry};
 
 use crate::dirs;
 
@@ -22,22 +23,31 @@ pub enum LogLevelFilter {
 
 #[must_use]
 #[derive(Debug)]
-pub struct LogGuard {
+pub struct LogState {
+    level_filter_reload_handle: reload::Handle<LevelFilter, Registry>,
     _file_guard: WorkerGuard,
     _json_guard: WorkerGuard,
 }
 
-pub fn init<T: Into<LogLevelFilter>>(filter: T) -> anyhow::Result<LogGuard> {
+impl LogState {
+    pub fn set_level_filter<S: Into<LogLevelFilter>>(&self, filter: S) -> Result<()> {
+        let level_filter = LevelFilter::from(filter.into());
+        self.level_filter_reload_handle
+            .modify(|f| *f = level_filter)
+            .context("Failed to modify log level filter")
+    }
+}
+
+pub fn init<L>(filter: L) -> Result<LogState>
+where
+    L: Into<LogLevelFilter>,
+{
     let log_level = filter.into();
-    let file_log_level = match log_level {
-        LogLevelFilter::Off => LogLevelFilter::Off,
-        LogLevelFilter::Info => LogLevelFilter::Info,
-        LogLevelFilter::Debug => LogLevelFilter::Debug,
-        LogLevelFilter::Trace => LogLevelFilter::Trace,
-        _ => LogLevelFilter::Warn,
-    };
-    let level_filter = tracing_subscriber::filter::LevelFilter::from(log_level);
-    let file_level_filter = tracing_subscriber::filter::LevelFilter::from(file_log_level);
+    let file_log_level = level_to_file_level(log_level);
+    let level_filter = LevelFilter::from(log_level);
+    let (level_filter, level_filter_reload_handle) = reload::Layer::new(level_filter);
+    let file_level_filter = LevelFilter::from(file_log_level);
+    let json_level_filter = LevelFilter::from(file_log_level);
 
     let logs_dir = dirs::state()?.join("logs");
     let file_appender = tracing_appender::rolling::daily(&logs_dir, "facti.log");
@@ -71,9 +81,9 @@ pub fn init<T: Into<LogLevelFilter>>(filter: T) -> anyhow::Result<LogGuard> {
         .with_line_number(true)
         .with_thread_ids(true)
         .with_thread_names(true)
-        .with_span_events(tracing_subscriber::fmt::format::FmtSpan::FULL)
+        .with_span_events(FmtSpan::FULL)
         .json()
-        .with_filter(file_level_filter);
+        .with_filter(json_level_filter);
 
     tracing_subscriber::registry()
         .with(stderr_layer)
@@ -82,13 +92,24 @@ pub fn init<T: Into<LogLevelFilter>>(filter: T) -> anyhow::Result<LogGuard> {
         .try_init()
         .context("Failed to set default logger")?;
 
-    Ok(LogGuard {
+    Ok(LogState {
+        level_filter_reload_handle,
         _file_guard: file_guard,
         _json_guard: json_guard,
     })
 }
 
-impl From<LogLevelFilter> for tracing::metadata::LevelFilter {
+fn level_to_file_level(level: LogLevelFilter) -> LogLevelFilter {
+    match level {
+        LogLevelFilter::Off => LogLevelFilter::Off,
+        LogLevelFilter::Info => LogLevelFilter::Info,
+        LogLevelFilter::Debug => LogLevelFilter::Debug,
+        LogLevelFilter::Trace => LogLevelFilter::Trace,
+        _ => LogLevelFilter::Warn,
+    }
+}
+
+impl From<LogLevelFilter> for LevelFilter {
     fn from(level: LogLevelFilter) -> Self {
         use LogLevelFilter::*;
         match level {
@@ -102,9 +123,8 @@ impl From<LogLevelFilter> for tracing::metadata::LevelFilter {
     }
 }
 
-impl From<tracing::metadata::LevelFilter> for LogLevelFilter {
-    fn from(level: tracing::metadata::LevelFilter) -> Self {
-        use tracing::metadata::LevelFilter;
+impl From<LevelFilter> for LogLevelFilter {
+    fn from(level: LevelFilter) -> Self {
         use LogLevelFilter::*;
         match level {
             LevelFilter::OFF => Off,
@@ -117,9 +137,8 @@ impl From<tracing::metadata::LevelFilter> for LogLevelFilter {
     }
 }
 
-impl From<tracing::Level> for LogLevelFilter {
-    fn from(level: tracing::Level) -> Self {
-        use tracing::Level;
+impl From<Level> for LogLevelFilter {
+    fn from(level: Level) -> Self {
         use LogLevelFilter::*;
         match level {
             Level::ERROR => Error,
@@ -131,15 +150,14 @@ impl From<tracing::Level> for LogLevelFilter {
     }
 }
 
-impl From<Option<tracing::Level>> for LogLevelFilter {
-    fn from(level: Option<tracing::Level>) -> Self {
+impl From<Option<Level>> for LogLevelFilter {
+    fn from(level: Option<Level>) -> Self {
         level.map_or(LogLevelFilter::Off, LogLevelFilter::from)
     }
 }
 
-impl From<LogLevelFilter> for Option<tracing::Level> {
+impl From<LogLevelFilter> for Option<Level> {
     fn from(level: LogLevelFilter) -> Self {
-        use tracing::Level;
         use LogLevelFilter::*;
         match level {
             Off => None,
@@ -170,7 +188,6 @@ impl FromStr for LogLevelFilter {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use anyhow::anyhow;
         use LogLevelFilter::*;
 
         s.parse::<usize>()

@@ -17,7 +17,7 @@ use clap::Parser;
 use self::{
     cli::Cli,
     config::{Config, ConfigPath},
-    logging::LogGuard,
+    logging::LogState,
 };
 
 mod cli;
@@ -38,23 +38,24 @@ pub mod __xtask {
 /// Not meant to be called by anything other than the `facti` binary.
 /// It needs to be exposed in order for the `facti` crate to be able to be used
 /// in the `xtask` crate to generate manpages.
-pub fn run() -> Result<LogGuard> {
+pub fn run() -> Result<LogState> {
     let cli = Cli::try_parse()?;
+
+    let level_filter = cli.log_level_filter();
+
+    let log_guard = logging::init(level_filter.unwrap_or_default())?;
 
     let config = Config::load(match &cli.config {
         Some(path) => ConfigPath::Custom(path.to_path_buf()),
         None => ConfigPath::Default,
     })?;
 
-    let level_filter = match cli.log_level_filter() {
+    let level_filter = level_filter.unwrap_or_else(|| match config.log_level_filter {
         Some(f) => f,
-        None => match config.log_level_filter {
-            Some(f) => f,
-            None => Default::default(),
-        },
-    };
+        None => Default::default(),
+    });
 
-    let log_guard = logging::init(level_filter)?;
+    log_guard.set_level_filter(level_filter)?;
 
     let base_url = if let Some(url) = &cli.base_url {
         Some(url.to_owned())
