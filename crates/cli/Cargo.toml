@@ -24,7 +24,7 @@ anyhow = "1.0.72"
 clap = { version = "4.3.21", features = ["derive", "env"] }
 clap_complete = "4.3.2"
 etcetera = "0.8.0"
-facti-api = { version = "0.1.0", path = "../api", default-features = false, features = [
+facti-api = { version = "0.2.0", path = "../api", default-features = false, features = [
     "blocking"
 ] }
 facti-lib = { version = "0.2.1", path = "../lib" }
