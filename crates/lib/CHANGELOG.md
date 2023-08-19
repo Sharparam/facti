@@ -17,10 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    Borth "as-is" (implemented via `Display` trait) and a sorted variant
    (`Changelog::to_string_sorted`) are possible.
  - Various versions can now convert to and from other representations.
+ - More documentation has been added.
 
 ### Changed
 
  - Restructured some code internally, does not affect the public API.
+ - **BREAKING:** Renamed fields on `facti_lib::modinfo::ModPackageInfo` and
+   changed their types to be more appropriate (they are now `PathBuf` instead
+   of `String` and named appropriately).
 
 ### Fixed
 

@@ -6,14 +6,36 @@ use std::{
 
 use crate::error::ParseVersionError;
 
+/// Represents a version of Factorio (the game).
+///
+/// In most cases, the [`patch`][`FactorioVersion::patch`] field
+/// should be left as [`None`].
+///
+/// The game and its APIs may sometimes return a patch component,
+/// and some wrongly configured mods on the mod portal may also have it
+/// set (in error).
+///
+/// If you're constructing a [`ModInfo`][`facti_lib::ModInfo`] struct,
+/// you **MUST NOT** set the patch component, as that is considered invalid
+/// and the mod portal will reject your mod. It may also make the game behave
+/// in unexpected ways.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct FactorioVersion {
+    /// The major component of the version.
     pub major: u64,
+
+    /// The minor component of the version.
     pub minor: u64,
+
+    /// The patch component of the version, if any.
     pub patch: Option<u64>,
 }
 
 impl FactorioVersion {
+    /// Constructs a [`FactorioVersion`] with just the [`major`][`FactorioVersion::major`]
+    /// and [`minor`][`FactorioVersion::minor`] fields set.
+    ///
+    /// This is most often the correct method to use.
     pub fn new(major: u64, minor: u64) -> Self {
         Self {
             major,
@@ -30,6 +52,23 @@ impl FactorioVersion {
         }
     }
 
+    /// Parses a [`FactorioVersion`] from a string.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use facti_lib::version::FactorioVersion;
+    /// let version = FactorioVersion::parse("1.2")?;
+    /// assert_eq!(version.major, 1);
+    /// assert_eq!(version.minor, 2);
+    /// assert!(version.patch.is_none());
+    ///
+    /// let with_patch = FactorioVersion::parse("1.2.3")?;
+    /// assert_eq!(with_patch.major, 1);
+    /// assert_eq!(with_patch.minor, 2);
+    /// assert_eq!(with_patch.patch, Some(3));
+    /// # Ok::<(), facti_lib::error::ParseVersionError>(())
+    /// ```
     pub fn parse(s: &str) -> Result<Self, ParseVersionError> {
         s.parse()
     }

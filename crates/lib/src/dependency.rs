@@ -8,10 +8,18 @@ use regex::Regex;
 
 use super::{error::ParseDependencyError, version::VersionReq};
 
+/// Describes the relationship of a compatible dependency.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum DependencyMode {
+    /// The dependency is required.
     Required,
+
+    /// The dependency is optional, and may optionally be hidden from view
+    /// on the mod portal.
     Optional { hidden: bool },
+
+    /// The dependency is independent, it will not affect the load order of
+    /// the mod that listed the dependency.
     Independent,
 }
 
@@ -26,15 +34,23 @@ impl Display for DependencyMode {
     }
 }
 
+/// Describes whether a dependency is compatible or not.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Compatibility {
+    /// The dependency is compatible, with optional version requirements.
     Compatible(DependencyMode, VersionReq),
+
+    /// The dependency is incompatible with the mod.
     Incompatible,
 }
 
+/// Describes a dependency of a mod.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Dependency {
+    /// The internal mod name of the dependency.
     pub name: String,
+
+    /// The compatibility of the dependency.
     pub compatibility: Compatibility,
 }
 
@@ -46,6 +62,15 @@ impl Dependency {
         }
     }
 
+    /// Convenience method for creating a required dependency.
+    ///
+    /// Shortcut for:
+    ///
+    /// ```
+    /// # let name = "placeholder";
+    /// # let version_req = facti_lib::version::VersionReq::Latest;
+    /// Dependency::new(name, Compatibility::Compatible(DependencyMode::Required, version_req))
+    /// ```
     pub fn required<T: Into<String>>(name: T, version_req: VersionReq) -> Self {
         Self::new(
             name,
@@ -53,6 +78,16 @@ impl Dependency {
         )
     }
 
+    /// Convenience method for creating an optional dependency.
+    ///
+    /// Shortcut for:
+    ///
+    /// ```
+    /// # let name = "placeholder";
+    /// # let version_req = facti_lib::version::VersionReq::Latest;
+    /// # let hidden = false;
+    /// Dependency::new(name, Compatibility::Compatible(DependencyMode::Optional { hidden }, version_req))
+    /// ```
     pub fn optional<T: Into<String>>(name: T, version_req: VersionReq, hidden: bool) -> Self {
         Self::new(
             name,
@@ -60,6 +95,15 @@ impl Dependency {
         )
     }
 
+    /// Convenience method for creating an independent dependency.
+    ///
+    /// Shortcut for:
+    ///
+    /// ```
+    /// # let name = "placeholder";
+    /// # let version_req = facti_lib::version::VersionReq::Latest;
+    /// Dependency::new(name, Compatibility::Compatible(DependencyMode::Independent, version_req))
+    /// ```
     pub fn independent<T: Into<String>>(name: T, version_req: VersionReq) -> Self {
         Self::new(
             name,
@@ -67,10 +111,28 @@ impl Dependency {
         )
     }
 
+    /// Convenience method for creating an incompatible dependency.
+    ///
+    /// Shortcut for:
+    ///
+    /// ```
+    /// # use facti_lib::dependency::{Compatibility, Dependency};
+    /// # let name = "placeholder";
+    /// let dependency = Dependency::new(name, Compatibility::Incompatible);
+    /// ```
     pub fn incompatible<T: Into<String>>(name: T) -> Self {
         Self::new(name, Compatibility::Incompatible)
     }
 
+    /// Parses a [`Dependency`] from a string.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use facti_lib::dependency::Dependency;
+    /// # use facti_lib::error::ParseDependencyError;
+    /// let dependency = Dependency::parse("my-mod >= 0.17.0")?;
+    /// # Ok::<(), ParseDependencyError>(())
     pub fn parse(s: &str) -> Result<Self, ParseDependencyError> {
         s.parse()
     }

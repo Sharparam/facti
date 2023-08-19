@@ -24,8 +24,16 @@ pub use factorio_version::FactorioVersion;
 /// ```
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Version {
+    /// The major part of the version number.
     pub major: u64,
+
+    /// The minor part of the version number.
     pub minor: u64,
+
+    /// The patch part of the version number.
+    ///
+    /// Factorio documentation and resources sometimes refer to this field
+    /// as the "sub" part.
     pub patch: u64,
 }
 
@@ -38,10 +46,22 @@ impl Version {
         }
     }
 
+    /// Parses a version string into a [`Version`].
     pub fn parse(s: &str) -> Result<Self, ParseVersionError> {
         s.parse()
     }
 
+    /// Checks if this [`Version`] is compatible with the given [`VersionSpec`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use facti_lib::version::{Version, VersionSpec};
+    /// assert!(Version::new(1, 2, 3).matches(VersionSpec::parse("= 1.2.3")?));
+    /// assert!(Version::new(4, 1, 3).matches(VersionSpec::parse("> 4.0.0")?));
+    /// assert!(Version::new(0, 5, 1).matches(VersionSpec::parse("<= 1.0.0")?));
+    /// # Ok::<(), facti_lib::error::ParseVersionSpecError>(())
+    /// ```
     pub fn matches(&self, spec: VersionSpec) -> bool {
         spec.matches(*self)
     }
@@ -98,13 +118,27 @@ impl Display for Op {
     }
 }
 
+/// Represents a version requirement.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum VersionReq {
+    /// Used when the latest version is desired.
     Latest,
+
+    /// Used when a specific version is required,
+    /// or one that matches a predicate.
     Spec(VersionSpec),
 }
 
 impl VersionReq {
+    /// Parses a string into a [`VersionReq`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use facti_lib::version::VersionReq;
+    /// let exact_req = VersionReq::parse("= 1.2.3")?;
+    /// let latest = VersionReq::parse("")?;
+    /// # Ok::<(), facti_lib::error::ParseVersionReqError>(())
     pub fn parse(s: &str) -> Result<Self, ParseVersionReqError> {
         s.parse()
     }
@@ -134,9 +168,14 @@ impl Display for VersionReq {
     }
 }
 
+/// Specifies a specific require version, or a version matching
+/// a given predicate.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct VersionSpec {
+    /// The predicate/operator to use when matching versions.
     pub op: Op,
+
+    /// The version to use as baseline.
     pub version: Version,
 }
 
@@ -145,10 +184,12 @@ impl VersionSpec {
         Self { op, version }
     }
 
+    /// Parses a string into a [`VersionSpec`].
     pub fn parse(s: &str) -> Result<Self, ParseVersionSpecError> {
         s.parse()
     }
 
+    /// Checks if the given [`Version`] matches this [`VersionSpec`].
     pub fn matches(&self, version: Version) -> bool {
         match self.op {
             Op::Exact => self.version == version,

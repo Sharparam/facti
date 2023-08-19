@@ -14,6 +14,7 @@ use crate::version::Version;
 /// Version section start is a sequence of 99 dashes exactly.
 const SECTION_START: &str = "---------------------------------------------------------------------------------------------------";
 
+/// Contains all the sections part of a Factorio mod changelog.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Changelog {
     pub sections: Vec<Section>,
@@ -62,17 +63,30 @@ pub enum ParseChangelogError {
 }
 
 impl Changelog {
+    /// Parses a [`Changelog`] from a string.
+    ///
+    /// The given string must be a valid changelog as specified by
+    /// [the changelog format spec][spec].
+    ///
+    /// [spec]: https://wiki.factorio.com/Tutorial:Mod_changelog_format
     pub fn parse<T: AsRef<str>>(s: T) -> Result<Self, ParseChangelogError> {
         s.as_ref().parse()
     }
 
+    /// Sorts the [`sections`][Changelog::sections] by version.
+    pub fn sort(&mut self) {
+        self.sections.sort_by(|a, b| b.version.cmp(&a.version));
+    }
+
+    /// Converts the [`Changelog`] to a string, with sorted sections according
+    /// to [`Section::version`].
     pub fn to_string_sorted(&self) -> Result<String, fmt::Error> {
-        let mut sections = self.sections.to_owned();
-        sections.sort_by(|a, b| b.version.cmp(&a.version));
+        let mut sorted = self.to_owned();
+        sorted.sort();
 
         let mut s = String::new();
 
-        for section in sections {
+        for section in sorted.sections {
             write!(s, "{}", section)?;
         }
 
