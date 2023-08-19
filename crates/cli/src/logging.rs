@@ -39,7 +39,7 @@ pub fn init<T: Into<LogLevelFilter>>(filter: T) -> anyhow::Result<LogGuard> {
     let level_filter = tracing_subscriber::filter::LevelFilter::from(log_level);
     let file_level_filter = tracing_subscriber::filter::LevelFilter::from(file_log_level);
 
-    let logs_dir = dirs::data_local()?.join("logs");
+    let logs_dir = dirs::state()?.join("logs");
     let file_appender = tracing_appender::rolling::daily(&logs_dir, "facti.log");
     let (file_appender, file_guard) = tracing_appender::non_blocking(file_appender);
     let json_appender = tracing_appender::rolling::daily(&logs_dir, "facti.json.log");
