@@ -7,7 +7,7 @@ use std::{
 use anyhow::{Context, Result};
 use facti_lib::FactorioVersion;
 use serde::{Deserialize, Serialize};
-use tracing::debug;
+use tracing::{debug, info};
 use url::Url;
 
 use crate::{dirs, logging::LogLevelFilter};
@@ -78,7 +78,7 @@ impl Config {
             debug!("Loading config from default path");
             Self::default_path()?
         };
-        debug!("Loading config from {}", config_path.display());
+        info!("Loading config from {}", config_path.display());
         let config: Config = if config_path.exists() {
             let file = File::open(config_path).context("Failed to open config file")?;
             let mut reader = BufReader::new(file);
