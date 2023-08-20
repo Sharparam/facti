@@ -4,7 +4,7 @@ version = "0.1.0"
 authors.workspace = true
 edition.workspace = true
 description = "Build tasks for Facti"
-repository = "https://github.com/Sharparam/facti"
+repository.workspace = true
 license.workspace = true
 publish = false
 
