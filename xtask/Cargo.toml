@@ -8,6 +8,9 @@ repository.workspace = true
 license.workspace = true
 publish = false
 
+[package.metadata.release]
+release = false
+
 [dependencies]
 anyhow = "1.0.74"
 clap = { version = "4.3.21", features = ["derive", "string"] }

@@ -9,3 +9,10 @@ homepage = "https://facti.rs"
 repository = "https://github.com/Sharparam/facti"
 license = "MPL-2.0"
 keywords = ["factorio"]
+
+[workspace.metadata.release]
+sign-commit = true
+sign-tag = true
+tag-message = "Release {{crate_name}} version {{version}}"
+tag-prefix = "{{crate_name}}/"
+publish = false
