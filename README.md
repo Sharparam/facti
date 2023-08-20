@@ -9,6 +9,8 @@ A CLI tool to interact with [Factorio][factorio] [mods][factorio-mods] both loca
 >
 > Any commands and APIs are subject to change while it's still in pre-release.
 
+Quick links: [Installation](#installation) &mdash; [Building](#building) &mdash; [Usage](#usage) &mdash; [Configuration](#configuration)
+
 ## Contributing
 
 [![GitHub discussions][discussions-badge]][discussions] &emsp; [![Matrix room][matrix-badge]][matrix-room]
