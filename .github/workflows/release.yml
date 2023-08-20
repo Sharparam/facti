@@ -37,8 +37,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CARGO: cargo
-      TARGET_FLAGS: ""
-      TARGET_DIR: ./target
+      TARGET_FLAGS: "--target ${{ matrix.target }}"
+      TARGET_DIR: "./target/${{ matrix.target }}"
       RUST_BACKTRACE: 1
     strategy:
       matrix:
@@ -86,7 +86,7 @@ jobs:
         run: |
           echo "cross is: ${{ matrix.cross }}"
           echo "cargo command is: ${{ env.CARGO }}"
-          echo "target flag is: ${{ env.TARGET_FLAGS }}"
+          echo "target is: ${{ matrix.target }}"
           echo "target dir is: ${{ env.TARGET_DIR }}"
       - name: Build release binary
         run: ${{ env.CARGO }} build --release --all-features --locked --verbose --package facti ${{ env.TARGET_FLAGS }}
@@ -107,13 +107,13 @@ jobs:
           ls -la
           echo "LS of target:"
           ls -la target
-          echo "LS of target/${{ matrix.target }}:"
-          ls -la "target/${{ matrix.target }}"
-          echo "LS of target/${{ matrix.target }}/release:"
-          ls -la "target/${{ matrix.target }}/release"
+          echo "LS of ${{ env.TARGET_DIR }}:"
+          ls -la "${{ env.TARGET_DIR }}"
+          echo "LS of ${{ env.TARGET_DIR }}/release:"
+          ls -la "${{ env.TARGET_DIR }}/release"
       - name: Strip release binary (linux, macos)
         if: matrix.build == 'linux' || matrix.build == 'macos'
-        run: strip "target/${{ matrix.target }}/release/facti"
+        run: strip "${{ env.TARGET_DIR}}/release/facti"
       - name: Build release archives
         shell: bash
         run: |
@@ -127,11 +127,11 @@ jobs:
           cp target/assets/completion/* "$staging"/completion
 
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            cp "target/${{ matrix.target }}/release/facti.exe" "$staging/"
+            cp "${{ env.TARGET_DIR }}/release/facti.exe" "$staging/"
             7z a "$dist/$staging.zip" "$staging"
             certutil -hashfile "$dist/$staging.zip" SHA512 > "$dist/$staging.zip.sha512"
           else
-            cp "target/${{ matrix.target }}/release/facti" "$staging/"
+            cp "${{ env.TARGET_DIR }}/release/facti" "$staging/"
             mkdir "$staging"/man
             cp target/assets/man/* "$staging"/man
             tar -czvf "$dist/$staging.tar.gz" "$staging"
