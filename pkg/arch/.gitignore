@@ -1,6 +1,12 @@
+facti-*.tar.gz
+facti-bin*.tar.gz
 facti-git/
 src/
 pkg/
+
+!/src/
+!/bin/
+!/git/
 
 *.tar.zst
 *.tar.zst.sig

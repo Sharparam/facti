@@ -1,0 +1,15 @@
+pkgbase = facti
+	pkgdesc = CLI tool that aids in Factorio mod development
+	pkgver = v0.2.3
+	pkgrel = 1
+	url = https://facti.rs
+	arch = x86_64
+	arch = i686
+	arch = aarch64
+	license = MPL2
+	makedepends = cargo
+	options = !lto
+	source = facti-v0.2.3.tar.gz::https://github.com/Sharparam/facti/archive/refs/tags/facti/v0.2.3.tar.gz
+	sha512sums = 887f2783b8f45c1fd01e56954254b50b534e4f7494afb4490a925149c2cb2937443f6e02f216054602d721a0af3f16bf8abc455579e7908cd30338f76a13b34d
+
+pkgname = facti

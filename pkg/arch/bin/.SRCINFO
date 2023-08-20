@@ -1,0 +1,15 @@
+pkgbase = facti-bin
+	pkgdesc = CLI tool that aids in Factorio mod development
+	pkgver = v0.2.3
+	pkgrel = 1
+	url = https://facti.rs
+	arch = x86_64
+	arch = i686
+	arch = aarch64
+	license = MPL2
+	provides = facti
+	conflicts = facti
+	source = facti-bin-v0.2.3.tar.zst::https://github.com/Sharparam/facti/releases/download/facti%2Fv0.2.3/facti-v0.2.3-x86_64-unknown-linux-musl.tar.zst
+	sha512sums = 2ab3fd061d967a2d06612313ccfdd4a425b3332ed7afcb031c9c567631c2b27305662961230a6f7a14d3157e172e043e623bbeb9eee472111a6bcf3871096c18
+
+pkgname = facti-bin

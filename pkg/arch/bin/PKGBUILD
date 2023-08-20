@@ -1,0 +1,29 @@
+# Maintainer: Adam Hellberg <sharparam@sharparam.com>
+
+pkgname=facti-bin
+_base="${pkgname%-bin}"
+pkgver=v0.2.3
+pkgrel=1
+pkgdesc="CLI tool that aids in Factorio mod development"
+arch=(x86_64 i686 aarch64)
+url="https://facti.rs"
+license=(MPL2)
+provides=("${_base}")
+conflicts=("${_base}")
+source=("${pkgname}-${pkgver}.tar.zst::https://github.com/Sharparam/${_base}/releases/download/${_base}%2F$pkgver/${_base}-$pkgver-${CARCH}-unknown-linux-musl.tar.zst")
+sha512sums=('2ab3fd061d967a2d06612313ccfdd4a425b3332ed7afcb031c9c567631c2b27305662961230a6f7a14d3157e172e043e623bbeb9eee472111a6bcf3871096c18')
+_srcdir="${_base}-${pkgver}-${CARCH}-unknown-linux-musl"
+_binname="${_base}"
+
+package() {
+  cd "${_srcdir}"
+  install -Dm755 "${_binname}" "${pkgdir}/usr/bin/${_binname}"
+
+  install -Dm644 -t "${pkgdir}/usr/share/man/man1" man/*
+  install -Dm644 completion/"${_binname}.bash" "${pkgdir}/usr/share/bash-completion/completions/${_binname}"
+  install -Dm644 completion/"_${_binname}" "${pkgdir}/usr/share/zsh/site-functions/_${_binname}"
+  install -Dm644 completion/"${_binname}.fish" "${pkgdir}/usr/share/fish/vendor_completions.d/${_binname}.fish"
+
+  install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

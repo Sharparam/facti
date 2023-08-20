@@ -1,0 +1,53 @@
+# Maintainer: Adam Hellberg <sharparam@sharparam.com>
+
+pkgname=facti
+pkgver=v0.2.3
+pkgrel=1
+pkgdesc="CLI tool that aids in Factorio mod development"
+arch=(x86_64 i686 aarch64)
+url="https://facti.rs"
+license=(MPL2)
+makedepends=(cargo)
+options=(!lto)
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/Sharparam/$pkgname/archive/refs/tags/$pkgname/$pkgver.tar.gz")
+sha512sums=('887f2783b8f45c1fd01e56954254b50b534e4f7494afb4490a925149c2cb2937443f6e02f216054602d721a0af3f16bf8abc455579e7908cd30338f76a13b34d')
+# pkgname is duplicated because it's also part of the tag name
+_srcdir="${pkgname}-${pkgname}-${pkgver}"
+
+prepare() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$CARCH-unknown-linux-gnu"
+}
+
+build() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  cargo build --frozen --release --package facti
+  cargo build --frozen --release --package xtask
+  cargo run --frozen --release --package xtask -- man
+  mkdir -p target/assets/completion
+  cargo run --frozen --release --package facti -- completion bash > target/assets/completion/bash
+  cargo run --frozen --release --package facti -- completion zsh > target/assets/completion/zsh
+  cargo run --frozen --release --package facti -- completion fish > target/assets/completion/fish
+}
+
+check() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo test --frozen --package facti
+}
+
+package() {
+  cd "$_srcdir"
+  install -Dm755 "target/release/${pkgname}" "${pkgdir}/usr/bin/${pkgname}"
+
+  install -Dm644 -t "${pkgdir}/usr/share/man/man1" target/assets/man/*
+  install -Dm644 target/assets/completion/bash "${pkgdir}/usr/share/bash-completion/completions/${pkgname}"
+  install -Dm644 target/assets/completion/zsh "${pkgdir}/usr/share/zsh/site-functions/_${pkgname}"
+  install -Dm644 target/assets/completion/fish "${pkgdir}/usr/share/fish/vendor_completions.d/${pkgname}.fish"
+
+  install -Dm644 crates/cli/README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
