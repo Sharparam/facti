@@ -140,6 +140,6 @@ jobs:
             shasum -a 512 "$dist/$staging.tar.zst" > "$dist/$staging.tar.zst.sha512"
           fi
       - name: Upload release archives
-        run: gh release upload ${{ needs.create-release.outputs.facti_version }} target/dist/*
+        run: gh release upload ${{ github.ref_name }} target/dist/*
         env:
           GH_TOKEN: ${{ github.token }}
