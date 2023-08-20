@@ -17,7 +17,177 @@ Contributors are very welcome!
 
 If you want to discuss the project you can do so in [the discussions on GitHub][discussions] or join the [Matrix room][matrix-room].
 
-## Expected mod layout
+## Installation
+
+### Cargo
+
+You can install Facti using [`cargo binstall`][cargo-binstall]:
+
+```sh
+cargo binstall facti
+```
+
+This will fetch and install binaries from [the latest release of Facti][latest-release]
+automatically.
+
+If you don't want to use `binstall` you can also use regular [`cargo install`][cargo-install]:
+
+```sh
+cargo install facti
+```
+
+Which will download, compile, and install Facti from [crates.io][cratesio].
+
+[cargo-binstall]: https://github.com/cargo-bins/cargo-binstall
+[cargo-install]: https://doc.rust-lang.org/cargo/commands/cargo-install.html
+
+<!--
+### Arch Linux
+
+Facti is available on the [AUR][aur] in different versions:
+
+ * **[`facti`][aur-facti]:** *(Recommended)* Builds from source using the latest stable release.
+ * **[`facti-bin`][aur-facti-bin]:** Installs the [latest stable pre-built binaries][latest-release].
+ * **[`facti-git`][aur-facti-git]:** Builds from source using the latest commit on the [`main` branch][main].
+
+Use your favourite AUR helper to install it, for example:
+
+#### [aurutils][]
+
+```sh
+aur sync facti
+sudo pacman -Syu facti
+```
+
+#### [paru][]
+
+```sh
+paru facti
+```
+
+#### [yay][]
+
+```sh
+yay facti
+```
+
+[aur]: https://aur.archlinux.org
+[aur-facti]: https://aur.archlinux.org/packages/facti
+[aur-facti-bin]: https://aur.archlinux.org/packages/facti-bin
+[aur-facti-git]: https://aur.archlinux.org/packages/facti-git
+[paru]: https://github.com/morganamilo/paru#readme
+[yay]: https://github.com/Jguer/yay#readme
+[aurutils]: https://github.com/AladW/aurutils#readme
+-->
+
+### Pre-built binaries
+
+If all else fails, you can manually download and use pre-built binaries from [the latest release of Facti][latest-release].
+
+## Building
+
+Facti is written in [Rust][], so you'll have to [install Rust][rust-install] to build it.
+
+After you have it set up, it's as simple as these steps:
+
+```sh
+git clone https://github.com/Sharparam/facti.git
+cd facti
+
+cargo build --workspace --release
+# Or if you want all available features:
+cargo build --workspace --release --all-features
+
+# If you want to build just the facti binary:
+cargo build --package facti --release
+
+# The finished binary will be in target/release where you can run it directly:
+./target/release/facti --help
+
+# Or copy it somewhere like your local bin directory:
+cp target/release/facti ~/.local/bin
+```
+
+### Running tests
+
+Facti has several tests that can be run with [`cargo test`][cargo-test]:
+
+```sh
+cargo test --workspace --all-features
+```
+
+[cargo-test]: https://doc.rust-lang.org/cargo/commands/cargo-test.html
+
+### Features
+
+Facti has a few optional features that can be enabled when building, these are:
+
+ * **`ron`:** Enables support for the [RON][] format when converting between formats.
+
+   E.g. `facti changelog convert --to ron changelog.txt` to convert a changelog to [RON][].
+
+ * **`sexpr`:** Enables support for the [S-expression][sexpr] format when converting between formats.
+
+   E.g. `facti changelog convert --to sexpr changelog.txt` to convert a changelog to [S-expressions][sexpr].
+
+ * **`yaml`:** Enables support for the [YAML][] format when converting between formats.
+
+   E.g. `facti changelog convert --to yaml changelog.txt` to convert a changelog to [YAML][].
+
+[ron]: https://github.com/ron-rs/ron#readme
+[sexpr]: https://en.wikipedia.org/wiki/S-expression
+[yaml]: https://yaml.org
+
+### Manpages
+
+You can generate manpages for Facti using the `man` task in `xtask`:
+
+```sh
+cargo xtask man
+```
+
+Currently this generates the manpages for the *debug* build, so you'll probably
+want to instead run the CI version of `xtask`:
+
+```sh
+cargo xtask-ci man
+```
+
+The finished manpages will be in `target/assets/man`.
+
+We're working on a nicer way to work with xtask that will not require two
+different aliases.
+
+### Completions
+
+Generating shell completions is done with the `facti` binary itself,
+and supports completions for [Bash][], [Zsh][], [fish][], [Elvish][], and [PowerShell][].
+
+```sh
+facti completion bash
+facti completion zsh
+facti completion fish
+facti completion elvish
+facti completion powershell
+```
+
+[bash]: https://www.gnu.org/software/bash
+[zsh]: https://www.zsh.org
+[fish]: https://fishshell.com
+[elvish]: https://elv.sh
+[powershell]: https://docs.microsoft.com/en-us/powershell
+
+## Usage
+
+For more help on the CLI commands, you can run `facti help <command>`
+or `facti <command> --help`.
+
+> [!WARNING]
+>
+> Commands outlined here are still experimental and subject to change.
+> Additionally, some commands may not have been implemented yet.
+
+### Expected mod layout
 
 This tool expects your mod to be organized a certain way, as shown by the diagram below.
 
@@ -36,16 +206,6 @@ my-mod/
     ├── data.lua
     └── thumbnail.png
 ```
-
-## Usage
-
-For more help on the CLI commands, you can run `facti help <command>`
-or `facti <command> --help`.
-
-> [!WARNING]
->
-> Commands outlined here are still experimental and subject to change.
-> Additionally, some commands may not have been implemented yet.
 
 ### Create new mod
 
@@ -258,6 +418,12 @@ You can obtain one at <http://mozilla.org/MPL/2.0/>.
 [matrix-room]: https://matrix.to/#/#facti:sharparam.com
 [discussions-badge]: https://img.shields.io/github/discussions/Sharparam/facti?logo=github
 [matrix-badge]: https://img.shields.io/matrix/facti%3Asharparam.com?logo=matrix&label=%23facti%3Asharparam.com
+
+[main]: https://github.com/Sharparam/facti/tree/main
+[latest-release]: https://github.com/Sharparam/facti/releases/latest
+
+[rust]: https://www.rust-lang.org
+[rust-install]: https://www.rust-lang.org/tools/install
 
 [factorio]: https://factorio.com
 [factorio-api]: https://wiki.factorio.com/Factorio_HTTP_API_usage_guidelines
