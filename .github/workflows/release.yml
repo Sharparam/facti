@@ -2,38 +2,66 @@ name: Release
 on:
   push:
     tags:
-      - "facti/v[0-9]+.[0-9]+.[0-9]+"
+      - "facti/v[0-9]+.[0-9]+.[0-9]+*"
 
 permissions:
   contents: write
 
 jobs:
-  create-release:
-    name: Create Release
+  defines:
+    name: Define variables
     runs-on: ubuntu-latest
     outputs:
-      facti_version: ${{ env.FACTI_VERSION }}
+      package: ${{ steps.set-variables.outputs.package }}
+      tag: ${{ steps.set-variables.outputs.tag }}
+      version: ${{ steps.set-variables.outputs.version }}
+      is_prerelease: ${{ steps.set-variables.outputs.is_prerelease == 'true' }}
+    steps:
+      - name: Set variables
+        id: set-variables
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          package="${tag%%/*}"
+          version="${tag#*/}"
+          is_prerelease="false"
+          if [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+.+$ ]]; then
+            is_prerelease="true"
+          fi
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "FACTI_TAG=${tag}" >> "$GITHUB_ENV"
+          echo "package=${package}" >> "$GITHUB_OUTPUT"
+          echo "FACTI_PACKAGE=${package}" >> "$GITHUB_ENV"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "FACTI_VERSION=${version}" >> "$GITHUB_ENV"
+          echo "is_prerelease=${is_prerelease}" >> "$GITHUB_OUTPUT"
+          echo "FACTI_IS_PRERELEASE=${is_prerelease}" >> "$GITHUB_ENV"
+          echo "Tag: ${tag}"
+          echo "Package: ${package}"
+          echo "Version: ${version}"
+          echo "Is prerelease?: ${is_prerelease}"
+  create-release:
+    name: Create Release
+    needs: defines
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Get release version from tag
-        shell: bash
-        run: |
-          echo "FACTI_VERSION=${GITHUB_REF_NAME##facti/}" >> $GITHUB_ENV
-          echo "Version is: ${{ env.FACTI_VERSION }}"
       - name: Create GitHub release
+        shell: bash
         run: |
           gh release create \
             --draft \
+            --prerelease=${{ needs.defines.outputs.is_prerelease }}
             --generate-notes \
-            --title "${{ env.FACTI_VERSION }}" \
+            --title "${{ needs.defines.outputs.version }}" \
             --verify-tag \
             "${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ github.token }}
   build-release:
     name: Build Release
-    needs: [create-release]
+    needs: [defines, create-release]
     runs-on: ${{ matrix.os }}
     env:
       CARGO: cargo
@@ -116,7 +144,7 @@ jobs:
         run: |
           dist="target/dist"
           mkdir -p "$dist"
-          staging="facti-${{ needs.create-release.outputs.facti_version }}-${{ matrix.target }}"
+          staging="facti-${{ needs.defines.outputs.version }}-${{ matrix.target }}"
           mkdir -p "$staging"/completion
 
           cp {README.md,LICENSE} "$staging"
