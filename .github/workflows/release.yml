@@ -127,8 +127,6 @@ jobs:
             cp "${{ env.TARGET_DIR }}/release/facti" "$staging/"
             mkdir "$staging"/man
             cp target/assets/man/* "$staging"/man
-            tar -czvf "$dist/$staging.tar.gz" "$staging"
-            shasum -a 512 "$dist/$staging.tar.gz" > "$dist/$staging.tar.gz.sha512"
             tar --zstd -cvf "$dist/$staging.tar.zst" "$staging"
             shasum -a 512 "$dist/$staging.tar.zst" > "$dist/$staging.tar.zst.sha512"
           fi
