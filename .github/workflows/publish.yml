@@ -35,4 +35,4 @@ jobs:
       - name: Publish facti to crates.io
         run: cargo publish --package --token ${CRATESIO_API_TOKEN}
         env:
-          CRATESIO_TOKEN: ${{ secrets.CRATESIO_API_TOKEN }}
+          CRATESIO_API_TOKEN: ${{ secrets.CRATESIO_API_TOKEN }}
