@@ -2,7 +2,7 @@
 
 pkgname=facti-git
 _base="${pkgname%-git}"
-pkgver=v0.1.0.r31.g229025f
+pkgver=v0.2.3.r0.gfdc4eed
 pkgrel=1
 pkgdesc="CLI tool that aids in Factorio mod development"
 arch=(x86_64 i686 aarch64)
@@ -12,28 +12,30 @@ makedepends=(git cargo)
 provides=("${_base}")
 conflicts=("${_base}")
 options=(!lto)
-source=("${_base}::git+https://github.com/Sharparam/facti.git")
+source=("${pkgname}::git+https://github.com/Sharparam/facti.git")
 sha512sums=(SKIP)
+_srcdir="${pkgname}"
 _binname="${_base}"
 _pkgid="${_base}"
 
 pkgver() {
-  cd "${_base}"
-  ./bin/version --long facti | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+  cd "${_srcdir}"
+  ./bin/version --long cli | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 prepare() {
-  cd "${_base}"
+  cd "${_srcdir}"
   export RUSTUP_TOOLCHAIN=stable
   cargo fetch --locked --target "$CARCH-unknown-linux-gnu"
 }
 
 build() {
-  cd "${_base}"
+  cd "${_srcdir}"
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR=target
-  cargo build --frozen --release --workspace
-  cargo xtask man
+  cargo build --frozen --release --package facti
+  cargo build --frozen --release --package xtask
+  cargo run --frozen --release --package xtask -- man
   mkdir -p target/assets/completion
   cargo run --frozen --release --package facti -- completion bash > target/assets/completion/bash
   cargo run --frozen --release --package facti -- completion zsh > target/assets/completion/zsh
@@ -41,13 +43,13 @@ build() {
 }
 
 check() {
-  cd "${_base}"
+  cd "${_srcdir}"
   export RUSTUP_TOOLCHAIN=stable
-  cargo test --frozen --workspace
+  cargo test --frozen --package facti
 }
 
 package() {
-  cd "${_base}"
+  cd "${_srcdir}"
   install -Dm755 "target/release/${_binname}" "${pkgdir}/usr/bin/${_binname}"
 
   install -Dm644 -t "${pkgdir}/usr/share/man/man1" target/assets/man/*
