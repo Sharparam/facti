@@ -142,3 +142,11 @@ jobs:
         run: gh release upload ${{ github.ref_name }} ${{ env.ASSET }} ${{ env.ASSET_SUM }}
         env:
           GH_TOKEN: ${{ github.token }}
+  publish-release:
+    name: Publish release
+    needs: [create-release, build-release]
+    if: needs.create-release.result == 'success' && (needs.build-release.result == 'skipped' || needs.build-release.result == 'success')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish release (mark as non-draft)
+        run: gh release edit ${{ github.ref_name }} --draft=false
