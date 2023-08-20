@@ -5,7 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+<!-- next-heading -->
+## [Unreleased] <!-- next-date -->
 
 ## [0.2.1] - 2023-08-19
 
@@ -52,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Ability to load info.json files.
  - Implementations of various data formats relevant to Factorio mods.
 
+<!-- next-url -->
 [unreleased]: https://github.com/Sharparam/facti/compare/facti-lib/v0.2.1...HEAD
 [0.2.1]: https://github.com/Sharparam/facti/compare/facti-lib/v0.2.0...facti-lib/v0.2.1
 [0.2.0]: https://github.com/Sharparam/facti/compare/facti-lib/v0.1.0...facti-lib/v0.2.0

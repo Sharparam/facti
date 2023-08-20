@@ -11,8 +11,18 @@ license = "MPL-2.0"
 keywords = ["factorio"]
 
 [workspace.metadata.release]
+consolidate-commits = false
+pre-release-commit-message = "Release {{crate_name}} v{{version}}"
+publish = false
+push = false
 sign-commit = true
 sign-tag = true
-tag-message = "Release {{crate_name}} version {{version}}"
+tag-message = "Release {{crate_name}} v{{version}}"
 tag-prefix = "{{crate_name}}/"
-publish = false
+pre-release-replacements = [
+    { file = "CHANGELOG.md", search = "[Uu]nreleased", replace = "{{version}}", min = 1 },
+    { file = "CHANGELOG.md", search = "\\.\\.\\.HEAD", replace = "...{{tag_name}}", exactly = 1 },
+    { file = "CHANGELOG.md", search = "<!-- next-date -->", replace = "{{date}}", min = 1 },
+    { file = "CHANGELOG.md", search = "(<!-- next-heading -->)", replace = "$1\n## [Unreleased] <!-- next-date -->\n", exactly = 1 },
+    { file = "CHANGELOG.md", search = "(<!-- next-url -->)", replace = "$1\n[unreleased]: https://github.com/Sharparam/facti/compare/{{tag_name}}...HEAD", exactly = 1 }
+]

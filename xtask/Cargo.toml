@@ -10,6 +10,7 @@ publish = false
 
 [package.metadata.release]
 release = false
+pre-release-replacements = []
 
 [dependencies]
 anyhow = "1.0.74"
