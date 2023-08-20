@@ -40,7 +40,7 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
       - name: Publish ${{ needs.defines.outputs.package }} to crates.io
-        run: cargo publish --locked --package "${PACKAGE}" --token "${CRATESIO_API_TOKEN}"
+        run: cargo publish --locked --package "${PACKAGE}" --all-features --token "${CRATESIO_API_TOKEN}"
         env:
           CRATESIO_API_TOKEN: ${{ secrets.CRATESIO_API_TOKEN }}
           PACKAGE: ${{ needs.defines.outputs.package }}
