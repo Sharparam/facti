@@ -75,7 +75,7 @@ jobs:
           toolchain: ${{ matrix.rust }}
           target: ${{ matrix.target }}
       - name: Setup cross
-        if: matrix.cross == 'true'
+        if: matrix.cross == true
         shell: bash
         run: |
           cargo install cross
