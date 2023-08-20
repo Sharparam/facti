@@ -14,7 +14,7 @@ ver() {
 }
 
 usage() {
-  echo "Usage: $0 [-l|--long] <facti|api|lib>" >&2
+  echo "Usage: $0 [-l|--long] <cli|api|lib>" >&2
   exit 1
 }
 
@@ -34,12 +34,12 @@ while [[ $# -gt 0 ]]; do
     ;;
     api)
       [[ -n "$MODE" ]] && usage
-      MODE="api"
+      MODE="fact-api"
       shift
     ;;
     lib)
       [[ -n "$MODE" ]] && usage
-      MODE="lib"
+      MODE="facti-lib"
       shift
     ;;
     *)
