@@ -52,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Ability to load info.json files.
  - Implementations of various data formats relevant to Factorio mods.
 
-[unreleased]: https://github.com/Sharparam/facti/compare/lib/v0.2.1...HEAD
-[0.2.1]: https://github.com/Sharparam/facti/compare/lib/v0.2.0...lib/v0.2.1
-[0.2.0]: https://github.com/Sharparam/facti/compare/lib/v0.1.0...lib/v0.2.0
-[0.1.0]: https://github.com/Sharparam/facti/releases/tag/lib/v0.1.0
+[unreleased]: https://github.com/Sharparam/facti/compare/facti-lib/v0.2.1...HEAD
+[0.2.1]: https://github.com/Sharparam/facti/compare/facti-lib/v0.2.0...facti-lib/v0.2.1
+[0.2.0]: https://github.com/Sharparam/facti/compare/facti-lib/v0.1.0...facti-lib/v0.2.0
+[0.1.0]: https://github.com/Sharparam/facti/releases/tag/facti-lib/v0.1.0
