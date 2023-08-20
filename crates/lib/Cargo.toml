@@ -5,7 +5,7 @@ authors.workspace = true
 edition.workspace = true
 description = "Facti common library"
 homepage.workspace = true
-repository = "https://github.com/Sharparam/facti/tree/main/lib"
+repository = "https://github.com/Sharparam/facti"
 license.workspace = true
 keywords = ["factorio"]
 
