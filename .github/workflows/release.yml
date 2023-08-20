@@ -89,14 +89,7 @@ jobs:
           echo "target flag is: ${{ env.TARGET_FLAGS }}"
           echo "target dir is: ${{ env.TARGET_DIR }}"
       - name: Build release binary
-        run: |
-          ${{ env.CARGO }} build \
-            --release \
-            --all-features \
-            --locked \
-            --verbose \
-            --package facti \
-            ${{ env.TARGET_FLAGS }}
+        run: ${{ env.CARGO }} build --release --all-features --locked --verbose --package facti ${{ env.TARGET_FLAGS }}
       - name: Build manpages
         if: matrix.build != 'win-msvc'
         run: ${{ env.CARGO }} xtask-ci man
