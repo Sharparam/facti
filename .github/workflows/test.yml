@@ -4,6 +4,10 @@ on:
 
 name: Test
 
+permissions:
+  contents: read
+  checks: write
+
 env:
   RUST_BACKTRACE: full
 
