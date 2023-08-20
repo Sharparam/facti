@@ -17,10 +17,17 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.print-tag.outputs.tag }}
+      package: ${{ steps.print-package.outputs.package }}
     steps:
       - name: Set tag
         id: print-tag
         run: echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+      - name: Set package
+        id: print-package
+        run: |
+          package="${{ inputs.tag }}"
+          package=${package%%/*}
+          echo "package=" >> "$GITHUB_OUTPUT"
   cargo-publish:
     runs-on: ubuntu-latest
     needs: defines
@@ -32,7 +39,8 @@ jobs:
           fetch-depth: 0
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
-      - name: Publish facti to crates.io
-        run: cargo publish --locked --package facti --token ${CRATESIO_API_TOKEN}
+      - name: Publish ${{ needs.defines.outputs.package }} to crates.io
+        run: cargo publish --locked --package "${PACKAGE}" --token "${CRATESIO_API_TOKEN}"
         env:
           CRATESIO_API_TOKEN: ${{ secrets.CRATESIO_API_TOKEN }}
+          PACKAGE: ${{ needs.defines.outputs.package }}
