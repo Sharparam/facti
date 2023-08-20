@@ -59,9 +59,37 @@ jobs:
             "${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ github.token }}
+  build-assets:
+    name: Build assets
+    needs: []
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Generate manpages
+        run: cargo xtask-ci man
+      - name: Generate completions
+        run: |
+          mkdir -p target/assets/completion
+          cargo run --release --package facti -- completion zsh > target/assets/completion/_facti
+          cargo run --release --package facti -- completion bash > target/assets/completion/facti.bash
+          cargo run --release --package facti -- completion fish > target/assets/completion/facti.fish
+          cargo run --release --package facti -- completion powershell > target/assets/completion/_facti.ps1
+      - name: Upload manpages artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: manpages
+          path: target/assets/man
+      - name: Upload completions artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: completions
+          path: target/assets/completion
   build-release:
     name: Build Release
-    needs: [defines, create-release]
+    needs: [defines, create-release, build-assets]
     runs-on: ${{ matrix.os }}
     env:
       CARGO: cargo
@@ -100,6 +128,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Prepare asset directories
+        run: |
+          mkdir -p target/assets/man
+          mkdir -p target/assets/completion
+      - name: Download manpages artifact
+        if: matrix.build != 'win-msvc'
+        id: manpages
+        uses: actions/download-artifact@v3
+        with:
+          name: manpages
+          path: taraget/assets/man
+      - name: Download completions artifact
+        id: completions
+        uses: actions/download-artifact@v3
+        with:
+          name: completions
+          path: target/assets/completion
       - name: Install packages (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -126,16 +171,6 @@ jobs:
           echo "target dir is: ${{ env.TARGET_DIR }}"
       - name: Build release binary
         run: ${{ env.CARGO }} build --release --all-features --locked --verbose --package facti ${{ env.TARGET_FLAGS }}
-      - name: Build manpages
-        if: matrix.build != 'win-msvc'
-        run: ${{ env.CARGO }} xtask-ci man
-      - name: Generate completions
-        run: |
-          mkdir -p target/assets/completion
-          cargo run --release --package facti -- completion zsh > target/assets/completion/_facti
-          cargo run --release --package facti -- completion bash > target/assets/completion/facti.bash
-          cargo run --release --package facti -- completion fish > target/assets/completion/facti.fish
-          cargo run --release --package facti -- completion powershell > target/assets/completion/_facti.ps1
       - name: Strip release binary (linux, macos)
         if: matrix.build == 'linux' || matrix.build == 'macos'
         run: strip "${{ env.TARGET_DIR}}/release/facti"
