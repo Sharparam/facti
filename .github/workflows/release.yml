@@ -89,7 +89,7 @@ jobs:
           echo "target flag is: ${{ env.TARGET_FLAGS }}"
           echo "target dir is: ${{ env.TARGET_DIR }}"
       - name: Build release binary
-        run:
+        run: |
           ${{ env.CARGO }} build \
             --release \
             --all-features \
