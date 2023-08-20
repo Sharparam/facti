@@ -111,7 +111,8 @@ jobs:
           staging="facti-${{ needs.create-release.outputs.facti_version }}-${{ matrix.target }}"
           mkdir -p "$staging"/completion
 
-          cp {README.md,LICENSE,CHANGELOG.md} "$staging"
+          cp {README.md,LICENSE} "$staging"
+          cp crates/cli/CHANGELOG.md "$staging"
           cp target/assets/completion/* "$staging"/completion
 
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
