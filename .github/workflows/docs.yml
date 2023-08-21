@@ -54,7 +54,7 @@ jobs:
       - name: Prepare staging location
         run: rm -rf _site
       - name: Cache Hugo modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/hugo_cache
           key: ${{ runner.os }}-hugomod-${{ hashFiles('site/**/go.sum') }}
