@@ -10,6 +10,8 @@
 //! - **`blocking`:** Enables the [`blocking`] module, which provides a blocking client.
 //!
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 #[macro_use]
 mod client;
 

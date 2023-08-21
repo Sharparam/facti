@@ -4,6 +4,8 @@
 //! - **`sexpr`:** Enables S-Expression and Emacs Lisp support for changelog conversion.
 //! - **`yaml`:** Enables YAML support for changelog conversion.
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 use std::{
     fs::File,
     io::{self, Read, Write},
