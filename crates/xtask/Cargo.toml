@@ -16,4 +16,4 @@ pre-release-replacements = []
 anyhow = "1.0.74"
 clap = { version = "4.3.21", features = ["derive", "string"] }
 clap_mangen = "0.2.12"
-facti = { version = "0.2.3", path = "../crates/cli" }
+facti = { version = "0.2.3", path = "../cli" }
