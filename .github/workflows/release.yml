@@ -93,6 +93,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CARGO: cargo
+      REL_FLAGS: "--profile dist"
       TARGET_FLAGS: "--target ${{ matrix.target }}"
       TARGET_DIR: "./target/${{ matrix.target }}"
       RUST_BACKTRACE: 1
@@ -167,10 +168,11 @@ jobs:
         run: |
           echo "cross is: ${{ matrix.cross }}"
           echo "cargo command is: ${{ env.CARGO }}"
+          echo "rel flags are: ${{ env.REL_FLAGS }}"
           echo "target is: ${{ matrix.target }}"
           echo "target dir is: ${{ env.TARGET_DIR }}"
       - name: Build release binary
-        run: ${{ env.CARGO }} build --release --all-features --locked --verbose --package facti ${{ env.TARGET_FLAGS }}
+        run: ${{ env.CARGO }} build ${{ env.REL_FLAGS }} --all-features --locked --verbose --package facti ${{ env.TARGET_FLAGS }}
       - name: Strip release binary (linux, macos)
         if: matrix.build == 'linux' || matrix.build == 'macos'
         run: strip "${{ env.TARGET_DIR}}/release/facti"
