@@ -148,17 +148,7 @@ You can generate manpages for Facti using the `man` task in `xtask`:
 cargo xtask man
 ```
 
-Currently this generates the manpages for the *debug* build, so you'll probably
-want to instead run the CI version of `xtask`:
-
-```sh
-cargo xtask-ci man
-```
-
 The finished manpages will be in `target/assets/man`.
-
-We're working on a nicer way to work with xtask that will not require two
-different aliases.
 
 ### Completions
 
