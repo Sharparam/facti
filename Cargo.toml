@@ -26,3 +26,14 @@ pre-release-replacements = [
     { file = "CHANGELOG.md", search = "(<!-- next-heading -->)", replace = "$1\n## [Unreleased] <!-- next-date -->\n", exactly = 1 },
     { file = "CHANGELOG.md", search = "(<!-- next-url -->)", replace = "$1\n[unreleased]: https://github.com/Sharparam/facti/compare/{{tag_name}}...HEAD", exactly = 1 }
 ]
+
+[profile.dist]
+inherits = "release"
+lto = "thin"
+
+[profile.xtask-dev]
+inherits = "dev"
+debug-assertions = false
+
+[profile.xtask-release]
+inherits = "release"

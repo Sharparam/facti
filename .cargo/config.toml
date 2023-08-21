@@ -1,3 +1,3 @@
 [alias]
-xtask-ci = "run --verbose --release --locked --package xtask --"
-xtask = "run --package xtask --"
+xtask-ci = "run --verbose --profile xtask-release --locked --package xtask --"
+xtask = "run --profile xtask-dev --package xtask --"
