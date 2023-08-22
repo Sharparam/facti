@@ -23,7 +23,7 @@ sexpr = ["dep:serde-lexpr"]
 yaml = ["dep:serde_yaml"]
 
 [dependencies]
-anyhow = "1.0.72"
+anyhow = "1.0.75"
 clap = { version = "4.3.23", features = ["derive", "env"] }
 clap_complete = "4.3.2"
 etcetera = "0.8.0"
