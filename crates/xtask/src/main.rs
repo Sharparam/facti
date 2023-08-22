@@ -5,9 +5,10 @@ use std::{
 
 use anyhow::{Context, Result};
 
-use clap::{CommandFactory, Parser, Subcommand};
+use clap::{Args, CommandFactory, Parser, Subcommand};
 
 use facti::__xtask::Cli;
+use xshell::{cmd, Shell};
 
 fn main() -> Result<()> {
     cwd_to_workspace_root()?;
@@ -20,6 +21,28 @@ fn main() -> Result<()> {
             fs::create_dir_all(&out_dir)?;
             let cmd = Cli::command();
             gen_manpages(&out_dir, &cmd, None)?;
+        }
+        Tasks::Dist(dist_args) => {
+            let verbose = if cli.verbose { Some("--verbose") } else { None };
+            let cargo = &if cli.cross {
+                "cross".to_owned()
+            } else {
+                cli.cargo.unwrap_or_else(|| "cargo".to_owned())
+            };
+            let sh = Shell::new()?;
+            dbg!(cmd!(sh, "pwd").read()?);
+
+            eprintln!("Clean dist folder");
+            cmd!(sh, "rm -rf target/dist").run()?;
+
+            let target = &dist_args.target;
+
+            eprintln!("Build facti");
+            cmd!(
+                sh,
+                "{cargo} build {verbose...} --profile dist --all-features --locked --target {target} --target-dir target/dist --package facti"
+            )
+            .run()?;
         }
     }
 
@@ -60,6 +83,15 @@ fn gen_manpages(out_dir: &Path, cmd: &clap::Command, current_name: Option<&str>)
 #[derive(Parser, Debug)]
 #[command(bin_name = "cargo xtask")]
 struct BuildCli {
+    #[arg(long)]
+    pub verbose: bool,
+
+    #[arg(long, env = "CARGO", global = true)]
+    pub cargo: Option<String>,
+
+    #[arg(long, global = true)]
+    pub cross: bool,
+
     #[command(subcommand)]
     pub task: Tasks,
 }
@@ -68,13 +100,31 @@ struct BuildCli {
 enum Tasks {
     /// Generate manpages for Facti.
     Man,
+
+    /// `cargo-dist` lookalike.
+    ///
+    /// We use our own until there's cross-platform build support
+    /// in the actual cargo-dist.
+    Dist(DistArgs),
+}
+
+#[derive(Args, Debug)]
+struct DistArgs {
+    #[arg(long)]
+    pub target: String,
+
+    #[arg(raw = true)]
+    pub cargo_args: Vec<String>,
 }
 
 // Shamelessly stolen^Wcopied from cargo itself:
 // https://github.com/rust-lang/cargo/blob/e5e68c4093af9de3f80e9427b979fa5a0d8361cc/crates/xtask-build-man/src/main.rs#L78-L82
 fn cwd_to_workspace_root() -> Result<()> {
     let pkg_root = std::env!("CARGO_MANIFEST_DIR");
-    let ws_root = format!("{pkg_root}/..");
+    let ws_root = format!("{pkg_root}/../..");
     eprintln!("Performing CWD to workspace root {}", ws_root);
-    env::set_current_dir(ws_root).context("Failed to CWD to workspace root")
+    env::set_current_dir(ws_root).context("Failed to CWD to workspace root")?;
+    let pwd = env::current_dir().context("Failed to get PWD after change")?;
+    eprintln!("Now in: {}", pwd.display());
+    Ok(())
 }
