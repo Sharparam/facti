@@ -15,9 +15,11 @@ pub enum LogLevelFilter {
 
     Error,
 
-    #[default]
+    #[cfg_attr(not(debug_assertions), default)]
     Warn,
     Info,
+
+    #[cfg_attr(debug_assertions, default)]
     Debug,
     Trace,
 }

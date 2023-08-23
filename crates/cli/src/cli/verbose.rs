@@ -1,7 +1,13 @@
 use indoc::indoc;
 
+#[cfg(not(debug_assertions))]
+type DefaultLevel = ErrorLevel;
+
+#[cfg(debug_assertions)]
+type DefaultLevel = DebugLevel;
+
 #[derive(clap::Args, Debug, Clone)]
-pub struct Verbosity<L: LogLevel = ErrorLevel> {
+pub struct Verbosity<L: LogLevel = DefaultLevel> {
     #[arg(
         long,
         short = 'v',
@@ -154,6 +160,39 @@ pub struct DebugLevel;
 impl LogLevel for DebugLevel {
     fn default() -> Option<tracing::Level> {
         Some(tracing::Level::DEBUG)
+    }
+
+    fn verbose_help() -> Option<&'static str> {
+        Some("Shows trace logging")
+    }
+
+    fn verbose_long_help() -> Option<&'static str> {
+        Some(indoc! {"
+            Shows trace logging.
+
+            Specifying this option more than once has no effect.
+        "})
+    }
+
+    fn quiet_help() -> Option<&'static str> {
+        Some("Less output per occurrence")
+    }
+
+    fn quiet_long_help() -> Option<&'static str> {
+        Some(indoc! {"
+            Specifies the amount of quiet desired.
+
+            The more times this option is specified, the less verbose the output
+            will become.
+
+            Specifically, they relate as follows:
+                -q       Show info
+                -qq      Show warnings
+                -qqq     Show errors
+                -qqqq    Disable logging
+
+            Specifying this option more than four times has no further effect.
+        "})
     }
 }
 
