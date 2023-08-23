@@ -26,6 +26,7 @@ mod cli;
 mod config;
 mod dirs;
 mod logging;
+mod project;
 mod vcs;
 
 /// xtask needs access to the structs for main and sub commands for the CLI,
@@ -92,6 +93,7 @@ pub fn run() -> Result<LogState> {
     match cli.command {
         cli::Commands::Portal(portal) => portal.run(&api_client),
         cli::Commands::New(new) => new.run(&config),
+        cli::Commands::Dist(dist) => dist.run(),
         cli::Commands::Changelog(changelog) => changelog.run(),
         cli::Commands::Completion(completion) => completion.run(),
 

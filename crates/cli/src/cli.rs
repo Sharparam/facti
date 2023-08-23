@@ -6,12 +6,13 @@ use url::Url;
 use crate::logging::LogLevelFilter;
 
 use self::{
-    changelog::ChangelogArgs, completion::CompletionArgs, new::NewArgs, portal::PortalArgs,
-    verbose::Verbosity,
+    changelog::ChangelogArgs, completion::CompletionArgs, dist::DistArgs, new::NewArgs,
+    portal::PortalArgs, verbose::Verbosity,
 };
 
 mod changelog;
 mod completion;
+mod dist;
 mod new;
 mod portal;
 mod verbose;
@@ -91,6 +92,10 @@ pub enum Commands {
 
     #[command(visible_alias = "init")]
     New(Box<NewArgs>),
+
+    /// Create distribution package for the mod.
+    #[command(visible_alias = "pack")]
+    Dist(DistArgs),
 
     Changelog(ChangelogArgs),
 
