@@ -63,7 +63,10 @@ where
         .with_writer(io::stderr)
         .pretty()
         .without_time()
-        .with_filter(level_filter);
+        .with_filter(level_filter)
+        .with_filter(tracing_subscriber::filter::filter_fn(|metadata| {
+            metadata.target().starts_with("facti")
+        }));
     #[cfg(not(debug_assertions))]
     let stderr_layer = tracing_subscriber::fmt::layer()
         .with_writer(io::stderr)

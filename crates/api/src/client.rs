@@ -65,13 +65,13 @@ macro_rules! api_client_builder {
                 let client = self.client.unwrap_or_default();
                 let portal_base_url = self
                     .portal_base_url
-                    .unwrap_or(Url::parse(DEFAULT_PORTAL_API_BASE_URL).unwrap());
+                    .unwrap_or(Url::parse($crate::DEFAULT_PORTAL_BASE_URL).unwrap());
                 let portal_api_base_url = self
                     .portal_api_base_url
-                    .unwrap_or(Url::parse(DEFAULT_PORTAL_API_BASE_URL).unwrap());
+                    .unwrap_or(Url::parse($crate::DEFAULT_PORTAL_API_BASE_URL).unwrap());
                 let game_base_url = self
                     .game_base_url
-                    .unwrap_or(Url::parse(DEFAULT_GAME_BASE_URL).unwrap());
+                    .unwrap_or(Url::parse($crate::DEFAULT_GAME_BASE_URL).unwrap());
 
                 let urls = FactorioUrls {
                     portal_base_url,

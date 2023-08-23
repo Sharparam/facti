@@ -2,6 +2,10 @@ use clap::{Args, Subcommand, ValueHint};
 use facti_api::blocking::ApiClient;
 use facti_lib::FactorioVersion;
 
+use self::images::ImagesArgs;
+
+mod images;
+
 /// Interact with the Factorio mod portal.
 ///
 /// You can search for mods and show details for a specific mod.
@@ -24,6 +28,8 @@ pub enum PortalCommands {
 
     /// Show details about a specific mod.
     Show(PortalShowArgs),
+
+    Images(ImagesArgs),
 }
 
 #[derive(clap::Args, Debug)]
@@ -87,6 +93,7 @@ impl PortalArgs {
         match &self.command {
             PortalCommands::Search(args) => args.run(client, self.json),
             PortalCommands::Show(args) => args.run(client, self.json),
+            PortalCommands::Images(args) => args.run(client),
         }
     }
 }

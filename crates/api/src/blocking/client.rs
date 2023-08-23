@@ -11,14 +11,16 @@ use crate::{
     data::{
         detail::{ModDetailsRequest, ModDetailsResponse},
         game::LatestReleases,
-        image::{ImageAddResponse, ImageEditRequest, ImageEditResponse, ImageUploadResponse},
+        image::{
+            self, Image, ImageAddResponse, ImageEditRequest, ImageEditResponse, ImageUploadResponse,
+        },
         portal::{SearchQuery, SearchResponse, SearchResult},
         publish::{InitPublishResponse, PublishRequest, PublishResponse},
         upload::{InitUploadResponse, UploadResponse},
     },
     error::{ApiError, ApiErrorKind},
     reqwest::FormContainer,
-    FactorioUrls, DEFAULT_GAME_BASE_URL, DEFAULT_PORTAL_API_BASE_URL,
+    FactorioUrls,
 };
 
 /// A blocking [`ApiClient`] to make requests to the Factorio APIs with.
@@ -127,7 +129,7 @@ impl ApiClient {
     /// Any other fields on [`SearchResult`] will *never* have a value set when
     /// constructed as a result of calling this method.
     pub fn search(&self, query: &SearchQuery) -> Result<SearchResponse> {
-        self.get(self.portal_url("mods")?, false, |r| r.query(query))
+        self.get(self.portal_api_url("mods")?, false, |r| r.query(query))
     }
 
     /// Get brief information about a mod by its internal name.
@@ -144,13 +146,13 @@ impl ApiClient {
     /// # Ok::<(), Box<dyn Error>>(())
     /// ```
     pub fn info_short(&self, name: &str) -> Result<SearchResult> {
-        self.get(self.portal_url(format!("mods/{}", name))?, false, |r| r)
+        self.get(self.portal_api_url(format!("mods/{}", name))?, false, |r| r)
     }
 
     /// Get detailed information about a mod by its internal name.
     pub fn info_full(&self, name: &str) -> Result<SearchResult> {
         self.get(
-            self.portal_url(format!("mods/{}/full", name))?,
+            self.portal_api_url(format!("mods/{}/full", name))?,
             false,
             |r| r,
         )
@@ -177,6 +179,15 @@ impl ApiClient {
         let container: FormContainer<Form> = data.into();
         let form = container.into_inner();
         self.post("v2/mods/edit_details", true, |r| r.multipart(form))
+    }
+
+    pub fn get_images(&self, name: &str) -> Result<Vec<Image>> {
+        let url = self.portal_url(format!("mod/{}", name))?;
+        let page = self.client.get(url.to_owned()).send()?;
+        let html = page.text()?;
+        let images = image::parse_html_images(&html);
+
+        Ok(images)
     }
 
     pub fn add_image<T: Into<String>>(&self, name: T) -> Result<ImageAddResponse> {
@@ -228,10 +239,23 @@ impl ApiClient {
     }
 
     fn portal_url<T: AsRef<str>>(&self, path: T) -> Result<Url> {
-        self.urls.portal_api(path.as_ref()).map_err(|_| {
+        self.urls.portal(path.as_ref()).map_err(|_| {
             ApiError::new(
                 ApiErrorKind::UrlParseFailed,
                 format!("Failed to join portal base URL with path {}", path.as_ref()),
+                None,
+            )
+        })
+    }
+
+    fn portal_api_url<T: AsRef<str>>(&self, path: T) -> Result<Url> {
+        self.urls.portal_api(path.as_ref()).map_err(|_| {
+            ApiError::new(
+                ApiErrorKind::UrlParseFailed,
+                format!(
+                    "Failed to join portal API base URL with path {}",
+                    path.as_ref()
+                ),
                 None,
             )
         })
@@ -289,7 +313,7 @@ impl ApiClient {
         T: DeserializeOwned,
         F: FnOnce(RequestBuilder) -> RequestBuilder,
     {
-        let url = self.portal_url(path)?;
+        let url = self.portal_api_url(path)?;
         let request = f(self.client.post(url));
 
         self.send::<T>(request, auth)

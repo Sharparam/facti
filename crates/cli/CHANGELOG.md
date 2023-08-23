@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- next-heading -->
 ## [Unreleased] <!-- next-date -->
 
+### Added
+
+ - New command to list images for a mod: `facti portal images list <NAME>`
+
 ## [0.2.3] - 2023-08-20
 
 ### Fixed

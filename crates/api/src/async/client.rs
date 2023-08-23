@@ -8,7 +8,9 @@ use crate::{
     data::{
         detail::{ModDetailsRequest, ModDetailsResponse},
         game::LatestReleases,
-        image::{ImageAddResponse, ImageEditRequest, ImageEditResponse, ImageUploadResponse},
+        image::{
+            self, Image, ImageAddResponse, ImageEditRequest, ImageEditResponse, ImageUploadResponse,
+        },
         portal::{SearchQuery, SearchResponse, SearchResult},
         publish::{InitPublishResponse, PublishRequest, PublishResponse},
         upload::{InitUploadResponse, UploadResponse},
@@ -49,19 +51,19 @@ impl ApiClient {
     }
 
     pub async fn search(&self, query: &SearchQuery) -> Result<SearchResponse> {
-        self.get(self.portal_url("mods")?, false, |r| r.query(query))
+        self.get(self.portal_api_url("mods")?, false, |r| r.query(query))
             .await
     }
 
     pub async fn info_short(&self, name: &str) -> Result<SearchResult> {
-        self.get(self.portal_url(format!("mods/{}", name))?, false, |r| r)
+        self.get(self.portal_api_url(format!("mods/{}", name))?, false, |r| r)
             .await
     }
 
     /// Get detailed information about a mod by its internal name.
     pub async fn info_full(&self, name: &str) -> Result<SearchResult> {
         self.get(
-            self.portal_url(format!("mods/{}/full", name))?,
+            self.portal_api_url(format!("mods/{}/full", name))?,
             false,
             |r| r,
         )
@@ -70,7 +72,7 @@ impl ApiClient {
 
     pub async fn init_upload<T: Into<String>>(&self, name: T) -> Result<InitUploadResponse> {
         let form = Form::new().text("mod", name.into());
-        self.post(self.portal_url("v2/mods/upload")?, true, |r| {
+        self.post(self.portal_api_url("v2/mods/upload")?, true, |r| {
             r.multipart(form)
         })
         .await
@@ -92,14 +94,23 @@ impl ApiClient {
     pub async fn edit_details(&self, data: ModDetailsRequest) -> Result<ModDetailsResponse> {
         let container: FormContainer<Form> = data.into();
         let form = container.into_inner();
-        self.post(self.portal_url("v2/mods/edit_details")?, true, |r| {
+        self.post(self.portal_api_url("v2/mods/edit_details")?, true, |r| {
             r.multipart(form)
         })
         .await
     }
 
+    pub async fn get_images(&self, name: &str) -> Result<Vec<Image>> {
+        let url = self.portal_url(format!("mod/{}", name))?;
+        let page = self.client.get(url.to_owned()).send().await?;
+        let html = page.text().await?;
+        let images = image::parse_html_images(&html);
+
+        Ok(images)
+    }
+
     pub async fn add_image<T: Into<String>>(&self, name: T) -> Result<ImageAddResponse> {
-        self.post(self.portal_url("v2/mods/images/add")?, true, |r| {
+        self.post(self.portal_api_url("v2/mods/images/add")?, true, |r| {
             r.multipart(Form::new().text("mod", name.into()))
         })
         .await
@@ -121,7 +132,7 @@ impl ApiClient {
     pub async fn edit_images(&self, data: ImageEditRequest) -> Result<ImageEditResponse> {
         let container: FormContainer<Form> = data.into();
         let form = container.into_inner();
-        self.post(self.portal_url("v2/mods/images/edit")?, true, |r| {
+        self.post(self.portal_api_url("v2/mods/images/edit")?, true, |r| {
             r.multipart(form)
         })
         .await
@@ -129,7 +140,7 @@ impl ApiClient {
 
     pub async fn init_publish<T: Into<String>>(&self, name: T) -> Result<InitPublishResponse> {
         let form = Form::new().text("mod", name.into());
-        self.post(self.portal_url("v2/mods/init_publish")?, true, |r| {
+        self.post(self.portal_api_url("v2/mods/init_publish")?, true, |r| {
             r.multipart(form)
         })
         .await
@@ -161,11 +172,21 @@ impl ApiClient {
             .await
     }
 
-    fn portal_url<T: AsRef<str>>(&self, path: T) -> Result<Url> {
+    fn portal_api_url<T: AsRef<str>>(&self, path: T) -> Result<Url> {
         self.urls.portal_api(path.as_ref()).map_err(|_| {
             ApiError::new(
                 ApiErrorKind::UrlParseFailed,
                 format!("Failed to join base URL with path {}", path.as_ref()),
+                None,
+            )
+        })
+    }
+
+    fn portal_url<T: AsRef<str>>(&self, path: T) -> Result<Url> {
+        self.urls.portal(path.as_ref()).map_err(|_| {
+            ApiError::new(
+                ApiErrorKind::UrlParseFailed,
+                format!("Failed to join portal base URL with path {}", path.as_ref()),
                 None,
             )
         })

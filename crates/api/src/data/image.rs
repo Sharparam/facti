@@ -1,7 +1,34 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use tracing::debug;
 use url::Url;
 
 use crate::reqwest::{FormContainer, FormLike};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Image {
+    pub id: String,
+    pub url: Url,
+    pub thumbnail_url: Url,
+}
+
+impl Image {
+    pub fn new<T: Into<String>>(id: T) -> Self {
+        let id = id.into();
+        Self {
+            id: id.clone(),
+            url: Url::parse(&format!(
+                "https://assets-mod.factorio.com/assets/{}.png",
+                id
+            ))
+            .unwrap(),
+            thumbnail_url: Url::parse(&format!(
+                "https://assets-mod.factorio.com/assets/{}.thumb.png",
+                id
+            ))
+            .unwrap(),
+        }
+    }
+}
 
 #[derive(Debug, Deserialize)]
 pub struct ImageAddResponse {
@@ -40,4 +67,24 @@ impl<T: FormLike> From<ImageEditRequest> for FormContainer<T> {
 pub struct ImageEditResponse {
     pub success: bool,
     pub images: Vec<ImageUploadResponse>,
+}
+
+pub(crate) fn parse_html_images(html: &str) -> Vec<Image> {
+    debug!("Extracting images from HTML");
+    let document = scraper::Html::parse_document(html);
+    let selector = scraper::Selector::parse(".mod-page-info .gallery img").unwrap();
+
+    let mut images = Vec::<Image>::new();
+
+    for element in document.select(&selector) {
+        let elem = element.value();
+        if let Some(id) = elem.attr("data-filename") {
+            debug!("Found image with ID {}", id);
+            images.push(Image::new(id));
+        }
+    }
+
+    debug!("Found {} images", images.len());
+
+    images
 }

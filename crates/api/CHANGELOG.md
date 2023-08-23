@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- next-heading -->
 ## [Unreleased] <!-- next-date -->
 
+### Added
+
+ - New method on clients to get existing images for a specific mod.
+   Note that due to a lack of API for this feature, it has to scrape the HTML
+   page for the mod.
+
 ## [0.2.0] - 2023-08-20
 
 ### Added

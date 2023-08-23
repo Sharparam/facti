@@ -32,6 +32,9 @@ reqwest = { version = "0.11.19", default-features = false, features = [
     "multipart",
     "rustls-tls"
 ] }
+scraper = { version = "0.17.1", default-features = false, features = [
+    "errors"
+] }
 serde = { version = "1.0.185", features = ["derive"] }
 serde_json = "1.0.105"
 strum = { version = "0.25.0", features = ["derive"] }
