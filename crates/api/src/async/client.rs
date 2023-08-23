@@ -15,15 +15,14 @@ use crate::{
     },
     error::{ApiError, ApiErrorKind},
     reqwest::FormContainer,
-    DEFAULT_GAME_BASE_URL, DEFAULT_PORTAL_BASE_URL,
+    FactorioUrls, DEFAULT_GAME_BASE_URL, DEFAULT_PORTAL_API_BASE_URL,
 };
 
 use super::{error, reqwest::AsyncFormFile};
 
 pub struct ApiClient {
     client: reqwest::Client,
-    portal_base_url: Url,
-    game_base_url: Url,
+    urls: FactorioUrls,
     api_key: Option<String>,
 }
 
@@ -33,8 +32,7 @@ impl ApiClient {
     pub fn new() -> Self {
         Self {
             client: Default::default(),
-            portal_base_url: Url::parse(DEFAULT_PORTAL_BASE_URL).unwrap(),
-            game_base_url: Url::parse(DEFAULT_GAME_BASE_URL).unwrap(),
+            urls: Default::default(),
             api_key: None,
         }
     }
@@ -164,7 +162,7 @@ impl ApiClient {
     }
 
     fn portal_url<T: AsRef<str>>(&self, path: T) -> Result<Url> {
-        self.portal_base_url.join(path.as_ref()).map_err(|_| {
+        self.urls.portal_api(path.as_ref()).map_err(|_| {
             ApiError::new(
                 ApiErrorKind::UrlParseFailed,
                 format!("Failed to join base URL with path {}", path.as_ref()),
@@ -174,7 +172,7 @@ impl ApiClient {
     }
 
     fn game_url(&self, path: &str) -> Result<Url> {
-        self.game_base_url.join(path).map_err(|_| {
+        self.urls.game(path).map_err(|_| {
             ApiError::new(
                 ApiErrorKind::UrlParseFailed,
                 format!("Failed to join game base URL with path {}", path),

@@ -9,6 +9,7 @@ macro_rules! api_client_builder {
         pub struct ApiClientBuilder {
             client: Option<$base_client>,
             portal_base_url: Option<Url>,
+            portal_api_base_url: Option<Url>,
             game_base_url: Option<Url>,
             api_key: Option<String>,
         }
@@ -26,11 +27,19 @@ macro_rules! api_client_builder {
                 self
             }
 
-            /// Configures the base URL for the mod portal API.
+            /// Configures the base URL for the mod portal (non-API resources).
             ///
             /// If not configured, it will default to [`DEFAULT_PORTAL_BASE_URL`].
             pub fn portal_base_url<T: Into<Url>>(&mut self, base_url: T) -> &mut Self {
                 self.portal_base_url = Some(base_url.into());
+                self
+            }
+
+            /// Configures the base URL for the mod portal API.
+            ///
+            /// If not configured, it will default to [`DEFAULT_PORTAL_API_BASE_URL`].
+            pub fn portal_api_base_url<T: Into<Url>>(&mut self, base_url: T) -> &mut Self {
+                self.portal_api_base_url = Some(base_url.into());
                 self
             }
 
@@ -56,15 +65,23 @@ macro_rules! api_client_builder {
                 let client = self.client.unwrap_or_default();
                 let portal_base_url = self
                     .portal_base_url
-                    .unwrap_or(Url::parse(DEFAULT_PORTAL_BASE_URL).unwrap());
+                    .unwrap_or(Url::parse(DEFAULT_PORTAL_API_BASE_URL).unwrap());
+                let portal_api_base_url = self
+                    .portal_api_base_url
+                    .unwrap_or(Url::parse(DEFAULT_PORTAL_API_BASE_URL).unwrap());
                 let game_base_url = self
                     .game_base_url
                     .unwrap_or(Url::parse(DEFAULT_GAME_BASE_URL).unwrap());
 
+                let urls = FactorioUrls {
+                    portal_base_url,
+                    portal_api_base_url,
+                    game_base_url,
+                };
+
                 $api_client {
                     client,
-                    portal_base_url,
-                    game_base_url,
+                    urls,
                     api_key: self.api_key,
                 }
             }
