@@ -10,10 +10,10 @@ use self::{
     verbose::Verbosity,
 };
 
-pub mod changelog;
-pub mod completion;
-pub mod new;
-pub mod portal;
+mod changelog;
+mod completion;
+mod new;
+mod portal;
 mod verbose;
 
 const ENV_CONFIG_PATH: &str = "FACTI_CONFIG";
