@@ -144,6 +144,19 @@ pub struct ModPackageInfo {
     /// (unless absolute paths are specified).
     #[serde(default, rename = "gallery", skip_serializing_if = "Vec::is_empty")]
     pub gallery_paths: Vec<PathBuf>,
+
+    /// Summary to set on the mod portal page.
+    ///
+    /// Ignored if [`description_as_summary`][ModPackageInfo::description_as_summary]
+    /// is set to `true`.
+    pub summary: Option<String>,
+
+    /// If `true`, will use the [`description`][ModInfo::description] field
+    /// to populate the summary on the mod portal.
+    ///
+    /// This also means that the [`summary`][ModPackageInfo::summary] field will
+    /// be ignored if this is set to `true`.
+    pub description_as_summary: bool,
 }
 
 impl ModInfo {
