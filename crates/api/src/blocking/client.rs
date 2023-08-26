@@ -158,12 +158,13 @@ impl ApiClient {
         )
     }
 
-    pub fn init_upload<T: Into<String>>(&self, name: T) -> Result<InitUploadResponse> {
-        let form = Form::new().text("mod", name.into());
-        self.post("v2/mods/upload", true, |r| r.multipart(form))
-    }
-
-    pub fn upload(&self, url: Url, path: &Path) -> Result<UploadResponse> {
+    pub fn upload<S: Into<String>, P: AsRef<Path>>(
+        &self,
+        name: S,
+        path: P,
+    ) -> Result<UploadResponse> {
+        let init = self.init_upload(name)?;
+        let url = init.upload_url;
         let form = Form::new().file("file", path).map_err(|e| {
             ApiError::new(
                 ApiErrorKind::ImageIo,
@@ -181,7 +182,7 @@ impl ApiClient {
         self.post("v2/mods/edit_details", true, |r| r.multipart(form))
     }
 
-    pub fn get_images(&self, name: &str) -> Result<Vec<Image>> {
+    pub fn images(&self, name: &str) -> Result<Vec<Image>> {
         let url = self.portal_url(format!("mod/{}", name))?;
         let page = self.client.get(url.to_owned()).send()?;
         let html = page.text()?;
@@ -190,13 +191,13 @@ impl ApiClient {
         Ok(images)
     }
 
-    pub fn add_image<T: Into<String>>(&self, name: T) -> Result<ImageAddResponse> {
-        self.post("v2/mods/images/add", true, |r| {
-            r.multipart(Form::new().text("mod", name.into()))
-        })
-    }
-
-    pub fn upload_image(&self, url: Url, path: &Path) -> Result<ImageUploadResponse> {
+    pub fn upload_image<S: Into<String>, P: AsRef<Path>>(
+        &self,
+        name: S,
+        path: P,
+    ) -> Result<ImageUploadResponse> {
+        let init = self.add_image(name)?;
+        let url = init.upload_url;
         let form = Form::new().file("image", path).map_err(|e| {
             ApiError::new(
                 ApiErrorKind::ImageIo,
@@ -214,12 +215,14 @@ impl ApiClient {
         self.post("v2/mods/images/edit", true, |r| r.multipart(form))
     }
 
-    pub fn init_publish<T: Into<String>>(&self, name: T) -> Result<InitPublishResponse> {
-        let form = Form::new().text("mod", name.into());
-        self.post("v2/mods/init_publish", true, |r| r.multipart(form))
-    }
-
-    pub fn publish(&self, url: Url, data: PublishRequest, path: &Path) -> Result<PublishResponse> {
+    pub fn publish<S: Into<String>, P: AsRef<Path>>(
+        &self,
+        name: S,
+        data: PublishRequest,
+        path: P,
+    ) -> Result<PublishResponse> {
+        let init = self.init_publish(name)?;
+        let url = init.upload_url;
         let container: FormContainer<Form> = data.into();
         let mut form = container.into_inner();
         form = form.file("file", path).map_err(|e| {
@@ -236,6 +239,22 @@ impl ApiClient {
     /// Get information about the latest available releases of the game.
     pub fn latest_releases(&self) -> Result<LatestReleases> {
         self.get(self.game_url("latest-releases")?, false, |r| r)
+    }
+
+    fn init_upload<T: Into<String>>(&self, name: T) -> Result<InitUploadResponse> {
+        let form = Form::new().text("mod", name.into());
+        self.post("v2/mods/upload", true, |r| r.multipart(form))
+    }
+
+    fn add_image<T: Into<String>>(&self, name: T) -> Result<ImageAddResponse> {
+        self.post("v2/mods/images/add", true, |r| {
+            r.multipart(Form::new().text("mod", name.into()))
+        })
+    }
+
+    fn init_publish<T: Into<String>>(&self, name: T) -> Result<InitPublishResponse> {
+        let form = Form::new().text("mod", name.into());
+        self.post("v2/mods/init_publish", true, |r| r.multipart(form))
     }
 
     fn portal_url<T: AsRef<str>>(&self, path: T) -> Result<Url> {

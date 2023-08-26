@@ -70,15 +70,13 @@ impl ApiClient {
         .await
     }
 
-    pub async fn init_upload<T: Into<String>>(&self, name: T) -> Result<InitUploadResponse> {
-        let form = Form::new().text("mod", name.into());
-        self.post(self.portal_api_url("v2/mods/upload")?, true, |r| {
-            r.multipart(form)
-        })
-        .await
-    }
-
-    pub async fn upload(&self, url: Url, path: &Path) -> Result<UploadResponse> {
+    pub async fn upload<S: Into<String>, P: AsRef<Path>>(
+        &self,
+        name: S,
+        path: P,
+    ) -> Result<UploadResponse> {
+        let init = self.init_upload(name).await?;
+        let url = init.upload_url;
         let form = Form::new().file("file", path).map_err(|e| {
             ApiError::new(
                 ApiErrorKind::ImageIo,
@@ -100,7 +98,7 @@ impl ApiClient {
         .await
     }
 
-    pub async fn get_images(&self, name: &str) -> Result<Vec<Image>> {
+    pub async fn images(&self, name: &str) -> Result<Vec<Image>> {
         let url = self.portal_url(format!("mod/{}", name))?;
         let page = self.client.get(url.to_owned()).send().await?;
         let html = page.text().await?;
@@ -109,14 +107,13 @@ impl ApiClient {
         Ok(images)
     }
 
-    pub async fn add_image<T: Into<String>>(&self, name: T) -> Result<ImageAddResponse> {
-        self.post(self.portal_api_url("v2/mods/images/add")?, true, |r| {
-            r.multipart(Form::new().text("mod", name.into()))
-        })
-        .await
-    }
-
-    pub async fn upload_image(&self, url: Url, path: &Path) -> Result<ImageUploadResponse> {
+    pub async fn upload_image<S: Into<String>, P: AsRef<Path>>(
+        &self,
+        name: S,
+        path: P,
+    ) -> Result<ImageUploadResponse> {
+        let add = self.add_image(name).await?;
+        let url = add.upload_url;
         let form = Form::new().file("image", path).map_err(|e| {
             ApiError::new(
                 ApiErrorKind::ImageIo,
@@ -138,20 +135,14 @@ impl ApiClient {
         .await
     }
 
-    pub async fn init_publish<T: Into<String>>(&self, name: T) -> Result<InitPublishResponse> {
-        let form = Form::new().text("mod", name.into());
-        self.post(self.portal_api_url("v2/mods/init_publish")?, true, |r| {
-            r.multipart(form)
-        })
-        .await
-    }
-
-    pub async fn publish(
+    pub async fn publish<S: Into<String>, P: AsRef<Path>>(
         &self,
-        url: Url,
+        name: S,
         data: PublishRequest,
-        path: &Path,
+        path: P,
     ) -> Result<PublishResponse> {
+        let init = self.init_publish(name).await?;
+        let url = init.upload_url;
         let container: FormContainer<Form> = data.into();
         let mut form = container.into_inner();
         form = form.file("file", path).map_err(|e| {
@@ -170,6 +161,29 @@ impl ApiClient {
     pub async fn latest_releases(&self) -> Result<LatestReleases> {
         self.get(self.game_url("latest-releases")?, false, |r| r)
             .await
+    }
+
+    async fn init_upload<T: Into<String>>(&self, name: T) -> Result<InitUploadResponse> {
+        let form = Form::new().text("mod", name.into());
+        self.post(self.portal_api_url("v2/mods/upload")?, true, |r| {
+            r.multipart(form)
+        })
+        .await
+    }
+
+    async fn add_image<T: Into<String>>(&self, name: T) -> Result<ImageAddResponse> {
+        self.post(self.portal_api_url("v2/mods/images/add")?, true, |r| {
+            r.multipart(Form::new().text("mod", name.into()))
+        })
+        .await
+    }
+
+    async fn init_publish<T: Into<String>>(&self, name: T) -> Result<InitPublishResponse> {
+        let form = Form::new().text("mod", name.into());
+        self.post(self.portal_api_url("v2/mods/init_publish")?, true, |r| {
+            r.multipart(form)
+        })
+        .await
     }
 
     fn portal_api_url<T: AsRef<str>>(&self, path: T) -> Result<Url> {

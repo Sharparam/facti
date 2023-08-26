@@ -30,7 +30,7 @@ impl ImagesArgs {
 impl ListImagesArgs {
     pub fn run(&self, client: &ApiClient) -> Result<()> {
         info!("Fetching images for {}", self.name);
-        let images = client.get_images(&self.name)?;
+        let images = client.images(&self.name)?;
 
         for image in images {
             println!("{}: {}", image.id, image.url);

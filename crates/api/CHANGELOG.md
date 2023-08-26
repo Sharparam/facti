@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    Note that due to a lack of API for this feature, it has to scrape the HTML
    page for the mod.
 
+### Changed
+
+ - **BREAKING:** Updated the interface of the API clients to be more easy
+   and straightforward to use.
+
 ## [0.2.0] - 2023-08-20
 
 ### Added
