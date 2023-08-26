@@ -149,6 +149,7 @@ pub struct ModPackageInfo {
     ///
     /// Ignored if [`description_as_summary`][ModPackageInfo::description_as_summary]
     /// is set to `true`.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<String>,
 
     /// If `true`, will use the [`description`][ModInfo::description] field
@@ -156,7 +157,12 @@ pub struct ModPackageInfo {
     ///
     /// This also means that the [`summary`][ModPackageInfo::summary] field will
     /// be ignored if this is set to `true`.
+    #[serde(default, skip_serializing_if = "is_false")]
     pub description_as_summary: bool,
+}
+
+fn is_false(b: &bool) -> bool {
+    !(*b)
 }
 
 impl ModInfo {
