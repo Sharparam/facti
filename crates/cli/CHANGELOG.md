@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
  - New command to list images for a mod: `facti portal images list <NAME>`
+ - New aliases for the `show` subcommand to `portal`:
+    - `info`
+    - `view`
+    - `display`
+    - `details`
+ - New aliases for the `images` subcommand to `portal`:
+    - `image`
+    - `img`
 
 ## [0.2.3] - 2023-08-20
 

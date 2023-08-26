@@ -27,8 +27,16 @@ pub enum PortalCommands {
     Search(PortalSearchArgs),
 
     /// Show details about a specific mod.
+    #[command(
+        visible_alias = "info",
+        alias = "view",
+        alias = "display",
+        alias = "details"
+    )]
     Show(PortalShowArgs),
 
+    /// Interact with mod images.
+    #[command(alias = "img", alias = "image")]
     Images(ImagesArgs),
 }
 
