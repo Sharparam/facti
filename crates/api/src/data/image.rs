@@ -31,17 +31,6 @@ impl Image {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct ImageAddResponse {
-    pub upload_url: Url,
-}
-
-impl ImageAddResponse {
-    pub fn upload_url(&self) -> &Url {
-        &self.upload_url
-    }
-}
-
-#[derive(Debug, Deserialize)]
 pub struct ImageUploadResponse {
     pub id: String,
     pub url: Url,
@@ -67,6 +56,11 @@ impl<T: FormLike> From<ImageEditRequest> for FormContainer<T> {
 pub struct ImageEditResponse {
     pub success: bool,
     pub images: Vec<ImageUploadResponse>,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct ImageAddResponse {
+    pub upload_url: Url,
 }
 
 pub(crate) fn parse_html_images(html: &str) -> Vec<Image> {

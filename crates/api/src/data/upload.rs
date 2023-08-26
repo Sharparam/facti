@@ -2,11 +2,11 @@ use serde::Deserialize;
 use url::Url;
 
 #[derive(Debug, Deserialize)]
-pub struct InitUploadResponse {
-    pub upload_url: Url,
+pub struct UploadResponse {
+    pub success: bool,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct UploadResponse {
-    pub success: bool,
+pub(crate) struct InitUploadResponse {
+    pub upload_url: Url,
 }

@@ -5,11 +5,6 @@ use crate::reqwest::{FormContainer, FormLike};
 
 use super::detail::{Category, License};
 
-#[derive(Debug, Deserialize)]
-pub struct InitPublishResponse {
-    pub upload_url: Url,
-}
-
 #[derive(Debug)]
 pub struct PublishRequest {
     pub path: String,
@@ -79,4 +74,9 @@ impl<T: FormLike> From<PublishRequest> for FormContainer<T> {
 pub struct PublishResponse {
     pub success: bool,
     pub url: Url,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct InitPublishResponse {
+    pub upload_url: Url,
 }
