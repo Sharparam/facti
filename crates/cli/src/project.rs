@@ -22,6 +22,9 @@ pub struct Project {
     /// Can be the same as [`path`][Self::path].
     pub mod_path: PathBuf,
 
+    /// Path to the `info.json` file for the mod.
+    pub mod_info_path: PathBuf,
+
     /// Contains information about the mod.
     ///
     /// This data is read from the `info.json` file inside [`mod_path`][Self::mod_path].
@@ -34,7 +37,7 @@ impl Project {
         let (path, mod_path) = resolve_paths(path)?;
         let mod_info_path = mod_path.join("info.json");
         debug!("Loading mod info from {}", mod_info_path.display());
-        let mod_info_file = File::open(mod_info_path).context("Failed to open info.json file")?;
+        let mod_info_file = File::open(&mod_info_path).context("Failed to open info.json file")?;
         let mod_info_reader = BufReader::new(mod_info_file);
         let mod_info = serde_json::from_reader(mod_info_reader)
             .context("Failed to deserialize ModInfo from info.json")?;
@@ -42,8 +45,13 @@ impl Project {
         Ok(Self {
             path,
             mod_path,
+            mod_info_path,
             mod_info,
         })
+    }
+
+    pub fn dist_path(&self) -> PathBuf {
+        self.path.join("dist")
     }
 }
 
