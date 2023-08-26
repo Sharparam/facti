@@ -17,7 +17,7 @@ use crate::{
     },
     error::{ApiError, ApiErrorKind},
     reqwest::FormContainer,
-    FactorioUrls, DEFAULT_GAME_BASE_URL, DEFAULT_PORTAL_API_BASE_URL,
+    FactorioUrls,
 };
 
 use super::{error, reqwest::AsyncFormFile};
