@@ -1,13 +1,13 @@
 use std::{
     env,
     fs::{self, File},
-    io::{BufWriter, Write},
+    io::{BufWriter, Read, Write},
     path::PathBuf,
 };
 
 use anyhow::{Context, Result};
 use clap::{Args, ValueHint};
-use tracing::{debug, info};
+use tracing::{debug, error, info};
 use zip::ZipWriter;
 
 use crate::project::Project;
@@ -27,7 +27,12 @@ impl DistArgs {
             .path
             .to_owned()
             .unwrap_or(env::current_dir().context("Failed to get current directory")?);
-        let project = Project::load(&path)?;
+        let project = Project::load(&path).with_context(|| {
+            format!(
+                "Failed to load Factorio mod project from {}",
+                path.display()
+            )
+        })?;
 
         info!(
             "Loaded project ({} v{} by {}) at {}",
@@ -51,6 +56,7 @@ impl DistArgs {
         let dist_name = format!("{}_{}", project.mod_info.name, project.mod_info.version);
         let zip_name = format!("{}.zip", dist_name);
         let zip_path = dist_path.join(zip_name);
+        let zip_inner_prefix = PathBuf::from(&dist_name);
 
         info!("Target dist zip: {}", zip_path.display());
 
@@ -58,17 +64,48 @@ impl DistArgs {
         let writer = BufWriter::new(zip_file);
         let mut zip = ZipWriter::new(writer);
         let options = zip::write::FileOptions::default();
-        zip.add_directory(&dist_name, options)
-            .context("Failed to add dist_name inner dir to ZIP")?;
-        zip.start_file(format!("{}/info.json", dist_name), options)
-            .context("Failed to start adding info.json to ZIP")?;
 
-        let infojson_str = serde_json::to_string_pretty(&project.mod_info)
-            .context("Failed to serialize mod info")?;
-        let infojson_bytes = infojson_str.as_bytes();
-        info!("Writing info.json to ZIP package");
-        zip.write_all(infojson_bytes)
-            .context("Failed to write mod info to ZIP")?;
+        let mut overrides = ignore::overrides::OverrideBuilder::new(&project.mod_path);
+        overrides
+            .add("!/dist/")
+            .context("Failed to add dist dir to ignore overrides")?;
+        let overrides = overrides
+            .build()
+            .context("Failed to build ignore overrides")?;
+        let mut builder = ignore::WalkBuilder::new(&project.mod_path);
+        builder.overrides(overrides);
+        let walker = builder.build();
+        for entry in walker {
+            match entry {
+                Ok(path) if path.path().is_file() => {
+                    let rel_path = path
+                        .path()
+                        .strip_prefix(&project.mod_path)
+                        .context("Failed to strip mod path prefix")?;
+                    let zip_path = zip_inner_prefix.join(rel_path);
+                    let zip_path_str = zip_path
+                        .to_str()
+                        .context("Failed to convert zip path to str")?;
+                    info!(
+                        "Adding path {} to ZIP as {}",
+                        path.path().display(),
+                        zip_path.display()
+                    );
+                    zip.start_file(zip_path_str, options).with_context(|| {
+                        format!("Failed to start adding {} to ZIP", rel_path.display())
+                    })?;
+                    let mut file =
+                        File::open(path.path()).context("Failed to open file for reading")?;
+                    let mut buffer = Vec::new();
+                    file.read_to_end(&mut buffer)
+                        .context("Failed to read file contents")?;
+                    zip.write(&buffer)
+                        .context("Failed to write file contents to ZIP")?;
+                }
+                Ok(path) => debug!("Ignoring non-file: {}", path.path().display()),
+                Err(e) => error!("Glob error: {:?}", e),
+            }
+        }
 
         debug!("Finishing ZIP file");
         zip.finish().context("Failed to finish ZIP file")?;
