@@ -16,7 +16,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 [dependencies]
 pest = "2.7.2"
 pest_derive = "2.7.2"
-regex = "1.9.3"
+regex = "1.9.4"
 semver = "1.0.18"
 serde = { version = "1.0.185", features = ["derive"] }
 thiserror = "1.0.44"
