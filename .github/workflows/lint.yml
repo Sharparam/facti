@@ -25,6 +25,6 @@ jobs:
           components: rustfmt, clippy
       - name: Run cargo fmt
         run: cargo fmt --all --check --verbose
-      - uses: clechasseur/rs-clippy-check@v2
+      - uses: clechasseur/rs-clippy-check@v3
         with:
           args: --all-features -- -D warnings
