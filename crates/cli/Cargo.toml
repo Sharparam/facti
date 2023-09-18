@@ -34,7 +34,7 @@ facti-lib = { version = "0.2.1", path = "../lib" }
 git2 = { version = "0.18.0", default-features = false }
 human-panic = "1.1.5"
 ignore = "0.4.20"
-indoc = "2.0.3"
+indoc = "2.0.4"
 ron = { version = "0.8.1", optional = true }
 rpassword = "7.2.0"
 serde = "1.0.185"
