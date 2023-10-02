@@ -24,7 +24,7 @@ yaml = ["dep:serde_yaml"]
 
 [dependencies]
 anyhow = "1.0.75"
-clap = { version = "4.3.23", features = ["derive", "env"] }
+clap = { version = "4.4.6", features = ["derive", "env"] }
 clap_complete = "4.3.2"
 etcetera = "0.8.0"
 facti-api = { version = "0.2.0", path = "../api", default-features = false, features = [
