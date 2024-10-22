@@ -1,5 +1,8 @@
 /target
 
+# Ignore JetBrains/IDEA/IntelliJ/CLion/RustRover files
+.idea/
+
 # Ignore dir used for site staging files
 _site/
 
