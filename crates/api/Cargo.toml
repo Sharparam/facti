@@ -20,24 +20,24 @@ async = ["dep:async-trait", "dep:mime_guess"]
 blocking = ["reqwest/blocking"]
 
 [dependencies]
-async-trait = { version = "0.1.73", optional = true }
-chrono = { version = "0.4.26", default-features = false, features = [
+async-trait = { version = "0.1.83", optional = true }
+chrono = { version = "0.4.38", default-features = false, features = [
     "std",
     "serde"
 ] }
 facti-lib = { version = "0.2.1", path = "../lib" }
-mime_guess = { version = "2.0.4", optional = true }
-reqwest = { version = "0.11.19", default-features = false, features = [
+mime_guess = { version = "2.0.5", optional = true }
+reqwest = { version = "0.12.8", default-features = false, features = [
     "json",
     "multipart",
     "rustls-tls"
 ] }
-scraper = { version = "0.17.1", default-features = false, features = [
+scraper = { version = "0.20.0", default-features = false, features = [
     "errors"
 ] }
-serde = { version = "1.0.185", features = ["derive"] }
-serde_json = "1.0.105"
-strum = { version = "0.25.0", features = ["derive"] }
-thiserror = "1.0.44"
-tracing = "0.1.37"
-url = { version = "2.4.0", features = ["serde"] }
+serde = { version = "1.0.211", features = ["derive"] }
+serde_json = "1.0.132"
+strum = { version = "0.26.3", features = ["derive"] }
+thiserror = "1.0.64"
+tracing = "0.1.40"
+url = { version = "2.5.2", features = ["serde"] }

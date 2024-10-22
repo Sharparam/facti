@@ -63,7 +63,7 @@ impl DistArgs {
         let zip_file = File::create(&zip_path).context("Failed to create ZIP file for writing")?;
         let writer = BufWriter::new(zip_file);
         let mut zip = ZipWriter::new(writer);
-        let options = zip::write::FileOptions::default();
+        let options = zip::write::SimpleFileOptions::default();
 
         let mut overrides = ignore::overrides::OverrideBuilder::new(&project.mod_path);
         overrides
