@@ -78,12 +78,12 @@ jobs:
           cargo run --release --package facti -- completion fish > target/assets/completion/facti.fish
           cargo run --release --package facti -- completion powershell > target/assets/completion/_facti.ps1
       - name: Upload manpages artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: manpages
           path: target/assets/man
       - name: Upload completions artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: completions
           path: target/assets/completion
@@ -136,13 +136,13 @@ jobs:
       - name: Download manpages artifact
         if: matrix.build != 'win-msvc'
         id: manpages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: manpages
           path: taraget/assets/man
       - name: Download completions artifact
         id: completions
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: completions
           path: target/assets/completion
