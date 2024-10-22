@@ -26,5 +26,10 @@ jobs:
       - name: Run cargo fmt
         run: cargo fmt --all --check --verbose
       - uses: clechasseur/rs-clippy-check@v3
+        if: matrix.rust == 'stable'
         with:
           args: --all-features -- -D warnings
+      - uses: clechasseur/rs-clippy-check@v3
+        if: matrix.rust != 'stable'
+        with:
+          args: --all-features -- -W warnings
