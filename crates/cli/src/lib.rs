@@ -53,10 +53,7 @@ pub fn run() -> Result<LogState> {
         None => ConfigPath::Default,
     })?;
 
-    let level_filter = level_filter.unwrap_or_else(|| match config.log_level_filter {
-        Some(f) => f,
-        None => Default::default(),
-    });
+    let level_filter = level_filter.unwrap_or_else(|| config.log_level_filter.unwrap_or_default());
 
     log_guard.set_level_filter(level_filter)?;
 
