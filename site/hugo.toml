@@ -1,7 +1,6 @@
 baseURL = "https://facti.rs/"
 defaultContentLanguage = "en"
 languageCode = 'en-us'
-paginate = 100
 timeZone = "Europe/Stockholm"
 title = "Facti"
 #theme = "simplecss"
@@ -19,6 +18,9 @@ weight = 20
 # name = "GitHub"
 # url = "https://github.com/Sharparam/facti"
 # weight = 100
+
+[pagination]
+pagerSize = 100
 
 [module]
 [[module.imports]]
