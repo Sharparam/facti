@@ -35,11 +35,12 @@ impl DistArgs {
         })?;
 
         info!(
-            "Loaded project ({} v{} by {}) at {}",
+            "Loaded project ({} v{} by {}) at {} [{}]",
             project.mod_info.name,
             project.mod_info.version,
             project.mod_info.author,
-            project.path.display()
+            project.path.display(),
+            project.mod_info_path.display()
         );
         info!("Mod source files at {}", project.mod_path.display());
 
