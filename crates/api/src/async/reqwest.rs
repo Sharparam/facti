@@ -5,10 +5,10 @@ use thiserror::Error;
 
 use crate::reqwest::FormLike;
 
-/// Sets up wrapper methods to interact with [`reqwest::multipart::Form`]
+/// Sets up wrapper methods to interact with [`Form`]
 /// when contained in a [`crate::reqwest::FormContainer`].
 #[doc(hidden)]
-impl FormLike for reqwest::multipart::Form {
+impl FormLike for Form {
     fn new() -> Self {
         Self::new()
     }
@@ -36,14 +36,14 @@ pub(crate) enum AsyncFormFileError {
 
 #[doc(hidden)]
 pub(crate) trait AsyncFormFile {
-    fn file<T, U>(self, name: T, path: U) -> core::result::Result<Form, AsyncFormFileError>
+    fn file<T, U>(self, name: T, path: U) -> Result<Form, AsyncFormFileError>
     where
         T: Into<Cow<'static, str>>,
         U: AsRef<Path>;
 }
 
 impl AsyncFormFile for Form {
-    fn file<T, U>(self, name: T, path: U) -> core::result::Result<Form, AsyncFormFileError>
+    fn file<T, U>(self, name: T, path: U) -> Result<Form, AsyncFormFileError>
     where
         T: Into<Cow<'static, str>>,
         U: AsRef<Path>,

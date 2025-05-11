@@ -13,10 +13,7 @@ impl From<reqwest::blocking::Response> for ApiError {
             message: String,
         }
 
-        let source = match response.error_for_status_ref() {
-            Ok(_) => None,
-            Err(e) => Some(e),
-        };
+        let source = response.error_for_status_ref().err();
 
         if let Ok(error_response) = response.json::<ApiErrorResponse>() {
             Self::new(

@@ -19,7 +19,7 @@ impl<'de> Deserialize<'de> for Version {
     {
         struct VersionVisitor;
 
-        impl<'de> Visitor<'de> for VersionVisitor {
+        impl Visitor<'_> for VersionVisitor {
             type Value = Version;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -60,18 +60,11 @@ impl<'de> Deserialize<'de> for FactorioVersion {
     {
         struct FactorioVersionVisitor;
 
-        impl<'de> Visitor<'de> for FactorioVersionVisitor {
+        impl Visitor<'_> for FactorioVersionVisitor {
             type Value = FactorioVersion;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
                 formatter.write_str("a valid Factorio version string ('major.minor')")
-            }
-
-            fn visit_none<E>(self) -> Result<Self::Value, E>
-            where
-                E: serde::de::Error,
-            {
-                Ok(FactorioVersion::default())
             }
 
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
@@ -80,6 +73,13 @@ impl<'de> Deserialize<'de> for FactorioVersion {
             {
                 FactorioVersion::parse(v)
                     .map_err(|_| serde::de::Error::custom("invalid Factorio version"))
+            }
+
+            fn visit_none<E>(self) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                Ok(FactorioVersion::default())
             }
         }
 
@@ -103,7 +103,7 @@ impl<'de> Deserialize<'de> for Dependency {
     {
         struct DependencyVisitor;
 
-        impl<'de> Visitor<'de> for DependencyVisitor {
+        impl Visitor<'_> for DependencyVisitor {
             type Value = Dependency;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {

@@ -11,10 +11,7 @@ struct ApiErrorResponse {
 /// Convenience function to convert [`reqwest::Response`] to a nice
 /// and properly set up [`ApiError`].
 pub(crate) async fn from_response(response: reqwest::Response) -> ApiError {
-    let source = match response.error_for_status_ref() {
-        Ok(_) => None,
-        Err(e) => Some(e),
-    };
+    let source = response.error_for_status_ref().err();
 
     if let Ok(error_response) = response.json::<ApiErrorResponse>().await {
         ApiError::new(
