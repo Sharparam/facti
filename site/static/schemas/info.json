@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://facti.rs/schemas/info.json",
+  "title": "Factorio mod info.json",
+  "description": "Specifies details about a Factorio mod",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Internal name of the mod",
+      "pattern": "[a-zA-Z0-9_-]+",
+      "maxLength": 49,
+      "minLength": 4
+    },
+    "version": {
+      "type": "string",
+      "title": "Version of the mod",
+      "description": "Defines the version of the mod in the format `\"number.number.number\"` for `\"Major.Middle.Minor\"`, for example `\"0.6.4\"`. Each number can range from 0 to 65535.",
+      "pattern": "(\\d+\\.){2}\\d+"
+    },
+    "title": {
+      "type": "string",
+      "title": "Display name of the mod",
+      "description": "Can be overwritten by locale entry in the `mod-name` category, using the internal mod name as the key.",
+      "maxLength": 100
+    },
+    "author": {
+      "type": "string",
+      "title": "Author of the mod"
+    },
+    "contact": {
+      "type": "string",
+      "title": "Contact for this mod"
+    },
+    "homepage": {
+      "type": "string",
+      "title": "Homepage for the mod",
+      "description": "Please don't put \"None\" here, just leave it empty if none",
+      "pattern": "^($|https://)"
+    },
+    "description": {
+      "type": "string",
+      "title": "A short description of the mod to show in-game",
+      "description": "Can be overwritten by locale entry in the `mod-description` category, using the internal mod name as the key.",
+      "maxLength": 500
+    },
+    "factorio_version": {
+      "type": "string",
+      "title": "The Factorio major version this mod supports",
+      "pattern": "\\d+\\.\\d+",
+      "default": "0.12"
+    },
+    "dependencies": {
+      "type": "array",
+      "title": "Mods this mod depends on or are incompatible with",
+      "items": {
+        "type": "string",
+        "pattern": "^(! *[a-zA-Z0-9_-]+|(([?~]|\\(\\?\\)) *)?[a-zA-Z0-9_-]+( *([<>]=?|=) *(\\d+\\.){2}\\d+)?)$",
+        "default": ["base"],
+        "defaultSnippets": [
+          {
+            "label": "simple",
+            "body": "${1:modname}"
+          },
+          {
+            "label": "version",
+            "body": "${1:modname} ${2|<,<=,>,>=,=|} ${3:0.0.0}"
+          },
+          {
+            "label": "incompatible",
+            "body": "! ${1:modname}"
+          },
+          {
+            "label": "optional",
+            "body": "? ${1:modname}"
+          },
+          {
+            "label": "hidden",
+            "body": "(?) ${1:modname}"
+          },
+          {
+            "label": "unordered",
+            "body": "~ ${1:modname}"
+          },
+          {
+            "label": "full",
+            "body": "${1| ,~,?,(?)|} ${2:modname} ${3|<,<=,>,>=,=|} ${4:0.0.0}"
+          }
+        ]
+      }
+    },
+    "auto-enable": {
+      "type": "boolean",
+      "default": true
+    },
+    "rail_bridges_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "quality_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "space_travel_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "spoiling_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "freezing_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "segmented_units_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "expansion_shaders_required": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": ["name", "version", "title", "author"]
+}
