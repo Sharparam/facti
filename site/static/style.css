@@ -23,3 +23,7 @@ img.creative-commons {
   margin-left: 3px;
   vertical-align: text-bottom;
 }
+
+.externals svg {
+  vertical-align: middle;
+}
