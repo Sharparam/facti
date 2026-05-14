@@ -136,7 +136,8 @@ impl ChangelogConvertArgs {
             }
             #[cfg(feature = "ron")]
             ChangelogFormat::Ron => {
-                ron::ser::to_writer_pretty(writer, &changelog, Default::default())?;
+                let ron = ron::Options::default();
+                ron.to_io_writer_pretty(writer, &changelog, Default::default())?;
             }
             #[cfg(feature = "sexpr")]
             ChangelogFormat::Sexpr => {
