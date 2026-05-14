@@ -13,8 +13,8 @@ release = false
 pre-release-replacements = []
 
 [dependencies]
-anyhow = "1.0.75"
-clap = { version = "4.3.23", features = ["derive", "env", "string"] }
-clap_mangen = "0.2.12"
+anyhow = "1.0.102"
+clap = { version = "4.6.1", features = ["derive", "env", "string"] }
+clap_mangen = "0.3.0"
 facti = { version = "0.2.3", path = "../cli" }
-xshell = "0.2.5"
+xshell = "0.2.7"

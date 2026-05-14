@@ -14,14 +14,14 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [dependencies]
-pest = "2.7.14"
-pest_derive = "2.7.14"
-regex = "1.11.0"
-semver = "1.0.23"
-serde = { version = "1.0.211", features = ["derive"] }
-thiserror = "1.0.64"
-tracing = "0.1.40"
-url = { version = "2.5.2", features = ["serde"] }
+pest = "2.8.6"
+pest_derive = "2.8.6"
+regex = "1.12.3"
+semver = "1.0.28"
+serde = { version = "1.0.228", features = ["derive"] }
+thiserror = "2.0.18"
+tracing = "0.1.44"
+url = { version = "2.5.8", features = ["serde"] }
 
 [dev-dependencies]
-serde_json = "1.0.132"
+serde_json = "1.0.149"

@@ -19,5 +19,23 @@
     "editor.formatOnPaste": true,
     "editor.formatOnSave": true,
     "editor.formatOnSaveMode": "file"
-  }
+  },
+  "factorio.versions": [
+    {
+      "name": "Stable",
+      "factorioPath": "/home/sharparam/games/factorio/latest/bin/x64/factorio"
+    },
+    {
+      "name": "Space Age (Stable)",
+      "factorioPath": "/home/sharparam/games/factorio/sa_latest/bin/x64/factorio"
+    },
+    {
+      "name": "Spage Age (Experimental)",
+      "factorioPath": "/home/sharparam/games/factorio/sa_experimental/bin/x64/factorio"
+    }
+  ],
+  "Lua.workspace.userThirdParty": [
+    "/home/sharparam/.config/Code/User/workspaceStorage/a5848cc33fa95836ae0dd1ee800b11e2/justarandomgeek.factoriomod-debug/sumneko-3rd"
+  ],
+  "Lua.workspace.checkThirdParty": "ApplyInMemory"
 }

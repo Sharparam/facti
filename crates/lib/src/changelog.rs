@@ -75,7 +75,7 @@ impl Changelog {
 
     /// Sorts the [`sections`][Changelog::sections] by version.
     pub fn sort(&mut self) {
-        self.sections.sort_by(|a, b| b.version.cmp(&a.version));
+        self.sections.sort_by_key(|s| s.version);
     }
 
     /// Converts the [`Changelog`] to a string, with sorted sections according
@@ -156,7 +156,7 @@ impl FromStr for Changelog {
             }
         }
 
-        result.sections.sort_by(|a, b| b.version.cmp(&a.version));
+        result.sections.sort_by_key(|s| s.version);
 
         Ok(result)
     }

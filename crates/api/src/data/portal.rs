@@ -91,7 +91,7 @@ impl Display for SearchResult {
             None => match &self.releases {
                 Some(releases) if !releases.is_empty() => {
                     let mut clone = releases.to_vec();
-                    clone.sort_by(|a, b| b.version.cmp(&a.version));
+                    clone.sort_by_key(|r| r.version);
                     Some(clone[0].version)
                 }
                 _ => None,

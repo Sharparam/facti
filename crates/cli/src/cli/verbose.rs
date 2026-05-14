@@ -127,6 +127,7 @@ pub trait LogLevel {
     }
 }
 
+#[allow(unused)]
 #[derive(Default, Copy, Clone, Debug)]
 pub struct ErrorLevel;
 
@@ -136,6 +137,7 @@ impl LogLevel for ErrorLevel {
     }
 }
 
+#[allow(unused)]
 #[derive(Default, Copy, Clone, Debug)]
 pub struct WarnLevel;
 
@@ -145,6 +147,7 @@ impl LogLevel for WarnLevel {
     }
 }
 
+#[allow(unused)]
 #[derive(Default, Copy, Clone, Debug)]
 pub struct InfoLevel;
 
@@ -154,6 +157,7 @@ impl LogLevel for InfoLevel {
     }
 }
 
+#[allow(unused)]
 #[derive(Default, Copy, Clone, Debug)]
 pub struct DebugLevel;
 
@@ -196,6 +200,7 @@ impl LogLevel for DebugLevel {
     }
 }
 
+#[allow(unused)]
 #[derive(Default, Copy, Clone, Debug)]
 pub struct TraceLevel;
 
