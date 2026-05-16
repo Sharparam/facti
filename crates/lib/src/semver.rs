@@ -1,6 +1,6 @@
 use crate::{
-    error::{ParseOpError, ParseVersionReqError, ParseVersionSpecError},
     FactorioVersion,
+    error::{ParseOpError, ParseVersionReqError, ParseVersionSpecError},
 };
 
 use super::version::{Op, Version, VersionReq, VersionSpec};

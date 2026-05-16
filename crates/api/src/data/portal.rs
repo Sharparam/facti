@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-use facti_lib::{dependency::Dependency, version::Version, FactorioVersion};
+use facti_lib::{FactorioVersion, dependency::Dependency, version::Version};
 
 use super::{
     detail::{self, Category, Tag},

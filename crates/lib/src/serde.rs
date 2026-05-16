@@ -1,6 +1,6 @@
-use serde::{de::Visitor, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::Visitor};
 
-use super::{dependency::Dependency, version::Version, FactorioVersion};
+use super::{FactorioVersion, dependency::Dependency, version::Version};
 
 impl Serialize for Version {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

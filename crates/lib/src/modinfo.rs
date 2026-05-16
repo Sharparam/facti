@@ -6,7 +6,7 @@ use std::{
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-use super::{dependency::Dependency, version::Version, FactorioVersion};
+use super::{FactorioVersion, dependency::Dependency, version::Version};
 
 /// The info.json file identifies the mod and defines its version.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

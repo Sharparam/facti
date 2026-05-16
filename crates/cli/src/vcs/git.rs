@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use super::Vcs;
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use git2::Repository;
 use tracing::{debug, info};
 

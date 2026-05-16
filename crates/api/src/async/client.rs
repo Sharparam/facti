@@ -1,10 +1,11 @@
 use std::path::Path;
 
-use reqwest::{header, multipart::Form, RequestBuilder};
+use reqwest::{RequestBuilder, header, multipart::Form};
 use serde::de::DeserializeOwned;
 use url::Url;
 
 use crate::{
+    FactorioUrls,
     data::{
         detail::{ModDetailsRequest, ModDetailsResponse},
         game::LatestReleases,
@@ -17,7 +18,6 @@ use crate::{
     },
     error::{ApiError, ApiErrorKind},
     reqwest::FormContainer,
-    FactorioUrls,
 };
 
 use super::{error, reqwest::AsyncFormFile};

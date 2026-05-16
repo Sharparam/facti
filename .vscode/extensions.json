@@ -1,6 +1,6 @@
 {
-    "recommendations": [
-        "rust-lang.rust-analyzer",
-        "pest.pest-ide-tools"
-    ]
+  "recommendations": [
+    "rust-lang.rust-analyzer",
+    "pest.pest-ide-tools"
+  ]
 }

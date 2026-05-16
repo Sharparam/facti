@@ -9,13 +9,19 @@
       "request": "launch",
       "name": "Debug executable 'facti'",
       "cargo": {
-        "args": ["build", "--bin=facti", "--package=facti"],
+        "args": [
+          "build",
+          "--bin=facti",
+          "--package=facti"
+        ],
         "filter": {
           "name": "facti",
           "kind": "bin"
         }
       },
-      "args": ["${input:factArgs}"],
+      "args": [
+        "${input:factArgs}"
+      ],
       "cwd": "${workspaceFolder}"
     },
     {
@@ -23,7 +29,12 @@
       "request": "launch",
       "name": "Debug unit tests in executable 'facti'",
       "cargo": {
-        "args": ["test", "--no-run", "--bin=facti", "--package=facti"],
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=facti",
+          "--package=facti"
+        ],
         "filter": {
           "name": "facti",
           "kind": "bin"
@@ -37,7 +48,12 @@
       "request": "launch",
       "name": "Debug unit tests in library 'facti'",
       "cargo": {
-        "args": ["test", "--no-run", "--lib", "--package=facti"],
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=facti"
+        ],
         "filter": {
           "name": "facti",
           "kind": "lib"
@@ -51,7 +67,12 @@
       "request": "launch",
       "name": "Debug unit tests in library 'facti-api'",
       "cargo": {
-        "args": ["test", "--no-run", "--lib", "--package=facti-api"],
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=facti-api"
+        ],
         "filter": {
           "name": "facti-api",
           "kind": "lib"
@@ -65,7 +86,12 @@
       "request": "launch",
       "name": "Debug unit tests in library 'facti-lib'",
       "cargo": {
-        "args": ["test", "--no-run", "--lib", "--package=facti-lib"],
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=facti-lib"
+        ],
         "filter": {
           "name": "facti-lib",
           "kind": "lib"
@@ -73,7 +99,7 @@
       },
       "args": [],
       "cwd": "${workspaceFolder}"
-    },
+    }
   ],
   "inputs": [
     {

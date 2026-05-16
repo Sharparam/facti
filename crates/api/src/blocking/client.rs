@@ -1,13 +1,14 @@
 use std::path::Path;
 
 use reqwest::{
-    blocking::{multipart::Form, RequestBuilder},
+    blocking::{RequestBuilder, multipart::Form},
     header,
 };
 use serde::de::DeserializeOwned;
 use url::Url;
 
 use crate::{
+    FactorioUrls,
     data::{
         detail::{ModDetailsRequest, ModDetailsResponse},
         game::LatestReleases,
@@ -20,7 +21,6 @@ use crate::{
     },
     error::{ApiError, ApiErrorKind},
     reqwest::FormContainer,
-    FactorioUrls,
 };
 
 /// A blocking [`ApiClient`] to make requests to the Factorio APIs with.

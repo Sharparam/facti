@@ -8,7 +8,7 @@ use anyhow::{Context, Result};
 use clap::{Args, CommandFactory, Parser, Subcommand};
 
 use facti::__xtask::Cli;
-use xshell::{cmd, Shell};
+use xshell::{Shell, cmd};
 
 fn main() -> Result<()> {
     cwd_to_workspace_root()?;

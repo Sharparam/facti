@@ -4,9 +4,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use clap::Args;
-use facti_lib::{version::Version, FactorioVersion, ModInfo};
+use facti_lib::{FactorioVersion, ModInfo, version::Version};
 use tracing::{debug, info, warn};
 use url::Url;
 
