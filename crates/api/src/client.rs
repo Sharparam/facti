@@ -29,7 +29,7 @@ macro_rules! api_client_builder {
 
             /// Configures the base URL for the mod portal (non-API resources).
             ///
-            /// If not configured, it will default to [`DEFAULT_PORTAL_BASE_URL`].
+            /// If not configured, it will default to [`crate::DEFAULT_PORTAL_BASE_URL`].
             pub fn portal_base_url<T: Into<Url>>(&mut self, base_url: T) -> &mut Self {
                 self.portal_base_url = Some(base_url.into());
                 self
@@ -37,7 +37,7 @@ macro_rules! api_client_builder {
 
             /// Configures the base URL for the mod portal API.
             ///
-            /// If not configured, it will default to [`DEFAULT_PORTAL_API_BASE_URL`].
+            /// If not configured, it will default to [`crate::DEFAULT_PORTAL_API_BASE_URL`].
             pub fn portal_api_base_url<T: Into<Url>>(&mut self, base_url: T) -> &mut Self {
                 self.portal_api_base_url = Some(base_url.into());
                 self
@@ -45,7 +45,7 @@ macro_rules! api_client_builder {
 
             /// Configures the base URL for the game API.
             ///
-            /// If not configured, it will default to [`DEFAULT_GAME_BASE_URL`].
+            /// If not configured, it will default to [`crate::DEFAULT_GAME_BASE_URL`].
             pub fn game_base_url<T: Into<Url>>(&mut self, base_url: T) -> &mut Self {
                 self.game_base_url = Some(base_url.into());
                 self

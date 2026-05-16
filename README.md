@@ -43,6 +43,14 @@ Which will download, compile, and install Facti from [crates.io][cratesio].
 [cargo-binstall]: https://github.com/cargo-bins/cargo-binstall
 [cargo-install]: https://doc.rust-lang.org/cargo/commands/cargo-install.html
 
+### Nix
+
+If you have flakes support enabled, you can run facti directly:
+
+```sh
+nix run github:Sharparam/facti
+```
+
 <!--
 ### Arch Linux
 
@@ -168,6 +176,30 @@ facti completion powershell
 [fish]: https://fishshell.com
 [elvish]: https://elv.sh
 [powershell]: https://docs.microsoft.com/en-us/powershell
+
+### Nix
+
+You can build facti using Nix:
+
+```sh
+nix build
+```
+
+The built binary will be at `./result/bin/facti`.
+
+And run the checks (which includes Rust tests):
+
+```sh
+nix flake check
+```
+
+There is also a dev shell that includes everything needed to work on facti:
+
+```sh
+nix develop
+```
+
+If you have direnv installed, this will activate automatically (if the `.envrc` file is trusted).
 
 ## Usage
 

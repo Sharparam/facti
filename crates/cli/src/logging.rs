@@ -1,15 +1,15 @@
 use std::{fmt::Display, io, str::FromStr};
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
-use tracing::{metadata::LevelFilter, Level};
+use tracing::{Level, metadata::LevelFilter};
 use tracing_appender::non_blocking::WorkerGuard;
-use tracing_subscriber::{fmt::format::FmtSpan, prelude::*, reload, Layer, Registry};
+use tracing_subscriber::{Layer, Registry, fmt::format::FmtSpan, prelude::*, reload};
 
 use crate::dirs;
 
-#[derive(Default, Copy, Clone, Debug, Serialize, Deserialize, ValueEnum)]
+#[derive(Default, Copy, Clone, Debug, PartialEq, Serialize, Deserialize, ValueEnum)]
 pub enum LogLevelFilter {
     Off,
 

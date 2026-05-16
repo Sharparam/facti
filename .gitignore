@@ -11,3 +11,9 @@ _site/
 site/static/doc/*
 !site/static/doc/index.html
 site/static/man/
+
+# Nix
+/result*
+
+# direnv
+.direnv

@@ -74,7 +74,7 @@ pub struct SearchResult {
     pub description: Option<String>,
     pub source_url: Option<Url>,
 
-    #[deprecated(note = "Use [`source_url`] instead")]
+    #[deprecated(note = "Use [`Self::source_url`] instead")]
     pub github_path: Option<String>,
 
     pub homepage: Option<String>,

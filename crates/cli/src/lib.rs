@@ -41,21 +41,29 @@ pub mod __xtask {
 /// Not meant to be called by anything other than the `facti` binary.
 /// It needs to be exposed in order for the `facti` crate to be able to be used
 /// in the `xtask` crate to generate manpages.
-pub fn run() -> Result<LogState> {
+pub fn run() -> Result<Option<LogState>> {
     let cli = Cli::try_parse()?;
 
     let level_filter = cli.log_level_filter();
 
-    let log_guard = logging::init(level_filter.unwrap_or_default())?;
+    let log_guard = if let Some(lf) = level_filter
+        && lf == logging::LogLevelFilter::Off
+    {
+        None
+    } else {
+        Some(logging::init(level_filter.unwrap_or_default())?)
+    };
 
     let config = Config::load(match &cli.config {
         Some(path) => ConfigPath::Custom(path.to_path_buf()),
         None => ConfigPath::Default,
     })?;
 
-    let level_filter = level_filter.unwrap_or_else(|| config.log_level_filter.unwrap_or_default());
-
-    log_guard.set_level_filter(level_filter)?;
+    if let Some(log_guard) = &log_guard {
+        let level_filter =
+            level_filter.unwrap_or_else(|| config.log_level_filter.unwrap_or_default());
+        log_guard.set_level_filter(level_filter)?;
+    }
 
     let portal_base_url = if let Some(url) = &cli.portal_base_url {
         Some(url.to_owned())

@@ -38,20 +38,13 @@ use crate::{
 /// - [`info_short`][ApiClient::info_short]
 /// - [`info_full`][ApiClient::info_full]
 ///
-/// Technically, you can also use [`upload`][ApiClient::upload],
-/// [`upload_image`][ApiClient::upload_image], and [`publish`][ApiClient::publish]
-/// without an API key, as they instead rely on unique URLs,
-/// but the only way to obtain these URLs is by calling [`init_upload`][ApiClient::init_upload],
-/// [`add_image`][ApiClient::add_image], or [`init_publish`][ApiClient::init_publish], respectively,
-/// which *do* require an API key.
+/// Conversely, the public methods that require an API key to use are:
 ///
-/// Conversely, the methods that require an API key to use are:
-///
-/// - [`init_upload`][ApiClient::init_upload]
+/// - [`upload`][ApiClient::upload]
+/// - [`upload_image`][ApiClient::upload_image]
 /// - [`edit_details`][ApiClient::edit_details]
-/// - [`add_image`][ApiClient::add_image]
 /// - [`edit_images`][ApiClient::edit_images]
-/// - [`init_publish`][ApiClient::init_publish]
+/// - [`publish`][ApiClient::publish]
 ///
 /// To construct a minimal client with an API key, simply pass it as a string
 /// to the constructor:
@@ -75,8 +68,8 @@ use crate::{
 /// not set will get their default values.
 ///
 /// Default URLs for the Factorio APIs can be obtained from constants:
-/// - [`DEFAULT_PORTAL_BASE_URL`] for the mod portal API base URL.
-/// - [`DEFAULT_GAME_BASE_URL`] for the game API base URL.
+/// - [`crate::DEFAULT_PORTAL_BASE_URL`] for the mod portal API base URL.
+/// - [`crate::DEFAULT_GAME_BASE_URL`] for the game API base URL.
 pub struct ApiClient {
     client: reqwest::blocking::Client,
     urls: FactorioUrls,

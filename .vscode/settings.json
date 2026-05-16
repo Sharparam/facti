@@ -10,6 +10,11 @@
   "rust-analyzer.check.command": "clippy",
   "rust-analyzer.checkOnSave": true,
   "rust-analyzer.showUnlinkedFileNotification": false,
+  "[nix]": {
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file"
+  },
   "[rust]": {
     "editor.formatOnPaste": true,
     "editor.formatOnSave": true,
