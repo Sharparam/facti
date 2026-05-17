@@ -9,6 +9,7 @@ repository.workspace = true
 license.workspace = true
 keywords.workspace = true
 categories = ["command-line-utilities", "development-tools"]
+default-run = "facti"
 
 [package.metadata.docs.rs]
 all-features = true
